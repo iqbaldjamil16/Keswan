@@ -93,7 +93,7 @@ export function ServiceForm() {
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
         <Card>
-          <CardContent className="p-6">
+          <CardContent className="p-4 md:p-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-6">
                 <FormField
@@ -122,7 +122,7 @@ export function ServiceForm() {
                     </FormItem>
                   )}
                 />
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <FormField
                     control={form.control}
                     name="livestockType"
@@ -371,7 +371,7 @@ export function ServiceForm() {
                                 type="button"
                                 variant="ghost"
                                 size="icon"
-                                className="absolute -top-3 -right-3 h-6 w-6"
+                                className="absolute -top-3 -right-3 h-6 w-6 bg-background"
                                 onClick={() => remove(index)}
                             >
                                 <Trash2 className="h-4 w-4 text-destructive" />
@@ -384,7 +384,7 @@ export function ServiceForm() {
               </div>
             </div>
           </CardContent>
-          <CardFooter className="flex justify-end p-6">
+          <CardFooter className="flex justify-end p-4 md:p-6">
             <Button type="submit" disabled={isPending}>
               {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Simpan Data
