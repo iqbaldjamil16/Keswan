@@ -2,7 +2,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { notFound } from 'next/navigation';
+import { notFound, useParams } from 'next/navigation';
 import { ServiceForm } from '@/components/service-form';
 import { getServiceById } from '@/lib/data';
 import type { HealthcareService } from '@/lib/types';
@@ -24,13 +24,15 @@ function EditSkeleton() {
     );
   }
 
-export default function EditServicePage({ params }: { params: { id: string } }) {
-  const { id } = params;
+export default function EditServicePage() {
+  const params = useParams();
+  const id = Array.isArray(params.id) ? params.id[0] : params.id;
   const [service, setService] = useState<HealthcareService | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchService() {
+      if (!id) return;
       try {
         setLoading(true);
         const fetchedService = await getServiceById(id);
