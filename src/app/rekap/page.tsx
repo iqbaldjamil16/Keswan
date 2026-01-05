@@ -39,6 +39,7 @@ import * as XLSX from 'xlsx';
 import { cn } from "@/lib/utils";
 import { collection, query, where, getDocs, orderBy, Timestamp } from 'firebase/firestore';
 import { useFirebase } from "@/firebase";
+import { PasswordDialog } from "@/components/password-dialog";
 
 interface RecapData {
     [puskeswan: string]: {
@@ -346,10 +347,17 @@ export default function RekapPage() {
                 </Card>
             )}
              <div className="flex justify-start md:justify-end mt-8">
-                <Button onClick={handleDownload} disabled={loading || puskeswanList.length === 0 || isPending}>
-                    <Download className="mr-2 h-4 w-4" />
-                    Unduh Rekap
-                </Button>
+                <PasswordDialog
+                    title="Akses Terbatas"
+                    description="Silakan masukkan kata sandi untuk mengunduh rekap."
+                    onSuccess={handleDownload}
+                    trigger={
+                        <Button disabled={loading || puskeswanList.length === 0 || isPending}>
+                            <Download className="mr-2 h-4 w-4" />
+                            Unduh Rekap
+                        </Button>
+                    }
+                />
             </div>
         </div>
       </div>

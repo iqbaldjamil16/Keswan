@@ -50,12 +50,12 @@ import {
     AlertDialogFooter,
     AlertDialogHeader,
     AlertDialogTitle,
-    AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "./ui/skeleton";
 import { cn } from "@/lib/utils";
 import { useFirebase } from "@/firebase";
+import { PasswordDialog } from "./password-dialog";
 
   
   interface ServiceTableProps {}
@@ -187,31 +187,26 @@ function ServiceCard({ service, onDelete }: { service: HealthcareService, onDele
                         </div>
                     </CardContent>
                     <CardFooter className="p-4 pt-0 flex justify-end gap-2">
-                         <Button asChild variant="ghost" size="icon" className="h-8 w-8">
-                            <Link href={`/laporan/${service.id}/edit`}><Pencil className="h-4 w-4" /></Link>
-                        </Button>
-                        <AlertDialog>
-                            <AlertDialogTrigger asChild>
+                        <PasswordDialog
+                            title="Akses Terbatas"
+                            description="Silakan masukkan kata sandi untuk mengedit data."
+                            onSuccess={() => router.push(`/laporan/${service.id}/edit`)}
+                            trigger={
+                                <Button variant="ghost" size="icon" className="h-8 w-8">
+                                    <Pencil className="h-4 w-4" />
+                                </Button>
+                            }
+                        />
+                         <PasswordDialog
+                            title="Konfirmasi Hapus"
+                            description="Tindakan ini memerlukan verifikasi. Masukkan kata sandi untuk melanjutkan."
+                            onSuccess={handleDelete}
+                            trigger={
                                 <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive h-8 w-8" disabled={isDeleting}>
                                      {isDeleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
                                 </Button>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent>
-                                <AlertDialogHeader>
-                                    <AlertDialogTitle>Anda yakin?</AlertDialogTitle>
-                                    <AlertDialogDescription>
-                                        Tindakan ini tidak bisa dibatalkan. Data pelayanan akan dihapus secara permanen.
-                                    </AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <AlertDialogFooter>
-                                    <AlertDialogCancel>Batal</AlertDialogCancel>
-                                    <AlertDialogAction onClick={handleDelete} disabled={isDeleting}>
-                                        {isDeleting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                                        Ya, Hapus
-                                    </AlertDialogAction>
-                                </AlertDialogFooter>
-                            </AlertDialogContent>
-                        </AlertDialog>
+                            }
+                        />
                     </CardFooter>
                 </CollapsibleContent>
             </Card>
@@ -241,32 +236,28 @@ function ActionsCell({ service, onDelete }: { service: HealthcareService, onDele
     };
 
     return (
-        <div className="flex items-center gap-2">
-            <Button asChild variant="ghost" size="icon">
-                <Link href={`/laporan/${service.id}/edit`}><Pencil className="h-4 w-4" /></Link>
-            </Button>
-            <AlertDialog>
-                <AlertDialogTrigger asChild>
-                    <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive" disabled={isDeleting}>
-                         {isDeleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+        <div className="flex items-center justify-center gap-2">
+            <PasswordDialog
+                title="Akses Terbatas"
+                description="Silakan masukkan kata sandi untuk mengedit data."
+                onSuccess={() => router.push(`/laporan/${service.id}/edit`)}
+                trigger={
+                    <Button asChild variant="ghost" size="icon">
+                        {/* The actual button is rendered inside, so we use a span here as a placeholder for the trigger area */}
+                        <span><Pencil className="h-4 w-4" /></span>
                     </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                    <AlertDialogHeader>
-                        <AlertDialogTitle>Anda yakin?</AlertDialogTitle>
-                        <AlertDialogDescription>
-                            Tindakan ini tidak bisa dibatalkan. Data pelayanan akan dihapus secara permanen.
-                        </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                        <AlertDialogCancel>Batal</AlertDialogCancel>
-                        <AlertDialogAction onClick={handleDelete} disabled={isDeleting}>
-                            {isDeleting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                            Ya, Hapus
-                        </AlertDialogAction>
-                    </AlertDialogFooter>
-                </AlertDialogContent>
-            </AlertDialog>
+                }
+            />
+            <PasswordDialog
+                title="Konfirmasi Hapus"
+                description="Tindakan ini memerlukan verifikasi. Masukkan kata sandi untuk melanjutkan."
+                onSuccess={handleDelete}
+                trigger={
+                    <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive" disabled={isDeleting}>
+                        {isDeleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+                    </Button>
+                }
+            />
         </div>
     );
 }
@@ -355,9 +346,18 @@ export function ServiceTable({}: ServiceTableProps) {
         return services.filter((service) => {
             if (!searchTerm) return true;
             const ownerName = service.ownerName.toLowerCase();
+            const officerName = service.officerName.toLowerCase();
+            const puskeswan = service.puskeswan.toLowerCase();
+            const diagnosis = service.diagnosis.toLowerCase();
+            const livestockType = service.livestockType.toLowerCase();
             const formattedDate = format(new Date(service.date), "dd MMM yyyy", { locale: id }).toLowerCase();
             
-            return ownerName.includes(lowercasedFilter) || formattedDate.includes(lowercasedFilter);
+            return ownerName.includes(lowercasedFilter) || 
+                   officerName.includes(lowercasedFilter) ||
+                   puskeswan.includes(lowercasedFilter) ||
+                   diagnosis.includes(lowercasedFilter) ||
+                   livestockType.includes(lowercasedFilter) ||
+                   formattedDate.includes(lowercasedFilter);
         });
     }, [searchTerm, services]);
 
@@ -427,7 +427,7 @@ export function ServiceTable({}: ServiceTableProps) {
                 </Select>
             </div>
             <Input
-              placeholder="Cari nama pemilik atau tanggal..."
+              placeholder="Cari data..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full md:w-64"
@@ -524,14 +524,19 @@ export function ServiceTable({}: ServiceTableProps) {
           </Table>
         </div>
       </CardContent>
-      <CardFooter className="p-4 md:p-6 flex justify-center">
-        <Button onClick={handleDownload} disabled={searchedServices.length === 0 || isPending}>
-            <Download className="mr-2 h-4 w-4" />
-            Unduh Laporan
-        </Button>
+      <CardFooter className="p-4 md:p-6 flex justify-center md:justify-end">
+        <PasswordDialog
+            title="Akses Terbatas"
+            description="Silakan masukkan kata sandi untuk mengunduh laporan."
+            onSuccess={handleDownload}
+            trigger={
+                <Button disabled={searchedServices.length === 0 || isPending}>
+                    <Download className="mr-2 h-4 w-4" />
+                    Unduh Laporan
+                </Button>
+            }
+        />
       </CardFooter>
     </Card>
   );
 }
-
-    
