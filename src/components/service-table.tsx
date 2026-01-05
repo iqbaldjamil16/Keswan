@@ -17,7 +17,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "./ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "./ui/card";
 import { PawPrint, PlusCircle, ChevronDown, Download } from "lucide-react";
 import {
   Accordion,
@@ -213,10 +213,6 @@ export function ServiceTable({
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full md:w-64"
             />
-             <Button onClick={handleDownload} variant="outline" disabled={searchedServices.length === 0}>
-                <Download className="mr-2 h-4 w-4" />
-                Unduh
-            </Button>
           </div>
         </div>
       </CardHeader>
@@ -306,6 +302,14 @@ export function ServiceTable({
           </Table>
         </div>
       </CardContent>
+      <CardFooter className="p-4 md:p-6 flex justify-end">
+        <Button onClick={handleDownload} variant="outline" disabled={searchedServices.length === 0}>
+            <Download className="mr-2 h-4 w-4" />
+            Unduh Laporan
+        </Button>
+      </CardFooter>
     </Card>
   );
 }
+
+    
