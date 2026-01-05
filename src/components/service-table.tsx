@@ -137,14 +137,17 @@ function ServiceCard({ service, onDelete }: { service: HealthcareService, onDele
                     </CardContent>
                 </CollapsibleContent>
                  <CardFooter className="p-4 pt-0 flex justify-end gap-2">
-                    <Button asChild variant="outline" size="sm">
-                        <Link href={`/laporan/${service.id}/edit`}><Pencil className="mr-2 h-4 w-4" />Edit</Link>
+                    <Button asChild variant="outline" size="icon">
+                      <Link href={`/laporan/${service.id}/edit`}>
+                        <Pencil />
+                        <span className="sr-only">Edit</span>
+                      </Link>
                     </Button>
                     <AlertDialog>
                         <AlertDialogTrigger asChild>
-                            <Button variant="destructive" size="sm" disabled={isDeleting}>
-                                {isDeleting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Trash2 className="mr-2 h-4 w-4" />}
-                                Hapus
+                            <Button variant="destructive" size="icon" disabled={isDeleting}>
+                                {isDeleting ? <Loader2 className="animate-spin" /> : <Trash2 />}
+                                <span className="sr-only">Hapus</span>
                             </Button>
                         </AlertDialogTrigger>
                         <AlertDialogContent>
