@@ -13,7 +13,7 @@ import { PanelLeft } from 'lucide-react';
 const navItems = [
   { href: '/', label: 'Input Data' },
   { href: '/laporan', label: 'Data Laporan' },
-  { href: '/rekap', label: 'Rekap Obat dan kasus' },
+  { href: '/rekap', label: 'Rekap Obat & Kasus' },
 ];
 
 export function Header() {
