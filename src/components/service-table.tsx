@@ -48,8 +48,8 @@ function ServiceCard({ service }: { service: HealthcareService }) {
                 <CardHeader className="p-4">
                     <div className="flex justify-between items-start">
                         <div>
-                            <div className="font-semibold">{service.ownerName}</div>
-                            <div className="text-sm text-muted-foreground">{service.ownerAddress}</div>
+                            <div className="font-semibold">{service.officerName}</div>
+                            <div className="text-sm text-muted-foreground">{service.puskeswan}</div>
                             <div className="text-sm text-muted-foreground pt-1">
                                 {format(new Date(service.date), "dd MMM yyyy", { locale: id })}
                             </div>
@@ -64,6 +64,11 @@ function ServiceCard({ service }: { service: HealthcareService }) {
                 </CardHeader>
                 <CollapsibleContent>
                     <CardContent className="p-4 pt-0 space-y-3">
+                        <div>
+                            <div className="text-xs font-semibold text-muted-foreground">Pemilik</div>
+                            <p className="text-sm">{service.ownerName}</p>
+                            <p className="text-xs text-muted-foreground">{service.ownerAddress}</p>
+                        </div>
                         <div>
                             <div className="text-xs font-semibold text-muted-foreground">Ternak</div>
                             <Badge variant="secondary">{service.livestockType} ({service.livestockCount})</Badge>
@@ -83,11 +88,6 @@ function ServiceCard({ service }: { service: HealthcareService }) {
                                 </li>
                               ))}
                             </ul>
-                        </div>
-                         <div>
-                            <div className="text-xs font-semibold text-muted-foreground">Petugas</div>
-                            <p className="text-sm">{service.officerName}</p>
-                            <p className="text-xs text-muted-foreground">{service.puskeswan}</p>
                         </div>
                     </CardContent>
                 </CollapsibleContent>
