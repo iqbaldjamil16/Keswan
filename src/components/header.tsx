@@ -59,17 +59,17 @@ export function Header() {
                 </div>
               <div className="flex flex-col space-y-2 mt-6">
                 {navItems.map((item) => (
-                    <SheetClose asChild key={item.href}>
-                        <Link
-                            href={item.href}
-                            className={cn(
-                            "text-lg font-medium p-3 rounded-md transition-colors",
-                            pathname === item.href ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-accent/50'
-                            )}
-                        >
-                            {item.label}
-                        </Link>
-                    </SheetClose>
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => setIsSheetOpen(false)}
+                    className={cn(
+                    "text-lg font-medium p-3 rounded-md transition-colors",
+                    pathname === item.href ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-accent/50'
+                    )}
+                  >
+                    {item.label}
+                  </Link>
                 ))}
               </div>
             </SheetContent>
