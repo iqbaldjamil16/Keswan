@@ -1,4 +1,3 @@
-
 import { z } from 'zod';
 
 export const serviceSchema = z.object({
@@ -16,7 +15,9 @@ export const serviceSchema = z.object({
   diagnosis: z.string().min(1, "Diagnosa harus diisi."),
   handling: z.string().min(1, "Penanganan harus diisi."),
   treatmentType: z.string().min(1, "Jenis pengobatan harus diisi."),
-  treatment: z.string().min(1, "Pengobatan harus diisi."),
+  medicineType: z.string().min(1, "Jenis obat harus dipilih."),
+  medicineName: z.string().min(1, "Nama obat harus dipilih."),
+  dosage: z.string().min(1, "Dosis harus diisi."),
 });
 
 export type HealthcareService = z.infer<typeof serviceSchema>;

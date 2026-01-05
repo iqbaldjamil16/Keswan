@@ -1,4 +1,3 @@
-
 import type { HealthcareService } from './types';
 
 let services: HealthcareService[] = [
@@ -15,7 +14,9 @@ let services: HealthcareService[] = [
     diagnosis: 'Demam Tiga Hari (Bovine Ephemeral Fever)',
     handling: 'Pemberian antipiretik dan vitamin',
     treatmentType: 'Injeksi',
-    treatment: 'Injeksi Analgin 10ml, Vitamin B-Complex 10ml',
+    medicineType: 'Vitamin',
+    medicineName: 'Injectamin',
+    dosage: '10ml',
   },
   {
     id: '2',
@@ -30,7 +31,9 @@ let services: HealthcareService[] = [
     diagnosis: 'Scouring (Mencret)',
     handling: 'Pemberian antibiotik dan cairan elektrolit',
     treatmentType: 'Oral',
-    treatment: 'Sulfa Strong, oralit',
+    medicineType: 'Antibiotik',
+    medicineName: 'Sulfastrong',
+    dosage: 'Sesuai anjuran',
   },
 ];
 
@@ -52,3 +55,20 @@ export async function addService(service: Omit<HealthcareService, 'id'>): Promis
   services.unshift(newService);
   return newService;
 }
+
+export const medicineData = {
+  "Antibiotik": ["Colibact Bolus", "Duodin", "Gusanex", "Interflox", "Intramox La", "Kaloxy La", "Limoxin La", "Limoxin Spray", "Medoxy La", "Penstrep", "Proxy Vet La", "Sulfastrong", "Vet Oxy La", "Vet oxy sb"],
+  "Anti Radang Analgesia & Piretik": ["Dexapros", "Glucortin-20", "Sulpidon", "Sulprodon"],
+  "Vitamin": ["B12", "B Kompleks", "B komp bolus", "Biodin", "Biopros", "Calcidex", "Fertilife", "Hematodin", "Injectamin", "Pro B Plek", "Vitol"],
+  "Anti Helminthiasis & Ektoparasit": ["Fluconix", "Flukicide", "Intermectin", "Ivomec", "Verm O Bolus", "Verm O Kaplet", "Verm O Pros Bolus", "Wormectin", "Wormzole Bolus"],
+  "Hormon": ["Capriglandin", "Intracin", "Juramate", "Ovalumon", "Pgf2@"],
+  "Anastesia": ["Ketamine", "Lidocain"],
+  "Sedasi": ["Xylazine"],
+  "Antialergi": ["Vetadryl", "Prodryl"],
+  "Antibloat": [],
+  "Susu Mineral & As. Amino": [],
+};
+
+export type MedicineType = keyof typeof medicineData;
+
+export const medicineTypes = Object.keys(medicineData) as MedicineType[];

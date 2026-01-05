@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useTransition } from "react";
+import { useTransition, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CalendarIcon, Loader2 } from "lucide-react";
@@ -10,6 +10,7 @@ import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { serviceSchema, type HealthcareService } from "@/lib/types";
 import { createService } from "@/lib/actions";
+import { medicineData, medicineTypes, type MedicineType } from "@/lib/data";
 
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -17,6 +18,7 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -28,8 +30,16 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
+import { Label } from "@/components/ui/label";
 
 export function ServiceForm() {
   const [isPending, startTransition] = useTransition();
@@ -49,13 +59,22 @@ export function ServiceForm() {
       diagnosis: "",
       handling: "",
       treatmentType: "",
-      treatment: "",
+      medicineType: "",
+      medicineName: "",
+      dosage: "",
     },
   });
 
+  const selectedMedicineType = form.watch("medicineType") as MedicineType;
+
   function onSubmit(values: HealthcareService) {
+    // The 'treatment' field is no longer in the form, so we can construct it
+    // before sending if needed by the backend, or adjust the backend.
+    // For now, we remove it from submission.
+    const { ...submissionData } = values;
+
     startTransition(async () => {
-      const result = await createService(values);
+      const result = await createService(submissionData);
       if (result.success) {
         toast({
           title: "Sukses",
@@ -255,19 +274,75 @@ export function ServiceForm() {
                     </FormItem>
                   )}
                 />
-                <FormField
-                  control={form.control}
-                  name="treatment"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Pengobatan</FormLabel>
-                      <FormControl>
-                        <Textarea placeholder="Obat yang diberikan dan dosisnya" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <div className="space-y-2">
+                    <Label>Pengobatan</Label>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 p-4 border rounded-md">
+                    <FormField
+                        control={form.control}
+                        name="medicineType"
+                        render={({ field }) => (
+                        <FormItem>
+                            <FormLabel className="text-xs">Jenis Obat</FormLabel>
+                            <Select onValueChange={(value) => {
+                                field.onChange(value)
+                                form.setValue('medicineName', '');
+                            }} defaultValue={field.value}>
+                            <FormControl>
+                                <SelectTrigger>
+                                <SelectValue placeholder="Pilih Jenis" />
+                                </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                                {medicineTypes.map((type) => (
+                                <SelectItem key={type} value={type}>{type}</SelectItem>
+                                ))}
+                            </SelectContent>
+                            </Select>
+                            <FormMessage />
+                        </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="medicineName"
+                        render={({ field }) => (
+                        <FormItem>
+                            <FormLabel className="text-xs">Nama Obat</FormLabel>
+                            <Select onValueChange={field.onChange} value={field.value} disabled={!selectedMedicineType}>
+                            <FormControl>
+                                <SelectTrigger>
+                                <SelectValue placeholder="Pilih Obat" />
+                                </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                                {selectedMedicineType && medicineData[selectedMedicineType] && medicineData[selectedMedicineType].length > 0 ? (
+                                    medicineData[selectedMedicineType].map((drug) => (
+                                        <SelectItem key={drug} value={drug}>{drug}</SelectItem>
+                                    ))
+                                ) : (
+                                    <SelectItem value="-" disabled>Pilih jenis dahulu</SelectItem>
+                                )}
+                            </SelectContent>
+                            </Select>
+                            <FormMessage />
+                        </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="dosage"
+                        render={({ field }) => (
+                        <FormItem>
+                            <FormLabel className="text-xs">Dosis</FormLabel>
+                            <FormControl>
+                            <Input placeholder="cth: 10ml" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                        )}
+                    />
+                    </div>
+                </div>
               </div>
             </div>
           </CardContent>

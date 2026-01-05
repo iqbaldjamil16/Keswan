@@ -6,6 +6,8 @@ import { z } from "zod";
 import { serviceSchema } from "./types";
 import { addService } from "./data";
 
+// The 'treatment' field has been replaced by 'medicineType', 'medicineName', and 'dosage'.
+// The HealthcareService type from lib/types.ts already reflects this.
 export async function createService(data: z.infer<typeof serviceSchema>) {
   const validatedFields = serviceSchema.safeParse(data);
 
@@ -17,6 +19,7 @@ export async function createService(data: z.infer<typeof serviceSchema>) {
   }
 
   try {
+    // The data is already in the correct shape, so we can pass it directly.
     await addService(validatedFields.data);
     revalidatePath('/laporan');
     revalidatePath('/');
