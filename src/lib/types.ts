@@ -21,7 +21,7 @@ export const serviceSchema = z.object({
   livestockCount: z.coerce.number().min(1, "Jumlah ternak harus minimal 1."),
   clinicalSymptoms: z.string().min(1, "Gejala klinis harus diisi."),
   diagnosis: z.string().min(1, "Diagnosa harus diisi."),
-  treatmentType: z.string().min(1, "Jenis pengobatan harus diisi."),
+  treatmentType: z.string().min(1, "Jenis penanganan harus diisi."),
   treatments: z.array(treatmentSchema).min(1, "Minimal satu pengobatan harus ditambahkan."),
 });
 

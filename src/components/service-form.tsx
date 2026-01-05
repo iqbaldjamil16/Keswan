@@ -341,7 +341,7 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
                   name="treatmentType"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Jenis Pengobatan</FormLabel>
+                      <FormLabel>Jenis Penanganan</FormLabel>
                       <FormControl>
                         <Input placeholder="Injeksi, Oral, Topikal" {...field} />
                       </FormControl>

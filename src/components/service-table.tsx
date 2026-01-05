@@ -381,7 +381,7 @@ export function ServiceTable({}: ServiceTableProps) {
           'Jumlah': service.livestockCount,
           'Gejala Klinis': service.clinicalSymptoms,
           'Diagnosa': service.diagnosis,
-          'Jenis Pengobatan': service.treatmentType,
+          'Jenis Penanganan': service.treatmentType,
           'Obat yang Digunakan': service.treatments.map(t => `${t.medicineName} (${t.dosage})`).join(', '),
         }));
 
@@ -533,11 +533,5 @@ export function ServiceTable({}: ServiceTableProps) {
     </Card>
   );
 }
-
-    
-
-    
-
-    
 
     
