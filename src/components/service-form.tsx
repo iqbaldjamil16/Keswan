@@ -328,7 +328,7 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
                     <FormItem>
                       <FormLabel>Diagnosa</FormLabel>
                       <FormControl>
-                        <Textarea placeholder="Diagnosa penyakit" {...field} />
+                        <Textarea placeholder="Diagnosa penyakit" {...field} className="min-h-[60px]" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
