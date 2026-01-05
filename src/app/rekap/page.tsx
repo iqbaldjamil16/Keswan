@@ -43,7 +43,13 @@ import { useFirebase } from "@/firebase";
 interface RecapData {
     [puskeswan: string]: {
         medicines: { [medicineName: string]: { count: number, unit: string } };
-        diagnoses: { [diagnosis: string]: number };
+        cases: { 
+            [desa: string]: {
+                [livestockType: string]: {
+                    [diagnosis: string]: number 
+                }
+            }
+        };
     };
 }
 
@@ -53,11 +59,22 @@ function processRecapData(services: HealthcareService[]): RecapData {
     services.forEach(service => {
         if (!service.puskeswan) return;
         if (!recap[service.puskeswan]) {
-            recap[service.puskeswan] = { medicines: {}, diagnoses: {} };
+            recap[service.puskeswan] = { medicines: {}, cases: {} };
         }
 
+        const desa = service.ownerAddress.trim() || 'Tidak Diketahui';
+        const livestockType = service.livestockType.trim();
         const diagnosis = service.diagnosis.trim();
-        recap[service.puskeswan].diagnoses[diagnosis] = (recap[service.puskeswan].diagnoses[diagnosis] || 0) + 1;
+
+        if (!recap[service.puskeswan].cases[desa]) {
+            recap[service.puskeswan].cases[desa] = {};
+        }
+        if (!recap[service.puskeswan].cases[desa][livestockType]) {
+            recap[service.puskeswan].cases[desa][livestockType] = {};
+        }
+        
+        recap[service.puskeswan].cases[desa][livestockType][diagnosis] = (recap[service.puskeswan].cases[desa][livestockType][diagnosis] || 0) + 1;
+        
 
         service.treatments.forEach(treatment => {
             const medicineName = treatment.medicineName.trim();
@@ -181,12 +198,19 @@ export default function RekapPage() {
 
         const diagnosisDataForSheet = puskeswanList.flatMap(puskeswan => {
             const data = recapData[puskeswan];
-            return Object.entries(data.diagnoses).map(([diagnosis, count]) => ({
-                'Puskeswan': puskeswan,
-                'Diagnosa': diagnosis,
-                'Jumlah Kasus': count,
-            }));
+            return Object.entries(data.cases).flatMap(([desa, livestockData]) => {
+                return Object.entries(livestockData).flatMap(([livestockType, diagnoses]) => {
+                    return Object.entries(diagnoses).map(([diagnosis, count]) => ({
+                        'Puskeswan': puskeswan,
+                        'Desa': desa,
+                        'Jenis Hewan': livestockType,
+                        'Diagnosa': diagnosis,
+                        'Jumlah Kasus': count,
+                    }));
+                });
+            });
         });
+
         const wsDiagnoses = XLSX.utils.json_to_sheet(diagnosisDataForSheet);
         XLSX.utils.book_append_sheet(wb, wsDiagnoses, "Rekap Kasus");
         
@@ -231,8 +255,8 @@ export default function RekapPage() {
                  <Accordion type="multiple" className={cn("w-full space-y-4 transition-opacity duration-300", isPending && "opacity-50")}>
                     {puskeswanList.map(puskeswan => {
                         const data = recapData[puskeswan];
-                        const sortedDiagnoses = Object.entries(data.diagnoses).sort(([, a], [, b]) => b - a);
                         const sortedMedicines = Object.entries(data.medicines).sort(([, a], [, b]) => b.count - a.count);
+                        const sortedDesa = Object.keys(data.cases).sort();
 
                         return (
                             <AccordionItem value={puskeswan} key={puskeswan} className="border rounded-lg bg-card">
@@ -247,17 +271,39 @@ export default function RekapPage() {
                                                 <Table>
                                                     <TableHeader>
                                                         <TableRow>
+                                                            <TableHead>Desa</TableHead>
+                                                            <TableHead>Jenis Hewan</TableHead>
                                                             <TableHead>Diagnosa</TableHead>
                                                             <TableHead className="text-right w-[80px]">Jumlah</TableHead>
                                                         </TableRow>
                                                     </TableHeader>
                                                     <TableBody>
-                                                        {sortedDiagnoses.map(([diagnosis, count]) => (
-                                                            <TableRow key={diagnosis}>
-                                                                <TableCell>{diagnosis}</TableCell>
-                                                                <TableCell className="text-right font-medium">{count}</TableCell>
-                                                            </TableRow>
-                                                        ))}
+                                                    {sortedDesa.length > 0 ? sortedDesa.map((desa) => 
+                                                        Object.entries(data.cases[desa]).flatMap(([livestockType, diagnoses], livestockIndex) => 
+                                                            Object.entries(diagnoses).map(([diagnosis, count], diagnosisIndex) => (
+                                                                <TableRow key={`${desa}-${livestockType}-${diagnosis}`}>
+                                                                    {livestockIndex === 0 && diagnosisIndex === 0 && (
+                                                                        <TableCell rowSpan={
+                                                                            Object.values(data.cases[desa]).reduce((total, diagnoses) => total + Object.keys(diagnoses).length, 0)
+                                                                        } className="align-top font-medium">
+                                                                            {desa}
+                                                                        </TableCell>
+                                                                    )}
+                                                                    {diagnosisIndex === 0 && (
+                                                                        <TableCell rowSpan={Object.keys(diagnoses).length} className="align-top">
+                                                                            {livestockType}
+                                                                        </TableCell>
+                                                                    )}
+                                                                    <TableCell>{diagnosis}</TableCell>
+                                                                    <TableCell className="text-right font-medium">{count}</TableCell>
+                                                                </TableRow>
+                                                            ))
+                                                        )
+                                                    ) : (
+                                                        <TableRow>
+                                                            <TableCell colSpan={4} className="text-center">Tidak ada kasus</TableCell>
+                                                        </TableRow>
+                                                    )}
                                                     </TableBody>
                                                 </Table>
                                             </div>
