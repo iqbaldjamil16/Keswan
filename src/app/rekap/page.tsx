@@ -224,10 +224,6 @@ export default function RekapPage() {
                         ))}
                     </SelectContent>
                 </Select>
-                <Button onClick={handleDownload} variant="outline" className="sm:ml-auto" disabled={loading || puskeswanList.length === 0 || isPending}>
-                    <Download className="mr-2 h-4 w-4" />
-                    Unduh Rekap
-                </Button>
             </div>
             {(loading && services.length === 0) ? (
               <RecapSkeleton />
@@ -303,6 +299,12 @@ export default function RekapPage() {
                     </CardContent>
                 </Card>
             )}
+             <div className="flex justify-start md:justify-end mt-8">
+                <Button onClick={handleDownload} disabled={loading || puskeswanList.length === 0 || isPending}>
+                    <Download className="mr-2 h-4 w-4" />
+                    Unduh Rekap
+                </Button>
+            </div>
         </div>
       </div>
     </div>
