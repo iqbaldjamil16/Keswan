@@ -136,38 +136,38 @@ function ServiceCard({ service, onDelete }: { service: HealthcareService, onDele
                             </ul>
                         </div>
                     </CardContent>
+                    <CardFooter className="p-4 pt-0 flex justify-end gap-2">
+                        <Button asChild variant="outline" size="sm" className="h-6 w-6 p-0">
+                        <Link href={`/laporan/${service.id}/edit`}>
+                            <Pencil className="h-3 w-3" />
+                            <span className="sr-only">Edit</span>
+                        </Link>
+                        </Button>
+                        <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                                <Button variant="destructive" size="sm" className="h-6 w-6 p-0" disabled={isDeleting}>
+                                    {isDeleting ? <Loader2 className="animate-spin h-3 w-3" /> : <Trash2 className="h-3 w-3" />}
+                                    <span className="sr-only">Hapus</span>
+                                </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                                <AlertDialogHeader>
+                                    <AlertDialogTitle>Anda yakin?</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                        Tindakan ini tidak bisa dibatalkan. Data pelayanan akan dihapus secara permanen.
+                                    </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                    <AlertDialogCancel>Batal</AlertDialogCancel>
+                                    <AlertDialogAction onClick={handleDelete} disabled={isDeleting}>
+                                        {isDeleting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                                        Ya, Hapus
+                                    </AlertDialogAction>
+                                </AlertDialogFooter>
+                            </AlertDialogContent>
+                        </AlertDialog>
+                    </CardFooter>
                 </CollapsibleContent>
-                 <CardFooter className="p-4 pt-0 flex justify-end gap-2">
-                    <Button asChild variant="outline" size="sm" className="h-6 w-6 p-0">
-                      <Link href={`/laporan/${service.id}/edit`}>
-                        <Pencil className="h-3 w-3" />
-                        <span className="sr-only">Edit</span>
-                      </Link>
-                    </Button>
-                    <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                            <Button variant="destructive" size="sm" className="h-6 w-6 p-0" disabled={isDeleting}>
-                                {isDeleting ? <Loader2 className="animate-spin h-3 w-3" /> : <Trash2 className="h-3 w-3" />}
-                                <span className="sr-only">Hapus</span>
-                            </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                            <AlertDialogHeader>
-                                <AlertDialogTitle>Anda yakin?</AlertDialogTitle>
-                                <AlertDialogDescription>
-                                    Tindakan ini tidak bisa dibatalkan. Data pelayanan akan dihapus secara permanen.
-                                </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                                <AlertDialogCancel>Batal</AlertDialogCancel>
-                                <AlertDialogAction onClick={handleDelete} disabled={isDeleting}>
-                                    {isDeleting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                                    Ya, Hapus
-                                </AlertDialogAction>
-                            </AlertDialogFooter>
-                        </AlertDialogContent>
-                    </AlertDialog>
-                </CardFooter>
             </Card>
         </Collapsible>
     )
@@ -433,3 +433,4 @@ export function ServiceTable({
     
 
     
+
