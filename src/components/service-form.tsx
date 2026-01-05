@@ -478,7 +478,7 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
             </Card>
           </div>
         </div>
-        <div className="flex justify-end">
+        <div className="flex justify-start md:justify-end">
           <Button type="submit" disabled={isPending}>
             {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             {isEditMode ? 'Simpan Perubahan' : 'Simpan Data'}
