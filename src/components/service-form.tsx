@@ -239,7 +239,7 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
                     <FormItem>
                       <FormLabel>Alamat Pemilik</FormLabel>
                       <FormControl>
-                        <Input placeholder="Alamat lengkap pemilik ternak" {...field} />
+                        <Input placeholder="Alamat Desa, Contoh : Salopangkang" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -604,4 +604,5 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
 }
 
 
+    
     
