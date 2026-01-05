@@ -32,7 +32,11 @@ export default function EditServicePage() {
 
   useEffect(() => {
     async function fetchService() {
-      if (!id) return;
+      if (!id) {
+        setLoading(false);
+        notFound();
+        return;
+      };
       try {
         setLoading(true);
         const fetchedService = await getServiceById(id);

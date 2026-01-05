@@ -7,11 +7,10 @@ import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, PlusCircle, Trash2 } from "lucide-react";
 import { format } from "date-fns";
-import { doc, updateDoc } from 'firebase/firestore';
+import { doc, updateDoc, serverTimestamp } from 'firebase/firestore';
 
 import { cn } from "@/lib/utils";
 import { serviceSchema, type HealthcareService } from "@/lib/types";
-import { createService } from "@/lib/actions";
 import { medicineData, medicineTypes, type MedicineType, livestockTypes, puskeswanList, addService } from "@/lib/data";
 
 import { Button } from "@/components/ui/button";
@@ -19,7 +18,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -48,7 +46,11 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
 
   const form = useForm<HealthcareService>({
     resolver: zodResolver(serviceSchema),
-    defaultValues: initialData || {
+    defaultValues: initialData ? {
+      ...initialData,
+      // Ensure date is a Date object if it's coming from Firestore timestamp
+      date: initialData.date ? new Date(initialData.date) : new Date(),
+    } : {
       date: new Date(),
       puskeswan: "",
       officerName: "",
@@ -84,21 +86,12 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
 
     startTransition(async () => {
       try {
-        const result = await createService(values);
-
-        if (result.error) {
-            toast({
-                variant: "destructive",
-                title: "Gagal Validasi",
-                description: result.error,
-            });
-            return;
-        }
-
         if (isEditMode && initialData?.id) {
             const serviceDocRef = doc(firestore, 'healthcareServices', initialData.id);
-            // Server action already validated, now we update firestore
-            await updateDoc(serviceDocRef, values);
+            await updateDoc(serviceDocRef, {
+                ...values,
+                // Add a server timestamp for updates if you want
+            });
             toast({
               title: "Sukses",
               description: "Data pelayanan berhasil diperbarui!",
@@ -106,7 +99,6 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
             router.push('/laporan');
             router.refresh();
         } else {
-            // Server action validated, now add to firestore
             await addService(firestore, values);
             toast({
                 title: "Sukses",
@@ -129,12 +121,12 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
             });
              router.refresh();
         }
-      } catch (error) {
+      } catch (error: any) {
         console.error("Submit error:", error);
         toast({
           variant: "destructive",
           title: "Gagal Menyimpan",
-          description: "Terjadi kesalahan saat menyimpan data.",
+          description: error.message || "Terjadi kesalahan saat menyimpan data.",
         });
       }
     });
@@ -296,7 +288,7 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
                         <FormItem>
                             <FormLabel>Jumlah</FormLabel>
                             <FormControl>
-                            <Input type="number" {...field} />
+                            <Input type="number" {...field} onChange={e => field.onChange(e.target.value === '' ? '' : Number(e.target.value))} />
                             </FormControl>
                             <FormMessage />
                         </FormItem>
@@ -494,5 +486,3 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
     </Form>
   );
 }
-
-    

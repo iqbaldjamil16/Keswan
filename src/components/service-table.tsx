@@ -3,12 +3,13 @@
 
 import { useState, useMemo, useTransition, useEffect, useCallback } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { format, getMonth, getYear, subYears } from "date-fns";
 import { id } from 'date-fns/locale';
 import * as XLSX from 'xlsx';
+import { doc, deleteDoc } from "firebase/firestore";
 
 import { HealthcareService } from "@/lib/types";
-import { deleteService } from "@/lib/actions";
 import { getServices } from "@/lib/data";
 import { Input } from "@/components/ui/input";
 import {
@@ -54,6 +55,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "./ui/skeleton";
 import { cn } from "@/lib/utils";
+import { useFirebase } from "@/firebase";
 
   
   interface ServiceTableProps {}
@@ -113,16 +115,20 @@ function ServiceCard({ service, onDelete }: { service: HealthcareService, onDele
     const [isOpen, setIsOpen] = useState(false);
     const [isDeleting, startDeleteTransition] = useTransition();
     const { toast } = useToast();
+    const { firestore } = useFirebase();
+    const router = useRouter();
 
     const handleDelete = () => {
+        if (!firestore || !service.id) return;
         startDeleteTransition(async () => {
-            if (!service.id) return;
-            const result = await deleteService(service.id);
-            if (result.success) {
-                toast({ title: "Sukses", description: result.success });
-                onDelete(service.id);
-            } else {
-                toast({ variant: "destructive", title: "Gagal", description: result.error });
+            try {
+                const serviceDoc = doc(firestore, "healthcareServices", service.id);
+                await deleteDoc(serviceDoc);
+                toast({ title: "Sukses", description: "Data pelayanan berhasil dihapus." });
+                onDelete(service.id!);
+                router.refresh();
+            } catch (e) {
+                toast({ variant: "destructive", title: "Gagal", description: "Gagal menghapus data." });
             }
         });
     };
@@ -181,16 +187,16 @@ function ServiceCard({ service, onDelete }: { service: HealthcareService, onDele
                         </div>
                     </CardContent>
                     <CardFooter className="p-4 pt-0 flex justify-end gap-2">
-                        <Button asChild variant="outline" size="sm" className="h-8 w-8 p-0">
+                        <Button asChild variant="outline" size="sm" className="h-7 w-7 p-0">
                             <Link href={`/laporan/${service.id}/edit`}>
-                                <Pencil className="h-4 w-4" />
+                                <Pencil className="h-3.5 w-3.5" />
                                 <span className="sr-only">Edit</span>
                             </Link>
                         </Button>
                         <AlertDialog>
                             <AlertDialogTrigger asChild>
-                                <Button variant="destructive" size="sm" className="h-8 w-8 p-0" disabled={isDeleting}>
-                                    {isDeleting ? <Loader2 className="animate-spin h-4 w-4" /> : <Trash2 className="h-4 w-4" />}
+                                <Button variant="destructive" size="sm" className="h-7 w-7 p-0" disabled={isDeleting}>
+                                    {isDeleting ? <Loader2 className="animate-spin h-3.5 w-3.5" /> : <Trash2 className="h-3.5 w-3.5" />}
                                     <span className="sr-only">Hapus</span>
                                 </Button>
                             </AlertDialogTrigger>
@@ -220,16 +226,20 @@ function ServiceCard({ service, onDelete }: { service: HealthcareService, onDele
 function ActionsCell({ service, onDelete }: { service: HealthcareService, onDelete: (id: string) => void }) {
     const [isDeleting, startDeleteTransition] = useTransition();
     const { toast } = useToast();
+    const { firestore } = useFirebase();
+    const router = useRouter();
 
     const handleDelete = () => {
+        if (!firestore || !service.id) return;
         startDeleteTransition(async () => {
-            if (!service.id) return;
-            const result = await deleteService(service.id);
-            if (result.success) {
-                toast({ title: "Sukses", description: result.success });
-                onDelete(service.id);
-            } else {
-                toast({ variant: "destructive", title: "Gagal", description: result.error });
+            try {
+                const serviceDoc = doc(firestore, "healthcareServices", service.id);
+                await deleteDoc(serviceDoc);
+                toast({ title: "Sukses", description: "Data pelayanan berhasil dihapus." });
+                onDelete(service.id!);
+                router.refresh();
+            } catch (e) {
+                toast({ variant: "destructive", title: "Gagal", description: "Gagal menghapus data." });
             }
         });
     };
@@ -295,23 +305,25 @@ export function ServiceTable({}: ServiceTableProps) {
     }, [loading]);
     
     useEffect(() => {
-        setLoading(true);
         loadServices(selectedYear, selectedMonth);
-    }, [loadServices]);
+    }, []); // Removed dependencies to only run once on mount
+
+
+    const handleFilterChange = (year: string, month: string) => {
+        startTransition(() => {
+            loadServices(year, month);
+        });
+    }
 
     const handleMonthChange = (month: string) => {
-        startTransition(() => {
-          setSelectedMonth(month);
-          loadServices(selectedYear, month);
-        });
-      };
+        setSelectedMonth(month);
+        handleFilterChange(selectedYear, month);
+    };
     
-      const handleYearChange = (year: string) => {
-        startTransition(() => {
-          setSelectedYear(year);
-          loadServices(year, selectedMonth);
-        });
-      };
+    const handleYearChange = (year: string) => {
+        setSelectedYear(year);
+        handleFilterChange(year, selectedMonth);
+    };
 
   const handleLocalDelete = (serviceId: string) => {
     setServices(currentServices => currentServices.filter(s => s.id !== serviceId));
@@ -370,7 +382,7 @@ export function ServiceTable({}: ServiceTableProps) {
 
 
   return (
-    <Card>
+    <Card className={cn(isPending && "opacity-50 transition-opacity duration-300")}>
       <CardHeader className="p-4 md:p-6">
         <div className="flex flex-col md:flex-row items-center justify-between gap-4">
           <CardTitle>Data Pelayanan</CardTitle>
@@ -406,10 +418,7 @@ export function ServiceTable({}: ServiceTableProps) {
           </div>
         </div>
       </CardHeader>
-      <CardContent className={cn(
-        "p-0 md:p-6 md:pt-0 transition-opacity duration-300",
-        isPending && "opacity-50"
-      )}>
+      <CardContent className="p-0 md:p-6 md:pt-0">
         <div className="md:hidden space-y-4 p-4">
             {searchedServices.length > 0 ? (
                 searchedServices.map(service => <ServiceCard key={service.id} service={service} onDelete={handleLocalDelete} />)
@@ -507,5 +516,3 @@ export function ServiceTable({}: ServiceTableProps) {
     </Card>
   );
 }
-
-    
