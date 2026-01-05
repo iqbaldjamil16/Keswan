@@ -13,15 +13,18 @@ export async function createService(data: z.infer<typeof serviceSchema>) {
     const errorMessages: string[] = [];
     for (const key in validatedFields.error.flatten().fieldErrors) {
       if (Object.prototype.hasOwnProperty.call(validatedFields.error.flatten().fieldErrors, key)) {
-        const fieldError = (validatedFields.error.flatten().fieldErrors as any)[key];
-        if(fieldError) {
-          errorMessages.push(fieldError[0]);
+        const fieldErrors = (validatedFields.error.flatten().fieldErrors as any)[key];
+        if (fieldErrors) {
+          errorMessages.push(`${fieldErrors[0]}`);
         }
       }
     }
 
     const formErrors = validatedFields.error.flatten().formErrors.join(' ');
-    const finalErrorMessage = errorMessages.length > 0 ? errorMessages.join(". ") : formErrors;
+    let finalErrorMessage = errorMessages.join(". ");
+    if (formErrors) {
+        finalErrorMessage = finalErrorMessage ? `${finalErrorMessage}. ${formErrors}`: formErrors;
+    }
     
     return {
       error: finalErrorMessage || "Data tidak valid. Silakan periksa kembali.",
@@ -29,11 +32,13 @@ export async function createService(data: z.infer<typeof serviceSchema>) {
   }
 
   try {
-    await addService(validatedFields.data);
+    // This no longer awaits, but we keep the try/catch for initial validation errors if any were missed.
+    addService(validatedFields.data);
     revalidatePath('/laporan');
     revalidatePath('/');
     return { success: "Data pelayanan berhasil disimpan!" };
   } catch (e) {
-    return { error: "Gagal menyimpan data ke server." };
+    // This will now likely only catch synchronous errors before the Firestore call.
+    return { error: "Gagal memproses permintaan penyimpanan." };
   }
 }
