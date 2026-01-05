@@ -1,6 +1,7 @@
 
-'use server';
+'use client';
 
+import { useEffect, useState } from "react";
 import {
   Card,
   CardContent,
@@ -23,6 +24,7 @@ import {
     TableHeader,
     TableRow,
   } from "@/components/ui/table";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface RecapData {
     [puskeswan: string]: {
@@ -65,10 +67,37 @@ function processRecapData(services: HealthcareService[]): RecapData {
     return recap;
 }
 
+function RecapSkeleton() {
+  return (
+    <div className="space-y-4">
+      <Skeleton className="h-16 w-full" />
+      <Skeleton className="h-16 w-full" />
+      <Skeleton className="h-16 w-full" />
+    </div>
+  );
+}
 
-export default async function RekapPage() {
-    const services = await getServices();
-    const recapData = processRecapData(services);
+
+export default function RekapPage() {
+    const [recapData, setRecapData] = useState<RecapData>({});
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+      async function loadRecap() {
+        try {
+          setLoading(true);
+          const services = await getServices();
+          const processedData = processRecapData(services);
+          setRecapData(processedData);
+        } catch (error) {
+          console.error("Failed to process recap data:", error);
+        } finally {
+          setLoading(false);
+        }
+      }
+      loadRecap();
+    }, []);
+
     const puskeswanList = Object.keys(recapData).sort();
 
   return (
@@ -79,7 +108,9 @@ export default async function RekapPage() {
           Ringkasan penggunaan obat dan kasus yang ditangani per Puskeswan.
         </p>
         <div className="mt-6 md:mt-8">
-            {puskeswanList.length > 0 ? (
+            {loading ? (
+              <RecapSkeleton />
+            ) : puskeswanList.length > 0 ? (
                  <Accordion type="multiple" className="w-full space-y-4">
                     {puskeswanList.map(puskeswan => {
                         const data = recapData[puskeswan];
