@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import {
   Card,
   CardContent,
@@ -25,6 +25,15 @@ import {
     TableRow,
   } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+  } from "@/components/ui/select";
+import { getMonth, getYear, subYears } from "date-fns";
+import { id } from 'date-fns/locale';
 
 interface RecapData {
     [puskeswan: string]: {
@@ -70,34 +79,50 @@ function processRecapData(services: HealthcareService[]): RecapData {
 function RecapSkeleton() {
   return (
     <div className="space-y-4">
-      <Skeleton className="h-16 w-full" />
+      <Skeleton className="h-10 w-full" />
+      <Skeleton className="h-16 w-full mt-6" />
       <Skeleton className="h-16 w-full" />
       <Skeleton className="h-16 w-full" />
     </div>
   );
 }
 
+const years = Array.from({ length: 5 }, (_, i) => getYear(subYears(new Date(), i)).toString());
+const months = Array.from({ length: 12 }, (_, i) => ({
+    value: i.toString(),
+    label: new Date(0, i).toLocaleString(id, { month: 'long' }),
+}));
+
 
 export default function RekapPage() {
-    const [recapData, setRecapData] = useState<RecapData>({});
+    const [allServices, setAllServices] = useState<HealthcareService[]>([]);
     const [loading, setLoading] = useState(true);
+    const [selectedMonth, setSelectedMonth] = useState(getMonth(new Date()).toString());
+    const [selectedYear, setSelectedYear] = useState(getYear(new Date()).toString());
 
     useEffect(() => {
-      async function loadRecap() {
+      async function loadServices() {
         try {
           setLoading(true);
           const services = await getServices();
-          const processedData = processRecapData(services);
-          setRecapData(processedData);
+          setAllServices(services);
         } catch (error) {
-          console.error("Failed to process recap data:", error);
+          console.error("Failed to fetch services:", error);
         } finally {
           setLoading(false);
         }
       }
-      loadRecap();
+      loadServices();
     }, []);
 
+    const filteredServices = useMemo(() => {
+        return allServices.filter(service => {
+            const serviceDate = new Date(service.date);
+            return getMonth(serviceDate).toString() === selectedMonth && getYear(serviceDate).toString() === selectedYear;
+        });
+    }, [allServices, selectedMonth, selectedYear]);
+
+    const recapData = useMemo(() => processRecapData(filteredServices), [filteredServices]);
     const puskeswanList = Object.keys(recapData).sort();
 
   return (
@@ -107,7 +132,30 @@ export default function RekapPage() {
         <p className="text-muted-foreground mt-2 text-center md:text-left text-sm md:text-base">
           Ringkasan penggunaan obat dan kasus yang ditangani per Puskeswan.
         </p>
+
         <div className="mt-6 md:mt-8">
+            <div className="flex flex-col sm:flex-row gap-4 mb-6">
+                <Select value={selectedMonth} onValueChange={setSelectedMonth}>
+                    <SelectTrigger className="w-full sm:w-[180px]">
+                        <SelectValue placeholder="Pilih Bulan" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        {months.map(month => (
+                        <SelectItem key={month.value} value={month.value}>{month.label}</SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+                <Select value={selectedYear} onValueChange={setSelectedYear}>
+                    <SelectTrigger className="w-full sm:w-[120px]">
+                        <SelectValue placeholder="Pilih Tahun" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        {years.map(year => (
+                        <SelectItem key={year} value={year}>{year}</SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+            </div>
             {loading ? (
               <RecapSkeleton />
             ) : puskeswanList.length > 0 ? (
@@ -178,7 +226,7 @@ export default function RekapPage() {
                         <CardTitle>Data Kosong</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <p>Belum ada data pelayanan yang diinput untuk ditampilkan rekapitulasinya.</p>
+                        <p>Belum ada data pelayanan pada periode yang dipilih untuk ditampilkan rekapitulasinya.</p>
                     </CardContent>
                 </Card>
             )}
