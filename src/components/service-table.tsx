@@ -525,8 +525,8 @@ export function ServiceTable({}: ServiceTableProps) {
           </Table>
         </div>
       </CardContent>
-      <CardFooter className="p-4 md:p-6 flex justify-end">
-        <Button onClick={handleDownload} variant="outline" disabled={searchedServices.length === 0 || isPending}>
+      <CardFooter className="p-4 md:p-6 flex justify-center">
+        <Button onClick={handleDownload} disabled={searchedServices.length === 0 || isPending}>
             <Download className="mr-2 h-4 w-4" />
             Unduh Laporan
         </Button>
@@ -534,6 +534,8 @@ export function ServiceTable({}: ServiceTableProps) {
     </Card>
   );
 }
+
+    
 
     
 
