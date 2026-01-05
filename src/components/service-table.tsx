@@ -31,10 +31,23 @@ import {
     CollapsibleContent,
     CollapsibleTrigger,
   } from "@/components/ui/collapsible";
-
-interface ServiceTableProps {
-  services: HealthcareService[];
-}
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+  } from "@/components/ui/select";
+  
+  interface ServiceTableProps {
+    services: HealthcareService[];
+    selectedMonth: string;
+    selectedYear: string;
+    onMonthChange: (value: string) => void;
+    onYearChange: (value: string) => void;
+    months: { value: string; label: string }[];
+    years: string[];
+  }
 
 function ServiceCard({ service }: { service: HealthcareService }) {
     const [isOpen, setIsOpen] = useState(false);
@@ -98,10 +111,18 @@ function ServiceCard({ service }: { service: HealthcareService }) {
 }
 
 
-export function ServiceTable({ services }: ServiceTableProps) {
+export function ServiceTable({ 
+    services, 
+    selectedMonth, 
+    selectedYear, 
+    onMonthChange, 
+    onYearChange,
+    months,
+    years 
+}: ServiceTableProps) {
   const [searchTerm, setSearchTerm] = useState("");
 
-  const filteredServices = useMemo(() => {
+  const searchedServices = useMemo(() => {
     if (!searchTerm) return services;
 
     const lowercasedFilter = searchTerm.toLowerCase();
@@ -121,7 +142,7 @@ export function ServiceTable({ services }: ServiceTableProps) {
 
   const handleDownload = () => {
     // 1. Sort the data
-    const sortedServices = [...filteredServices].sort((a, b) => {
+    const sortedServices = [...searchedServices].sort((a, b) => {
       // Sort by Puskeswan
       if (a.puskeswan < b.puskeswan) return -1;
       if (a.puskeswan > b.puskeswan) return 1;
@@ -154,8 +175,8 @@ export function ServiceTable({ services }: ServiceTableProps) {
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Data Pelayanan");
 
-    // 4. Trigger download
-    XLSX.writeFile(wb, `laporan_pelayanan_${format(new Date(), 'yyyy-MM-dd')}.xlsx`);
+    const monthLabel = months.find(m => m.value === selectedMonth)?.label || '';
+    XLSX.writeFile(wb, `laporan_pelayanan_${monthLabel}_${selectedYear}.xlsx`);
   };
 
   return (
@@ -163,30 +184,52 @@ export function ServiceTable({ services }: ServiceTableProps) {
       <CardHeader className="p-4 md:p-6">
         <div className="flex flex-col md:flex-row items-center justify-between gap-4">
           <CardTitle>Data Pelayanan</CardTitle>
-          <div className="flex w-full md:w-auto md:justify-end gap-2">
+          <div className="flex flex-col sm:flex-row w-full md:w-auto md:justify-end gap-2">
+            <div className="flex gap-2">
+                <Select value={selectedMonth} onValueChange={onMonthChange}>
+                    <SelectTrigger className="w-full sm:w-[180px]">
+                        <SelectValue placeholder="Pilih Bulan" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        {months.map(month => (
+                        <SelectItem key={month.value} value={month.value}>{month.label}</SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+                <Select value={selectedYear} onValueChange={onYearChange}>
+                    <SelectTrigger className="w-full sm:w-[120px]">
+                        <SelectValue placeholder="Pilih Tahun" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        {years.map(year => (
+                        <SelectItem key={year} value={year}>{year}</SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+            </div>
             <Input
-              placeholder="Cari semua data..."
+              placeholder="Cari di data terpilih..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full md:w-64"
             />
-             <Button onClick={handleDownload} variant="outline">
+             <Button onClick={handleDownload} variant="outline" disabled={searchedServices.length === 0}>
                 <Download className="mr-2 h-4 w-4" />
                 Unduh
             </Button>
           </div>
         </div>
       </CardHeader>
-      <CardContent className="p-4 md:p-6">
+      <CardContent className="p-0 md:p-6 md:pt-0">
         {/* Mobile View */}
-        <div className="md:hidden space-y-4">
-            {filteredServices.length > 0 ? (
-                filteredServices.map(service => <ServiceCard key={service.id} service={service} />)
+        <div className="md:hidden space-y-4 p-4">
+            {searchedServices.length > 0 ? (
+                searchedServices.map(service => <ServiceCard key={service.id} service={service} />)
             ) : (
                 <div className="flex flex-col items-center justify-center gap-2 py-12">
                     <PawPrint className="h-8 w-8 text-muted-foreground" />
-                    <p className="text-muted-foreground">
-                    {searchTerm ? "Tidak ada hasil ditemukan." : "Belum ada data pelayanan."}
+                    <p className="text-muted-foreground text-center">
+                    {searchTerm ? "Tidak ada hasil ditemukan." : "Belum ada data untuk periode ini."}
                     </p>
                 </div>
             )}
@@ -207,8 +250,8 @@ export function ServiceTable({ services }: ServiceTableProps) {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredServices.length > 0 ? (
-                filteredServices.map((service) => (
+              {searchedServices.length > 0 ? (
+                searchedServices.map((service) => (
                   <TableRow key={service.id}>
                     <TableCell className="font-medium align-top">
                       {format(new Date(service.date), "dd MMM yyyy", { locale: id })}
@@ -253,7 +296,7 @@ export function ServiceTable({ services }: ServiceTableProps) {
                     <div className="flex flex-col items-center justify-center gap-2">
                       <PawPrint className="h-8 w-8 text-muted-foreground" />
                       <p className="text-muted-foreground">
-                        {searchTerm ? "Tidak ada hasil ditemukan." : "Belum ada data pelayanan."}
+                        {searchTerm ? "Tidak ada hasil ditemukan." : "Belum ada data untuk periode ini."}
                       </p>
                     </div>
                   </TableCell>
