@@ -54,12 +54,12 @@ export function Header() {
            {isClient && (
             <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
               <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="ml-2 bg-accent text-accent-foreground hover:bg-accent/90">
+                <Button variant="ghost" size="icon" className="bg-accent text-accent-foreground hover:bg-accent/90 ml-2">
                   <PanelLeft className="h-6 w-6" />
                   <span className="sr-only">Buka Menu</span>
                 </Button>
               </SheetTrigger>
-              <SheetContent side="left">
+              <SheetContent side="left" className="w-[200px]">
                   <div className="px-2 pt-6">
                       <Logo />
                   </div>
