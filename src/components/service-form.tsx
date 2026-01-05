@@ -138,7 +138,7 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-          <div className="space-y-2">
+          <div className="space-y-4">
             <Card>
               <CardContent className="p-4">
                 <FormField
@@ -301,7 +301,7 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
             </Card>
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-4">
             <Card>
               <CardContent className="p-4">
                 <FormField
@@ -389,7 +389,7 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
                   {fields.map((item, index) => {
                     const selectedMedicineType = watchedTreatments?.[index]?.medicineType as MedicineType;
                     return (
-                      <div key={item.id} className="p-4 border rounded-md relative space-y-4">
+                      <div key={item.id} className="relative space-y-4">
                         {fields.length > 1 && (
                             <Button
                                 type="button"
@@ -498,5 +498,7 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
     </Form>
   );
 }
+
+    
 
     
