@@ -7,7 +7,7 @@ import { Header } from "@/components/header";
 import { FirebaseClientProvider } from "@/firebase";
 
 export const metadata: Metadata = {
-  title: "PKH MATENG",
+  title: "PKH Mateng",
   description: "Aplikasi Manajemen Pelayanan Kesehatan Hewan",
 };
 
