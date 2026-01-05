@@ -48,7 +48,7 @@ export function Header() {
         <div className="flex items-center md:hidden">
            <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="-ml-2">
+              <Button variant="ghost" size="icon">
                 <PanelLeft className="h-6 w-6" />
                 <span className="sr-only">Buka Menu</span>
               </Button>
