@@ -1,4 +1,3 @@
-
 "use client";
 
 import Link from 'next/link';
@@ -13,6 +12,7 @@ import { Menu } from 'lucide-react';
 const navItems = [
   { href: '/', label: 'Input Data' },
   { href: '/laporan', label: 'Laporan & Cari' },
+  { href: '/rekap', label: 'Rekap Obat dan kasus' },
 ];
 
 export function Header() {
