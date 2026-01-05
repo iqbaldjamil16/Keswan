@@ -5,7 +5,7 @@ export const treatmentSchema = z.object({
   medicineType: z.string().min(1, "Jenis obat harus dipilih."),
   medicineName: z.string().min(1, "Nama obat harus diisi."),
   dosageValue: z.coerce.number().min(0, "Jumlah dosis harus diisi.").default(0),
-  dosageUnit: z.string().min(1, "Satuan dosis harus dipilih.").default(''),
+  dosageUnit: z.string().default(''), // Remove min(1) to allow old data
 });
 
 export const serviceSchema = z.object({
@@ -30,3 +30,4 @@ export type HealthcareService = z.infer<typeof serviceSchema>;
 export type Treatment = z.infer<typeof treatmentSchema>;
 
     
+
