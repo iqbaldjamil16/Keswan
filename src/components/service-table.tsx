@@ -4,6 +4,7 @@
 import { useState, useMemo } from "react";
 import { format } from "date-fns";
 import { id } from 'date-fns/locale';
+import * as XLSX from 'xlsx';
 
 import { HealthcareService } from "@/lib/types";
 import { Input } from "@/components/ui/input";
@@ -17,7 +18,7 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "./ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import { PawPrint, PlusCircle, ChevronDown } from "lucide-react";
+import { PawPrint, PlusCircle, ChevronDown, Download } from "lucide-react";
 import {
   Accordion,
   AccordionContent,
@@ -118,18 +119,61 @@ export function ServiceTable({ services }: ServiceTableProps) {
     });
 }, [searchTerm, services]);
 
+  const handleDownload = () => {
+    // 1. Sort the data
+    const sortedServices = [...filteredServices].sort((a, b) => {
+      // Sort by Puskeswan
+      if (a.puskeswan < b.puskeswan) return -1;
+      if (a.puskeswan > b.puskeswan) return 1;
+      // Then by Officer Name
+      if (a.officerName < b.officerName) return -1;
+      if (a.officerName > b.officerName) return 1;
+      // Then by Date
+      return new Date(b.date).getTime() - new Date(a.date).getTime();
+    });
+
+    // 2. Format data for the worksheet
+    const dataForSheet = sortedServices.map(service => ({
+      'Puskeswan': service.puskeswan,
+      'Nama Petugas': service.officerName,
+      'Tanggal Pelayanan': format(new Date(service.date), 'dd-MM-yyyy'),
+      'Nama Pemilik': service.ownerName,
+      'Alamat Pemilik': service.ownerAddress,
+      'ID Kasus iSIKHNAS': service.caseId,
+      'Jenis Ternak': service.livestockType,
+      'Jumlah': service.livestockCount,
+      'Gejala Klinis': service.clinicalSymptoms,
+      'Diagnosa': service.diagnosis,
+      'Penanganan': service.handling,
+      'Jenis Pengobatan': service.treatmentType,
+      'Obat yang Digunakan': service.treatments.map(t => `${t.medicineName} (${t.dosage})`).join(', '),
+    }));
+
+    // 3. Create worksheet and workbook
+    const ws = XLSX.utils.json_to_sheet(dataForSheet);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Data Pelayanan");
+
+    // 4. Trigger download
+    XLSX.writeFile(wb, `laporan_pelayanan_${format(new Date(), 'yyyy-MM-dd')}.xlsx`);
+  };
+
   return (
     <Card>
       <CardHeader className="p-4 md:p-6">
         <div className="flex flex-col md:flex-row items-center justify-between gap-4">
           <CardTitle>Data Pelayanan</CardTitle>
-          <div className="w-full md:w-1/3">
+          <div className="flex w-full md:w-auto md:justify-end gap-2">
             <Input
               placeholder="Cari semua data..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full"
+              className="w-full md:w-64"
             />
+             <Button onClick={handleDownload} variant="outline">
+                <Download className="mr-2 h-4 w-4" />
+                Unduh
+            </Button>
           </div>
         </div>
       </CardHeader>
