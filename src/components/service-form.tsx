@@ -94,101 +94,10 @@ export function ServiceForm() {
       <form onSubmit={form.handleSubmit(onSubmit)}>
         <Card>
           <CardContent className="p-4 md:p-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6">
+              <div className="space-y-6 flex flex-col">
+                {/* Mobile & Desktop */}
                 <FormField
-                  control={form.control}
-                  name="ownerName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Nama Pemilik</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Contoh: Budi" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                 <FormField
-                  control={form.control}
-                  name="ownerAddress"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Alamat Pemilik</FormLabel>
-                      <FormControl>
-                        <Textarea placeholder="Alamat lengkap pemilik ternak" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="livestockType"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Jenis Ternak</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Pilih Jenis Ternak" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {livestockTypes.map((type) => (
-                              <SelectItem key={type} value={type}>{type}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="livestockCount"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Jumlah</FormLabel>
-                        <FormControl>
-                          <Input type="number" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                <FormField
-                  control={form.control}
-                  name="clinicalSymptoms"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Gejala Klinis</FormLabel>
-                      <FormControl>
-                        <Textarea placeholder="Gejala yang teramati pada ternak" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                 <FormField
-                  control={form.control}
-                  name="diagnosis"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Diagnosa</FormLabel>
-                      <FormControl>
-                        <Textarea placeholder="Diagnosa penyakit" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              <div className="space-y-6">
-                 <FormField
                   control={form.control}
                   name="date"
                   render={({ field }) => (
@@ -229,6 +138,7 @@ export function ServiceForm() {
                     </FormItem>
                   )}
                 />
+                {/* Mobile & Desktop */}
                 <FormField
                   control={form.control}
                   name="officerName"
@@ -242,7 +152,36 @@ export function ServiceForm() {
                     </FormItem>
                   )}
                 />
+                 {/* Mobile & Desktop */}
+                <FormField
+                  control={form.control}
+                  name="ownerName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Nama Pemilik</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Contoh: Budi" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                 {/* Mobile & Desktop */}
                  <FormField
+                  control={form.control}
+                  name="ownerAddress"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Alamat Pemilik</FormLabel>
+                      <FormControl>
+                        <Textarea placeholder="Alamat lengkap pemilik ternak" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                {/* Mobile & Desktop */}
+                <FormField
                   control={form.control}
                   name="caseId"
                   render={({ field }) => (
@@ -255,7 +194,77 @@ export function ServiceForm() {
                     </FormItem>
                   )}
                 />
+                {/* Mobile & Desktop */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="livestockType"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Jenis Ternak</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Pilih Jenis Ternak" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {livestockTypes.map((type) => (
+                              <SelectItem key={type} value={type}>{type}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="livestockCount"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Jumlah</FormLabel>
+                        <FormControl>
+                          <Input type="number" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-6 flex flex-col mt-6 md:mt-0">
+                {/* Mobile & Desktop */}
+                <FormField
+                  control={form.control}
+                  name="clinicalSymptoms"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Gejala Klinis</FormLabel>
+                      <FormControl>
+                        <Textarea placeholder="Gejala yang teramati pada ternak" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                {/* Mobile & Desktop */}
                  <FormField
+                  control={form.control}
+                  name="diagnosis"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Diagnosa</FormLabel>
+                      <FormControl>
+                        <Textarea placeholder="Diagnosa penyakit" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                {/* Mobile & Desktop */}
+                <FormField
                   control={form.control}
                   name="handling"
                   render={({ field }) => (
@@ -268,6 +277,7 @@ export function ServiceForm() {
                     </FormItem>
                   )}
                 />
+                {/* Mobile & Desktop */}
                 <FormField
                   control={form.control}
                   name="treatmentType"
@@ -281,6 +291,7 @@ export function ServiceForm() {
                     </FormItem>
                   )}
                 />
+                {/* Mobile & Desktop */}
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <Label>Pengobatan</Label>
@@ -395,3 +406,5 @@ export function ServiceForm() {
     </Form>
   );
 }
+
+    
