@@ -67,7 +67,7 @@ export default function EditServicePage() {
   }, [id, firestore]);
 
   return (
-    <div className="container py-4 md:py-8">
+    <div className="container px-4 sm:px-8 py-4 md:py-8">
       <div className="max-w-4xl mx-auto">
         {loading ? (
             <EditSkeleton />
