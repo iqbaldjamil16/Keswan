@@ -432,6 +432,8 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
                     const dosageUnitValue = form.watch(`treatments.${index}.dosageUnit`);
                     const isManualDosageUnit = dosageUnitValue === 'Lainnya';
 
+                    const isMedicineTypeLainnya = selectedMedicineType === 'Lainnya';
+
                     return (
                       <Card key={item.id} className="relative p-4 bg-card">
                          {fields.length > 1 && (
@@ -480,7 +482,7 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
                             render={({ field }) => (
                               <FormItem>
                                 <FormLabel>Nama Obat</FormLabel>
-                                {isManualMedicineName ? (
+                                {isMedicineTypeLainnya || isManualMedicineName ? (
                                    <FormControl>
                                       <Input
                                         placeholder="Masukkan nama obat"
@@ -493,12 +495,9 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
                                   <Select
                                     onValueChange={(value) => {
                                       field.onChange(value);
-                                      if (value !== 'Lainnya') {
-                                        // Optional: Clear manual input if a specific drug is chosen
-                                      }
                                     }}
                                     value={field.value}
-                                    disabled={!selectedMedicineType || selectedMedicineType === 'Lainnya'}
+                                    disabled={!selectedMedicineType}
                                   >
                                     <FormControl>
                                       <SelectTrigger>
@@ -555,7 +554,13 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
                                         </FormControl>
                                     ) : (
                                       <Select
-                                        onValueChange={field.onChange}
+                                        onValueChange={(value) => {
+                                          if (value === 'Lainnya') {
+                                            field.onChange('Lainnya');
+                                          } else {
+                                            field.onChange(value);
+                                          }
+                                        }}
                                         value={field.value}
                                       >
                                         <FormControl>
