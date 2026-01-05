@@ -376,7 +376,7 @@ export function ServiceForm() {
                   {fields.map((item, index) => {
                     const selectedMedicineType = watchedTreatments?.[index]?.medicineType as MedicineType;
                     return (
-                      <div key={item.id} className="grid grid-cols-1 sm:grid-cols-3 gap-x-4 p-4 border rounded-md relative bg-background">
+                      <div key={item.id} className="space-y-4 sm:grid sm:grid-cols-3 sm:gap-x-4 sm:space-y-0 p-4 border rounded-md relative bg-background">
                           <div className="sm:col-span-1">
                             <FormField
                                 control={form.control}
@@ -407,7 +407,7 @@ export function ServiceForm() {
                                 )}
                             />
                           </div>
-                          <div className="sm:col-span-1 mt-4 sm:mt-0">
+                          <div className="sm:col-span-1">
                             <FormField
                                 control={form.control}
                                 name={`treatments.${index}.medicineName`}
@@ -435,7 +435,7 @@ export function ServiceForm() {
                                 )}
                             />
                           </div>
-                          <div className="sm:col-span-1 mt-4 sm:mt-0">
+                          <div className="sm:col-span-1">
                             <FormField
                                 control={form.control}
                                 name={`treatments.${index}.dosage`}
