@@ -67,7 +67,7 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
       clinicalSymptoms: "",
       diagnosis: "",
       treatmentType: "",
-      treatments: [{ medicineType: "", medicineName: "", dosageValue: undefined, dosageUnit: "" }],
+      treatments: [{ medicineType: "", medicineName: "", dosageValue: 0, dosageUnit: "" }],
     },
   });
   
@@ -123,7 +123,7 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
                 clinicalSymptoms: "",
                 diagnosis: "",
                 treatmentType: "",
-                treatments: [{ medicineType: "", medicineName: "", dosageValue: undefined, dosageUnit: "" }],
+                treatments: [{ medicineType: "", medicineName: "", dosageValue: 0, dosageUnit: "" }],
             });
             setShowManualTreatmentType(false);
             setShowManualLivestockType(false);
@@ -418,7 +418,7 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
                       variant="default"
                       size="sm"
                       className="bg-accent text-accent-foreground hover:bg-accent/90"
-                      onClick={() => append({ medicineType: "", medicineName: "", dosageValue: undefined, dosageUnit: "" })}
+                      onClick={() => append({ medicineType: "", medicineName: "", dosageValue: 0, dosageUnit: "" })}
                     >
                       <PlusCircle className="mr-2 h-4 w-4" />
                       Tambah
@@ -607,3 +607,4 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
     
     
     
+
