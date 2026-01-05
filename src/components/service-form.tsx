@@ -256,7 +256,7 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
                     <FormItem>
                       <FormLabel>ID Kasus iSIKHNAS (Opsional)</FormLabel>
                       <FormControl>
-                        <Input placeholder="Contoh: ISIKHNAS-2024-001" {...field} />
+                        <Input placeholder="contoh : 53144622" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -602,5 +602,6 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
     </Form>
   );
 }
+
 
     
