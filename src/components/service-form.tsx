@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useTransition } from "react";
+import { useTransition, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -43,6 +43,9 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
   const { firestore } = useFirebase();
   const router = useRouter();
   const isEditMode = !!initialData;
+  const [showManualTreatmentType, setShowManualTreatmentType] = useState(
+    initialData ? !treatmentTypes.includes(initialData.treatmentType) : false
+  );
 
   const form = useForm<HealthcareService>({
     resolver: zodResolver(serviceSchema),
@@ -119,6 +122,7 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
                 treatmentType: "",
                 treatments: [{ medicineType: "", medicineName: "", dosage: "" }],
             });
+            setShowManualTreatmentType(false);
              router.refresh();
         }
       } catch (error: any) {
@@ -339,20 +343,27 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
                 <FormField
                   control={form.control}
                   name="treatmentType"
-                  render={({ field }) => {
-                    const isManualInput = !treatmentTypes.includes(field.value) && field.value !== '';
-                    return (
-                      <FormItem>
-                        <FormLabel>Jenis Penanganan</FormLabel>
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Jenis Penanganan</FormLabel>
+                      {showManualTreatmentType ? (
+                        <FormControl>
+                          <Input
+                            placeholder="Masukkan jenis penanganan"
+                            {...field}
+                          />
+                        </FormControl>
+                      ) : (
                         <Select
                           onValueChange={(value) => {
                             if (value === 'Lainnya') {
+                              setShowManualTreatmentType(true);
                               field.onChange('');
                             } else {
                               field.onChange(value);
                             }
                           }}
-                          value={isManualInput ? 'Lainnya' : field.value}
+                          value={field.value}
                         >
                           <FormControl>
                             <SelectTrigger>
@@ -361,24 +372,16 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
                           </FormControl>
                           <SelectContent>
                             {treatmentTypes.map((type) => (
-                              <SelectItem key={type} value={type}>{type}</SelectItem>
+                              <SelectItem key={type} value={type}>
+                                {type}
+                              </SelectItem>
                             ))}
                           </SelectContent>
                         </Select>
-                        {isManualInput || field.value === '' && form.formState.isSubmitted ? (
-                            <FormControl>
-                                <Input
-                                    placeholder="Masukkan jenis penanganan manual"
-                                    value={field.value}
-                                    onChange={field.onChange}
-                                    className="mt-2"
-                                />
-                            </FormControl>
-                        ) : null}
-                        <FormMessage />
-                      </FormItem>
-                    );
-                  }}
+                      )}
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
               </CardContent>
             </Card>
@@ -529,5 +532,3 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
     </Form>
   );
 }
-
-    
