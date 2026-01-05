@@ -179,7 +179,7 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
                     <FormItem>
                       <FormLabel>Nama Petugas</FormLabel>
                       <FormControl>
-                        <Input placeholder="Nama lengkap petugas" {...field} />
+                        <Input placeholder="Nama Petugas" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -604,5 +604,6 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
 }
 
 
+    
     
     
