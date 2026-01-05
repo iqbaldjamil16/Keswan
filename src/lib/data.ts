@@ -1,4 +1,5 @@
-import type { HealthcareService } from './types';
+
+import type { HealthcareService, Treatment } from './types';
 
 let services: HealthcareService[] = [
   {
@@ -14,9 +15,13 @@ let services: HealthcareService[] = [
     diagnosis: 'Demam Tiga Hari (Bovine Ephemeral Fever)',
     handling: 'Pemberian antipiretik dan vitamin',
     treatmentType: 'Injeksi',
-    medicineType: 'Vitamin',
-    medicineName: 'Injectamin',
-    dosage: '10ml',
+    treatments: [
+      {
+        medicineType: 'Vitamin',
+        medicineName: 'Injectamin',
+        dosage: '10ml',
+      }
+    ]
   },
   {
     id: '2',
@@ -31,9 +36,13 @@ let services: HealthcareService[] = [
     diagnosis: 'Scouring (Mencret)',
     handling: 'Pemberian antibiotik dan cairan elektrolit',
     treatmentType: 'Oral',
-    medicineType: 'Antibiotik',
-    medicineName: 'Sulfastrong',
-    dosage: 'Sesuai anjuran',
+    treatments: [
+      {
+        medicineType: 'Antibiotik',
+        medicineName: 'Sulfastrong',
+        dosage: 'Sesuai anjuran',
+      }
+    ]
   },
 ];
 
@@ -72,3 +81,5 @@ export const medicineData = {
 export type MedicineType = keyof typeof medicineData;
 
 export const medicineTypes = Object.keys(medicineData) as MedicineType[];
+
+    

@@ -17,7 +17,13 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "./ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import { PawPrint } from "lucide-react";
+import { PawPrint, PlusCircle } from "lucide-react";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 interface ServiceTableProps {
   services: HealthcareService[];
@@ -30,12 +36,19 @@ export function ServiceTable({ services }: ServiceTableProps) {
     if (!searchTerm) return services;
 
     const lowercasedFilter = searchTerm.toLowerCase();
-    return services.filter((service) =>
-      Object.values(service).some((value) =>
-        String(value).toLowerCase().includes(lowercasedFilter)
-      )
-    );
-  }, [searchTerm, services]);
+    
+    return services.filter((service) => {
+        const serviceValues = Object.entries(service)
+            .filter(([key]) => key !== 'treatments')
+            .map(([, value]) => String(value).toLowerCase());
+        
+        const treatmentValues = service.treatments.flatMap(t => Object.values(t).map(v => String(v).toLowerCase()));
+        
+        const allValues = [...serviceValues, ...treatmentValues];
+
+        return allValues.some(value => value.includes(lowercasedFilter));
+    });
+}, [searchTerm, services]);
 
   return (
     <Card>
@@ -61,6 +74,7 @@ export function ServiceTable({ services }: ServiceTableProps) {
                 <TableHead>Pemilik</TableHead>
                 <TableHead>Jenis Ternak</TableHead>
                 <TableHead>Diagnosa</TableHead>
+                <TableHead>Pengobatan</TableHead>
                 <TableHead>Petugas</TableHead>
               </TableRow>
             </TableHeader>
@@ -68,23 +82,43 @@ export function ServiceTable({ services }: ServiceTableProps) {
               {filteredServices.length > 0 ? (
                 filteredServices.map((service) => (
                   <TableRow key={service.id}>
-                    <TableCell className="font-medium">
+                    <TableCell className="font-medium align-top">
                       {format(new Date(service.date), "dd MMM yyyy", { locale: id })}
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="align-top">
                       <div className="font-medium">{service.ownerName}</div>
                       <div className="text-xs text-muted-foreground">{service.ownerAddress}</div>
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="align-top">
                       <Badge variant="secondary">{service.livestockType} ({service.livestockCount})</Badge>
                     </TableCell>
-                    <TableCell>{service.diagnosis}</TableCell>
-                    <TableCell className="text-muted-foreground">{service.officerName}</TableCell>
+                    <TableCell className="align-top">{service.diagnosis}</TableCell>
+                     <TableCell className="align-top">
+                      <Accordion type="single" collapsible className="w-full max-w-xs">
+                        <AccordionItem value="item-1">
+                          <AccordionTrigger className="py-1 text-primary hover:no-underline">
+                             <PlusCircle className="mr-2 h-4 w-4" /> Lihat {service.treatments.length} pengobatan
+                          </AccordionTrigger>
+                          <AccordionContent>
+                            <ul className="list-disc pl-5 space-y-1 text-xs">
+                              {service.treatments.map((treatment, index) => (
+                                <li key={index}>
+                                  <span className="font-semibold">{treatment.medicineName}</span> ({treatment.dosage})
+                                  <br />
+                                  <span className="text-muted-foreground">{treatment.medicineType}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </AccordionContent>
+                        </AccordionItem>
+                      </Accordion>
+                    </TableCell>
+                    <TableCell className="text-muted-foreground align-top">{service.officerName}</TableCell>
                   </TableRow>
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={5} className="h-24 text-center">
+                  <TableCell colSpan={6} className="h-24 text-center">
                     <div className="flex flex-col items-center justify-center gap-2">
                       <PawPrint className="h-8 w-8 text-muted-foreground" />
                       <p className="text-muted-foreground">
@@ -101,3 +135,5 @@ export function ServiceTable({ services }: ServiceTableProps) {
     </Card>
   );
 }
+
+    

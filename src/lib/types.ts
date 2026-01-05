@@ -1,4 +1,11 @@
+
 import { z } from 'zod';
+
+export const treatmentSchema = z.object({
+  medicineType: z.string().min(1, "Jenis obat harus dipilih."),
+  medicineName: z.string().min(1, "Nama obat harus dipilih."),
+  dosage: z.string().min(1, "Dosis harus diisi."),
+});
 
 export const serviceSchema = z.object({
   id: z.string().optional(),
@@ -15,9 +22,10 @@ export const serviceSchema = z.object({
   diagnosis: z.string().min(1, "Diagnosa harus diisi."),
   handling: z.string().min(1, "Penanganan harus diisi."),
   treatmentType: z.string().min(1, "Jenis pengobatan harus diisi."),
-  medicineType: z.string().min(1, "Jenis obat harus dipilih."),
-  medicineName: z.string().min(1, "Nama obat harus dipilih."),
-  dosage: z.string().min(1, "Dosis harus diisi."),
+  treatments: z.array(treatmentSchema).min(1, "Minimal satu pengobatan harus ditambahkan."),
 });
 
 export type HealthcareService = z.infer<typeof serviceSchema>;
+export type Treatment = z.infer<typeof treatmentSchema>;
+
+    

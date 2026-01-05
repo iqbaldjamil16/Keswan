@@ -1,10 +1,10 @@
 
 "use client";
 
-import { useTransition, useState } from "react";
-import { useForm } from "react-hook-form";
+import { useTransition } from "react";
+import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { CalendarIcon, Loader2 } from "lucide-react";
+import { CalendarIcon, Loader2, PlusCircle, Trash2 } from "lucide-react";
 import { format } from "date-fns";
 
 import { cn } from "@/lib/utils";
@@ -59,22 +59,20 @@ export function ServiceForm() {
       diagnosis: "",
       handling: "",
       treatmentType: "",
-      medicineType: "",
-      medicineName: "",
-      dosage: "",
+      treatments: [{ medicineType: "", medicineName: "", dosage: "" }],
     },
   });
+  
+  const { fields, append, remove } = useFieldArray({
+    control: form.control,
+    name: "treatments",
+  });
 
-  const selectedMedicineType = form.watch("medicineType") as MedicineType;
+  const watchedTreatments = form.watch("treatments");
 
   function onSubmit(values: HealthcareService) {
-    // The 'treatment' field is no longer in the form, so we can construct it
-    // before sending if needed by the backend, or adjust the backend.
-    // For now, we remove it from submission.
-    const { ...submissionData } = values;
-
     startTransition(async () => {
-      const result = await createService(submissionData);
+      const result = await createService(values);
       if (result.success) {
         toast({
           title: "Sukses",
@@ -274,74 +272,105 @@ export function ServiceForm() {
                     </FormItem>
                   )}
                 />
-                <div className="space-y-2">
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
                     <Label>Pengobatan</Label>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 p-4 border rounded-md">
-                    <FormField
-                        control={form.control}
-                        name="medicineType"
-                        render={({ field }) => (
-                        <FormItem>
-                            <FormLabel className="text-xs">Jenis Obat</FormLabel>
-                            <Select onValueChange={(value) => {
-                                field.onChange(value)
-                                form.setValue('medicineName', '');
-                            }} defaultValue={field.value}>
-                            <FormControl>
-                                <SelectTrigger>
-                                <SelectValue placeholder="Pilih Jenis" />
-                                </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                                {medicineTypes.map((type) => (
-                                <SelectItem key={type} value={type}>{type}</SelectItem>
-                                ))}
-                            </SelectContent>
-                            </Select>
-                            <FormMessage />
-                        </FormItem>
-                        )}
-                    />
-                    <FormField
-                        control={form.control}
-                        name="medicineName"
-                        render={({ field }) => (
-                        <FormItem>
-                            <FormLabel className="text-xs">Nama Obat</FormLabel>
-                            <Select onValueChange={field.onChange} value={field.value} disabled={!selectedMedicineType}>
-                            <FormControl>
-                                <SelectTrigger>
-                                <SelectValue placeholder="Pilih Obat" />
-                                </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                                {selectedMedicineType && medicineData[selectedMedicineType] && medicineData[selectedMedicineType].length > 0 ? (
-                                    medicineData[selectedMedicineType].map((drug) => (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => append({ medicineType: "", medicineName: "", dosage: "" })}
+                    >
+                      <PlusCircle className="mr-2 h-4 w-4" />
+                      Tambah
+                    </Button>
+                  </div>
+
+                  {fields.map((item, index) => {
+                    const selectedMedicineType = watchedTreatments?.[index]?.medicineType as MedicineType;
+                    return (
+                      <div key={item.id} className="grid grid-cols-1 sm:grid-cols-3 gap-4 p-4 border rounded-md relative">
+                          <FormField
+                            control={form.control}
+                            name={`treatments.${index}.medicineType`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="text-xs">Jenis Obat</FormLabel>
+                                <Select
+                                  onValueChange={(value) => {
+                                    field.onChange(value);
+                                    form.setValue(`treatments.${index}.medicineName`, '');
+                                  }}
+                                  defaultValue={field.value}
+                                >
+                                  <FormControl>
+                                    <SelectTrigger>
+                                      <SelectValue placeholder="Pilih Jenis" />
+                                    </SelectTrigger>
+                                  </FormControl>
+                                  <SelectContent>
+                                    {medicineTypes.map((type) => (
+                                      <SelectItem key={type} value={type}>{type}</SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name={`treatments.${index}.medicineName`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="text-xs">Nama Obat</FormLabel>
+                                <Select onValueChange={field.onChange} value={field.value} disabled={!selectedMedicineType}>
+                                  <FormControl>
+                                    <SelectTrigger>
+                                      <SelectValue placeholder="Pilih Obat" />
+                                    </SelectTrigger>
+                                  </FormControl>
+                                  <SelectContent>
+                                    {selectedMedicineType && medicineData[selectedMedicineType] && medicineData[selectedMedicineType].length > 0 ? (
+                                      medicineData[selectedMedicineType].map((drug) => (
                                         <SelectItem key={drug} value={drug}>{drug}</SelectItem>
-                                    ))
-                                ) : (
-                                    <SelectItem value="-" disabled>Pilih jenis dahulu</SelectItem>
-                                )}
-                            </SelectContent>
-                            </Select>
-                            <FormMessage />
-                        </FormItem>
+                                      ))
+                                    ) : (
+                                      <SelectItem value="-" disabled>Pilih jenis dahulu</SelectItem>
+                                    )}
+                                  </SelectContent>
+                                </Select>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name={`treatments.${index}.dosage`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="text-xs">Dosis</FormLabel>
+                                <FormControl>
+                                  <Input placeholder="cth: 10ml" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                           {fields.length > 1 && (
+                            <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon"
+                                className="absolute -top-3 -right-3 h-6 w-6"
+                                onClick={() => remove(index)}
+                            >
+                                <Trash2 className="h-4 w-4 text-destructive" />
+                            </Button>
                         )}
-                    />
-                    <FormField
-                        control={form.control}
-                        name="dosage"
-                        render={({ field }) => (
-                        <FormItem>
-                            <FormLabel className="text-xs">Dosis</FormLabel>
-                            <FormControl>
-                            <Input placeholder="cth: 10ml" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                        )}
-                    />
-                    </div>
+                      </div>
+                    )
+                  })}
                 </div>
               </div>
             </div>
@@ -357,3 +386,5 @@ export function ServiceForm() {
     </Form>
   );
 }
+
+    
