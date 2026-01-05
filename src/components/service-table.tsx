@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useMemo, useTransition } from "react";
+import { useState, useMemo, useTransition, useEffect } from "react";
 import Link from "next/link";
 import { format } from "date-fns";
 import { id } from 'date-fns/locale';
@@ -70,10 +70,11 @@ function ServiceCard({ service, onDelete }: { service: HealthcareService, onDele
 
     const handleDelete = () => {
         startDeleteTransition(async () => {
-            const result = await deleteService(service.id!);
+            if (!service.id) return;
+            const result = await deleteService(service.id);
             if (result.success) {
                 toast({ title: "Sukses", description: result.success });
-                onDelete(service.id!);
+                onDelete(service.id);
             } else {
                 toast({ variant: "destructive", title: "Gagal", description: result.error });
             }
@@ -137,16 +138,16 @@ function ServiceCard({ service, onDelete }: { service: HealthcareService, onDele
                     </CardContent>
                 </CollapsibleContent>
                  <CardFooter className="p-4 pt-0 flex justify-end gap-2">
-                    <Button asChild variant="outline" size="icon">
+                    <Button asChild variant="outline" size="sm" className="h-8 w-8 p-0">
                       <Link href={`/laporan/${service.id}/edit`}>
-                        <Pencil />
+                        <Pencil className="h-4 w-4" />
                         <span className="sr-only">Edit</span>
                       </Link>
                     </Button>
                     <AlertDialog>
                         <AlertDialogTrigger asChild>
-                            <Button variant="destructive" size="icon" disabled={isDeleting}>
-                                {isDeleting ? <Loader2 className="animate-spin" /> : <Trash2 />}
+                            <Button variant="destructive" size="sm" className="h-8 w-8 p-0" disabled={isDeleting}>
+                                {isDeleting ? <Loader2 className="animate-spin h-4 w-4" /> : <Trash2 className="h-4 w-4" />}
                                 <span className="sr-only">Hapus</span>
                             </Button>
                         </AlertDialogTrigger>
@@ -178,10 +179,11 @@ function ActionsCell({ service, onDelete }: { service: HealthcareService, onDele
 
     const handleDelete = () => {
         startDeleteTransition(async () => {
-            const result = await deleteService(service.id!);
+            if (!service.id) return;
+            const result = await deleteService(service.id);
             if (result.success) {
                 toast({ title: "Sukses", description: result.success });
-                onDelete(service.id!);
+                onDelete(service.id);
             } else {
                 toast({ variant: "destructive", title: "Gagal", description: result.error });
             }
@@ -231,10 +233,9 @@ export function ServiceTable({
   const [searchTerm, setSearchTerm] = useState("");
   const [services, setServices] = useState(initialServices);
   
-  // Update internal state if initialServices prop changes
-  useState(() => {
+  useEffect(() => {
     setServices(initialServices);
-  });
+  }, [initialServices]);
 
   const handleLocalDelete = (serviceId: string) => {
     setServices(currentServices => currentServices.filter(s => s.id !== serviceId));
@@ -428,3 +429,5 @@ export function ServiceTable({
     </Card>
   );
 }
+
+    
