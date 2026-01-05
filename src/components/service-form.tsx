@@ -336,7 +336,7 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
                     <FormItem>
                       <FormLabel>Gejala Klinis</FormLabel>
                       <FormControl>
-                        <Textarea placeholder="Gejala yang teramati pada ternak" {...field} />
+                        <Textarea placeholder="Gejala yang teramati" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
