@@ -5,6 +5,7 @@ let services: HealthcareService[] = [
   {
     id: '1',
     date: new Date('2024-05-20'),
+    puskeswan: 'Puskeswan Topoyo',
     officerName: 'Dr. Budi Santoso',
     ownerName: 'Pak Tono',
     ownerAddress: 'Desa Sukamaju RT 01 RW 02',
@@ -26,6 +27,7 @@ let services: HealthcareService[] = [
   {
     id: '2',
     date: new Date('2024-05-21'),
+    puskeswan: 'Puskeswan Karossa',
     officerName: 'Drh. Siti Aminah',
     ownerName: 'Ibu Wati',
     ownerAddress: 'Dusun Mekarsari Blok C',
@@ -64,6 +66,14 @@ export async function addService(service: Omit<HealthcareService, 'id'>): Promis
   services.unshift(newService);
   return newService;
 }
+
+export const puskeswanList = [
+    'Puskeswan Budong-Budong',
+    'Puskeswan Karossa',
+    'Puskeswan Pangale',
+    'Puskeswan Tobadak',
+    'Puskeswan Topoyo',
+];
 
 export const livestockTypes = [
   'Anjing', 'Anjing Ras', 'Ayam Buras', 'Ayam Domestik', 'Ayam Petelur', 'Babi', 'Burung', 'Itik', 'Kambing Jawa Randu', 'Kambing Kacang', 'Kambing PE', 'Kerbau', 'Kucing Bengal', 'Kucing British', 'Kucing Domestik', 'Kucing Himalaya', 'Kucing MixDom', 'Kucing Persia', 'Kuda', 'Manila', 'Sapi Angus', 'Sapi Bali', 'Sapi Limosin', 'Sapi Simental'

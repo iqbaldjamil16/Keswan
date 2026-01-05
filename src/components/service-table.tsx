@@ -87,6 +87,7 @@ function ServiceCard({ service }: { service: HealthcareService }) {
                          <div>
                             <div className="text-xs font-semibold text-muted-foreground">Petugas</div>
                             <p className="text-sm">{service.officerName}</p>
+                            <p className="text-xs text-muted-foreground">{service.puskeswan}</p>
                         </div>
                     </CardContent>
                 </CollapsibleContent>
@@ -196,7 +197,10 @@ export function ServiceTable({ services }: ServiceTableProps) {
                         </AccordionItem>
                       </Accordion>
                     </TableCell>
-                    <TableCell className="text-muted-foreground align-top">{service.officerName}</TableCell>
+                    <TableCell className="align-top">
+                        <div className="font-medium">{service.officerName}</div>
+                        <div className="text-xs text-muted-foreground">{service.puskeswan}</div>
+                    </TableCell>
                   </TableRow>
                 ))
               ) : (

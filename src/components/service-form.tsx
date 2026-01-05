@@ -10,7 +10,7 @@ import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { serviceSchema, type HealthcareService } from "@/lib/types";
 import { createService } from "@/lib/actions";
-import { medicineData, medicineTypes, type MedicineType, livestockTypes } from "@/lib/data";
+import { medicineData, medicineTypes, type MedicineType, livestockTypes, puskeswanList } from "@/lib/data";
 
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -49,6 +49,7 @@ export function ServiceForm() {
     resolver: zodResolver(serviceSchema),
     defaultValues: {
       date: new Date(),
+      puskeswan: "",
       officerName: "",
       ownerName: "",
       ownerAddress: "",
@@ -80,6 +81,7 @@ export function ServiceForm() {
         });
         form.reset({
             date: new Date(),
+            puskeswan: "",
             officerName: "",
             ownerName: "",
             ownerAddress: "",
@@ -147,6 +149,28 @@ export function ServiceForm() {
                           />
                         </PopoverContent>
                       </Popover>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                 <FormField
+                  control={form.control}
+                  name="puskeswan"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Puskeswan</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Pilih Puskeswan" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {puskeswanList.map((puskeswan) => (
+                            <SelectItem key={puskeswan} value={puskeswan}>{puskeswan}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                       <FormMessage />
                     </FormItem>
                   )}

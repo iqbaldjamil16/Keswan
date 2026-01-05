@@ -12,6 +12,7 @@ export const serviceSchema = z.object({
   date: z.date({
     required_error: "Tanggal harus diisi.",
   }),
+  puskeswan: z.string().min(1, "Puskeswan harus dipilih."),
   officerName: z.string().min(1, "Nama petugas harus diisi."),
   ownerName: z.string().min(1, "Nama pemilik harus diisi."),
   ownerAddress: z.string().min(1, "Alamat pemilik harus diisi."),
