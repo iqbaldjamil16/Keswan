@@ -1,99 +1,141 @@
 
-import type { HealthcareService, Treatment } from './types';
+'use client';
 
-let services: HealthcareService[] = [
-  {
-    id: '1',
-    date: new Date('2024-05-20'),
-    puskeswan: 'Puskeswan Topoyo',
-    officerName: 'Dr. Budi Santoso',
-    ownerName: 'Pak Tono',
-    ownerAddress: 'Desa Sukamaju RT 01 RW 02',
-    caseId: 'ISIKHNAS-2024-001',
-    livestockType: 'Sapi',
-    livestockCount: 5,
-    clinicalSymptoms: 'Nafsu makan menurun, demam',
-    diagnosis: 'Demam Tiga Hari (Bovine Ephemeral Fever)',
-    handling: 'Pemberian antipiretik dan vitamin',
-    treatmentType: 'Injeksi',
-    treatments: [
-      {
-        medicineType: 'Vitamin',
-        medicineName: 'Injectamin',
-        dosage: '10ml',
-      }
-    ]
-  },
-  {
-    id: '2',
-    date: new Date('2024-05-21'),
-    puskeswan: 'Puskeswan Karossa',
-    officerName: 'Drh. Siti Aminah',
-    ownerName: 'Ibu Wati',
-    ownerAddress: 'Dusun Mekarsari Blok C',
-    caseId: 'ISIKHNAS-2024-002',
-    livestockType: 'Kambing',
-    livestockCount: 12,
-    clinicalSymptoms: 'Diare, lemas, dehidrasi',
-    diagnosis: 'Scouring (Mencret)',
-    handling: 'Pemberian antibiotik dan cairan elektrolit',
-    treatmentType: 'Oral',
-    treatments: [
-      {
-        medicineType: 'Antibiotik',
-        medicineName: 'Sulfastrong',
-        dosage: 'Sesuai anjuran',
-      }
-    ]
-  },
-];
+import {
+  collection,
+  addDoc,
+  getDocs,
+  query,
+  orderBy,
+  Timestamp,
+} from 'firebase/firestore';
+import { getSdks } from '@/firebase';
+import type { HealthcareService } from './types';
+import { serviceSchema } from './types';
 
-let nextId = services.length + 1;
-
-const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
-
+// This function now fetches from Firestore
 export async function getServices(): Promise<HealthcareService[]> {
-  await delay(50); 
-  return services.sort((a, b) => b.date.getTime() - a.date.getTime());
+  const { firestore } = getSdks();
+  const servicesCollection = collection(firestore, 'healthcareServices');
+  const q = query(servicesCollection, orderBy('date', 'desc'));
+  const querySnapshot = await getDocs(q);
+  const services: HealthcareService[] = [];
+  querySnapshot.forEach((doc) => {
+    const data = doc.data();
+    const service: HealthcareService = serviceSchema.parse({
+      ...data,
+      id: doc.id,
+      date: (data.date as Timestamp).toDate(),
+    });
+    services.push(service);
+  });
+  return services;
 }
 
-export async function addService(service: Omit<HealthcareService, 'id'>): Promise<HealthcareService> {
-  await delay(50);
-  const newService: HealthcareService = {
+// This function now adds to Firestore
+export async function addService(
+  service: Omit<HealthcareService, 'id'>
+): Promise<HealthcareService> {
+  const { firestore } = getSdks();
+  const validatedService = {
     ...service,
-    id: String(nextId++),
+    date: Timestamp.fromDate(service.date),
   };
-  services.unshift(newService);
-  return newService;
+  const servicesCollection = collection(firestore, 'healthcareServices');
+  const docRef = await addDoc(servicesCollection, validatedService);
+  return { ...service, id: docRef.id };
 }
 
 export const puskeswanList = [
-    'Puskeswan Budong-Budong',
-    'Puskeswan Karossa',
-    'Puskeswan Pangale',
-    'Puskeswan Tobadak',
-    'Puskeswan Topoyo',
+  'Puskeswan Budong-Budong',
+  'Puskeswan Karossa',
+  'Puskeswan Pangale',
+  'Puskeswan Tobadak',
+  'Puskeswan Topoyo',
 ];
 
 export const livestockTypes = [
-  'Anjing', 'Anjing Ras', 'Ayam Buras', 'Ayam Domestik', 'Ayam Petelur', 'Babi', 'Burung', 'Itik', 'Kambing Jawa Randu', 'Kambing Kacang', 'Kambing PE', 'Kerbau', 'Kucing Bengal', 'Kucing British', 'Kucing Domestik', 'Kucing Himalaya', 'Kucing MixDom', 'Kucing Persia', 'Kuda', 'Manila', 'Sapi Angus', 'Sapi Bali', 'Sapi Limosin', 'Sapi Simental'
+  'Anjing',
+  'Anjing Ras',
+  'Ayam Buras',
+  'Ayam Domestik',
+  'Ayam Petelur',
+  'Babi',
+  'Burung',
+  'Itik',
+  'Kambing Jawa Randu',
+  'Kambing Kacang',
+  'Kambing PE',
+  'Kerbau',
+  'Kucing Bengal',
+  'Kucing British',
+  'Kucing Domestik',
+  'Kucing Himalaya',
+  'Kucing MixDom',
+  'Kucing Persia',
+  'Kuda',
+  'Manila',
+  'Sapi Angus',
+  'Sapi Bali',
+  'Sapi Limosin',
+  'Sapi Simental',
 ];
 
 export const medicineData = {
-  "Antibiotik": ["Colibact Bolus", "Duodin", "Gusanex", "Interflox", "Intramox La", "Kaloxy La", "Limoxin La", "Limoxin Spray", "Medoxy La", "Penstrep", "Proxy Vet La", "Sulfastrong", "Vet Oxy La", "Vet oxy sb"],
-  "Anti Radang Analgesia & Piretik": ["Dexapros", "Glucortin-20", "Sulpidon", "Sulprodon"],
-  "Vitamin": ["B12", "B Kompleks", "B komp bolus", "Biodin", "Biopros", "Calcidex", "Fertilife", "Hematodin", "Injectamin", "Pro B Plek", "Vitol"],
-  "Anti Helminthiasis & Ektoparasit": ["Fluconix", "Flukicide", "Intermectin", "Ivomec", "Verm O Bolus", "Verm O Kaplet", "Verm O Pros Bolus", "Wormectin", "Wormzole Bolus"],
-  "Hormon": ["Capriglandin", "Intracin", "Juramate", "Ovalumon", "Pgf2@"],
-  "Anastesia": ["Ketamine", "Lidocain"],
-  "Sedasi": ["Xylazine"],
-  "Antialergi": ["Vetadryl", "Prodryl"],
-  "Antibloat": [],
-  "Susu Mineral & As. Amino": [],
+  Antibiotik: [
+    'Colibact Bolus',
+    'Duodin',
+    'Gusanex',
+    'Interflox',
+    'Intramox La',
+    'Kaloxy La',
+    'Limoxin La',
+    'Limoxin Spray',
+    'Medoxy La',
+    'Penstrep',
+    'Proxy Vet La',
+    'Sulfastrong',
+    'Vet Oxy La',
+    'Vet oxy sb',
+  ],
+  'Anti Radang Analgesia & Piretik': [
+    'Dexapros',
+    'Glucortin-20',
+    'Sulpidon',
+    'Sulprodon',
+  ],
+  Vitamin: [
+    'B12',
+    'B Kompleks',
+    'B komp bolus',
+    'Biodin',
+    'Biopros',
+    'Calcidex',
+    'Fertilife',
+    'Hematodin',
+    'Injectamin',
+    'Pro B Plek',
+    'Vitol',
+  ],
+  'Anti Helminthiasis & Ektoparasit': [
+    'Fluconix',
+    'Flukicide',
+    'Intermectin',
+    'Ivomec',
+    'Verm O Bolus',
+    'Verm O Kaplet',
+    'Verm O Pros Bolus',
+    'Wormectin',
+    'Wormzole Bolus',
+  ],
+  Hormon: ['Capriglandin', 'Intracin', 'Juramate', 'Ovalumon', 'Pgf2@'],
+  Anastesia: ['Ketamine', 'Lidocain'],
+  Sedasi: ['Xylazine'],
+  Antialergi: ['Vetadryl', 'Prodryl'],
+  Antibloat: [],
+  'Susu Mineral & As. Amino': [],
 };
 
 export type MedicineType = keyof typeof medicineData;
 
 export const medicineTypes = Object.keys(medicineData) as MedicineType[];
-
-    
