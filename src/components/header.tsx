@@ -22,11 +22,13 @@ export function Header() {
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-14 items-center">
-        <div className="mr-4 hidden md:flex">
+        {/* Desktop Logo */}
+        <div className="mr-auto hidden md:flex">
           <Logo />
         </div>
         
-        <div className="md:hidden">
+        {/* Mobile Menu and Logo */}
+        <div className="flex items-center gap-2 md:hidden">
            <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon">
@@ -55,13 +57,12 @@ export function Header() {
               </div>
             </SheetContent>
           </Sheet>
+          <Logo />
         </div>
 
-        <div className="flex flex-1 items-center justify-center md:justify-end">
-          <div className="md:hidden">
-            <Logo />
-          </div>
-          <nav className="hidden md:flex items-center space-x-6 text-sm font-medium">
+        {/* Desktop Navigation */}
+        <div className="hidden md:flex items-center justify-end">
+          <nav className="flex items-center space-x-6 text-sm font-medium">
             {navItems.map((item) => (
               <Link
                 key={item.href}
