@@ -47,7 +47,7 @@ export function PasswordDialog({ trigger, onSuccess, title, description }: Passw
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <div onClick={() => setIsOpen(true)}>{trigger}</div>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="w-[90%] rounded-md sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription>{description}</DialogDescription>
