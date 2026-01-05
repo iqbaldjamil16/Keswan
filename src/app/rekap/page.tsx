@@ -1,3 +1,4 @@
+
 'use server';
 
 import {
@@ -25,7 +26,7 @@ import {
 
 interface RecapData {
     [puskeswan: string]: {
-        medicines: { [medicineName: string]: number };
+        medicines: { [medicineName: string]: { count: number, unit: string } };
         diagnoses: { [diagnosis: string]: number };
     };
 }
@@ -34,6 +35,7 @@ function processRecapData(services: HealthcareService[]): RecapData {
     const recap: RecapData = {};
 
     services.forEach(service => {
+        if (!service.puskeswan) return;
         if (!recap[service.puskeswan]) {
             recap[service.puskeswan] = { medicines: {}, diagnoses: {} };
         }
@@ -42,10 +44,21 @@ function processRecapData(services: HealthcareService[]): RecapData {
         const diagnosis = service.diagnosis.trim();
         recap[service.puskeswan].diagnoses[diagnosis] = (recap[service.puskeswan].diagnoses[diagnosis] || 0) + 1;
 
-        // Process medicines
+        // Process medicines by summing up dosages
         service.treatments.forEach(treatment => {
             const medicineName = treatment.medicineName.trim();
-            recap[service.puskeswan].medicines[medicineName] = (recap[service.puskeswan].medicines[medicineName] || 0) + 1;
+            const dosageValue = parseInt(treatment.dosage, 10) || 0;
+            const dosageUnit = treatment.dosage.replace(/[\d\s.,]/g, '') || 'unit';
+
+            if (!recap[service.puskeswan].medicines[medicineName]) {
+                recap[service.puskeswan].medicines[medicineName] = { count: 0, unit: dosageUnit };
+            }
+            
+            recap[service.puskeswan].medicines[medicineName].count += dosageValue;
+            // Keep the unit from the first time we see the medicine
+            if (!recap[service.puskeswan].medicines[medicineName].unit) {
+                 recap[service.puskeswan].medicines[medicineName].unit = dosageUnit;
+            }
         });
     });
 
@@ -71,7 +84,7 @@ export default async function RekapPage() {
                     {puskeswanList.map(puskeswan => {
                         const data = recapData[puskeswan];
                         const sortedDiagnoses = Object.entries(data.diagnoses).sort(([, a], [, b]) => b - a);
-                        const sortedMedicines = Object.entries(data.medicines).sort(([, a], [, b]) => b - a);
+                        const sortedMedicines = Object.entries(data.medicines).sort(([, a], [, b]) => b.count - a.count);
 
                         return (
                             <AccordionItem value={puskeswan} key={puskeswan} className="border rounded-lg bg-card">
@@ -108,14 +121,14 @@ export default async function RekapPage() {
                                                     <TableHeader>
                                                         <TableRow>
                                                             <TableHead>Nama Obat</TableHead>
-                                                            <TableHead className="text-right w-[80px]">Jumlah</TableHead>
+                                                            <TableHead className="text-right w-[120px]">Total Dosis</TableHead>
                                                         </TableRow>
                                                     </TableHeader>
                                                     <TableBody>
-                                                        {sortedMedicines.map(([medicine, count]) => (
+                                                        {sortedMedicines.map(([medicine, {count, unit}]) => (
                                                              <TableRow key={medicine}>
                                                                 <TableCell>{medicine}</TableCell>
-                                                                <TableCell className="text-right font-medium">{count}</TableCell>
+                                                                <TableCell className="text-right font-medium">{`${count} ${unit}`}</TableCell>
                                                             </TableRow>
                                                         ))}
                                                     </TableBody>
