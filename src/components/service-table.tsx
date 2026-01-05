@@ -1,14 +1,15 @@
 
 "use client";
 
-import { useState, useMemo, useTransition, useEffect } from "react";
+import { useState, useMemo, useTransition, useEffect, useCallback } from "react";
 import Link from "next/link";
-import { format } from "date-fns";
+import { format, getMonth, getYear, subYears } from "date-fns";
 import { id } from 'date-fns/locale';
 import * as XLSX from 'xlsx';
 
 import { HealthcareService } from "@/lib/types";
 import { deleteService } from "@/lib/actions";
+import { getServices } from "@/lib/data";
 import { Input } from "@/components/ui/input";
 import {
   Table,
@@ -49,18 +50,62 @@ import {
     AlertDialogFooter,
     AlertDialogHeader,
     AlertDialogTitle,
-    AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
+import { Skeleton } from "./ui/skeleton";
+
   
-  interface ServiceTableProps {
-    services: HealthcareService[];
-    selectedMonth: string;
-    selectedYear: string;
-    onMonthChange: (value: string) => void;
-    onYearChange: (value: string) => void;
-    months: { value: string; label: string }[];
-    years: string[];
+  interface ServiceTableProps {}
+
+function ReportSkeleton() {
+    return (
+      <Card>
+        <CardHeader className="p-4 md:p-6">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+                <Skeleton className="h-8 w-1/3" />
+                 <div className="flex flex-col sm:flex-row w-full md:w-auto md:justify-end gap-2">
+                    <div className="flex gap-2">
+                       <Skeleton className="h-10 w-full sm:w-[180px]" />
+                       <Skeleton className="h-10 w-full sm:w-[120px]" />
+                    </div>
+                    <Skeleton className="h-10 w-full md:w-64" />
+                </div>
+            </div>
+        </CardHeader>
+        <CardContent className="p-0 md:p-6 md:pt-0">
+             {/* Mobile Skeleton */}
+            <div className="md:hidden space-y-4 p-4">
+                <Skeleton className="h-24 w-full" />
+                <Skeleton className="h-24 w-full" />
+                <Skeleton className="h-24 w-full" />
+            </div>
+            {/* Desktop Skeleton */}
+            <div className="hidden md:block rounded-md border">
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead className="w-[120px]"><Skeleton className="h-5 w-full" /></TableHead>
+                            <TableHead><Skeleton className="h-5 w-full" /></TableHead>
+                            <TableHead><Skeleton className="h-5 w-full" /></TableHead>
+                            <TableHead><Skeleton className="h-5 w-full" /></TableHead>
+                            <TableHead><Skeleton className="h-5 w-full" /></TableHead>
+                            <TableHead><Skeleton className="h-5 w-full" /></TableHead>
+                            <TableHead className="w-[100px]"><Skeleton className="h-5 w-full" /></TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        <TableRow><TableCell colSpan={7}><Skeleton className="h-10 w-full" /></TableCell></TableRow>
+                        <TableRow><TableCell colSpan={7}><Skeleton className="h-10 w-full" /></TableCell></TableRow>
+                        <TableRow><TableCell colSpan={7}><Skeleton className="h-10 w-full" /></TableCell></TableRow>
+                    </TableBody>
+                </Table>
+            </div>
+        </CardContent>
+        <CardFooter className="p-4 md:p-6 flex justify-end">
+            <Skeleton className="h-10 w-36" />
+        </CardFooter>
+      </Card>
+    )
   }
 
 function ServiceCard({ service, onDelete }: { service: HealthcareService, onDelete: (id: string) => void }) {
@@ -98,14 +143,12 @@ function ServiceCard({ service, onDelete }: { service: HealthcareService, onDele
                                 {format(new Date(service.date), "dd MMM yyyy", { locale: id })}
                             </div>
                         </div>
-                        <div className="flex items-center">
-                            <CollapsibleTrigger asChild>
-                                <Button variant="ghost" size="sm">
-                                    <ChevronDown className={`h-4 w-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
-                                    <span className="sr-only">Toggle</span>
-                                </Button>
-                            </CollapsibleTrigger>
-                        </div>
+                        <CollapsibleTrigger asChild>
+                            <Button variant="ghost" size="sm" className="w-8 h-8 p-0">
+                                <ChevronDown className={`h-4 w-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+                                <span className="sr-only">Toggle</span>
+                            </Button>
+                        </CollapsibleTrigger>
                     </div>
                 </CardHeader>
                 <CollapsibleContent>
@@ -221,53 +264,64 @@ function ActionsCell({ service, onDelete }: { service: HealthcareService, onDele
     );
 }
 
-export function ServiceTable({ 
-    services: initialServices, 
-    selectedMonth, 
-    selectedYear, 
-    onMonthChange, 
-    onYearChange,
-    months,
-    years 
-}: ServiceTableProps) {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [services, setServices] = useState(initialServices);
+const years = Array.from({ length: 5 }, (_, i) => getYear(subYears(new Date(), i)).toString());
+const months = Array.from({ length: 12 }, (_, i) => ({
+    value: i.toString(),
+    label: new Date(0, i).toLocaleString(id, { month: 'long' }),
+}));
+
+
+export function ServiceTable({}: ServiceTableProps) {
+    const [initialServices, setInitialServices] = useState<HealthcareService[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [selectedMonth, setSelectedMonth] = useState(getMonth(new Date()).toString());
+    const [selectedYear, setSelectedYear] = useState(getYear(new Date()).toString());
+    const [searchTerm, setSearchTerm] = useState("");
   
-  useEffect(() => {
-    setServices(initialServices);
-  }, [initialServices]);
+    const loadServices = useCallback(async (year: string, month: string) => {
+        try {
+          setLoading(true);
+          const fetchedServices = await getServices(parseInt(year, 10), parseInt(month, 10));
+          setInitialServices(fetchedServices);
+        } catch (error) {
+          console.error("Failed to fetch services:", error);
+        } finally {
+          setLoading(false);
+        }
+      }, []);
+    
+    useEffect(() => {
+        loadServices(selectedYear, selectedMonth);
+    }, [selectedYear, selectedMonth, loadServices]);
+
 
   const handleLocalDelete = (serviceId: string) => {
-    setServices(currentServices => currentServices.filter(s => s.id !== serviceId));
+    setInitialServices(currentServices => currentServices.filter(s => s.id !== serviceId));
   };
 
 
   const searchedServices = useMemo(() => {
     const lowercasedFilter = searchTerm.toLowerCase();
     
-    return services.filter((service) => {
-        if (!searchTerm) return true; // if no search term, return all services for the selected period
+    return initialServices.filter((service) => {
+        if (!searchTerm) return true;
         const ownerName = service.ownerName.toLowerCase();
         const formattedDate = format(new Date(service.date), "dd MMM yyyy", { locale: id }).toLowerCase();
         
         return ownerName.includes(lowercasedFilter) || formattedDate.includes(lowercasedFilter);
     });
-}, [searchTerm, services]);
+}, [searchTerm, initialServices]);
 
   const handleDownload = () => {
     // 1. Sort the data
     const sortedServices = [...searchedServices].sort((a, b) => {
-      // Sort by Puskeswan
       if (a.puskeswan < b.puskeswan) return -1;
       if (a.puskeswan > b.puskeswan) return 1;
-      // Then by Officer Name
       if (a.officerName < b.officerName) return -1;
       if (a.officerName > b.officerName) return 1;
-      // Then by Date
       return new Date(b.date).getTime() - new Date(a.date).getTime();
     });
 
-    // 2. Format data for the worksheet
     const dataForSheet = sortedServices.map(service => ({
       'Puskeswan': service.puskeswan,
       'Nama Petugas': service.officerName,
@@ -284,7 +338,6 @@ export function ServiceTable({
       'Obat yang Digunakan': service.treatments.map(t => `${t.medicineName} (${t.dosage})`).join(', '),
     }));
 
-    // 3. Create worksheet and workbook
     const ws = XLSX.utils.json_to_sheet(dataForSheet);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Data Pelayanan");
@@ -293,6 +346,11 @@ export function ServiceTable({
     XLSX.writeFile(wb, `laporan_pelayanan_${monthLabel}_${selectedYear}.xlsx`);
   };
 
+  if (loading) {
+    return <ReportSkeleton />;
+  }
+
+
   return (
     <Card>
       <CardHeader className="p-4 md:p-6">
@@ -300,7 +358,7 @@ export function ServiceTable({
           <CardTitle>Data Pelayanan</CardTitle>
           <div className="flex flex-col sm:flex-row w-full md:w-auto md:justify-end gap-2">
             <div className="flex gap-2">
-                <Select value={selectedMonth} onValueChange={onMonthChange}>
+                <Select value={selectedMonth} onValueChange={setSelectedMonth}>
                     <SelectTrigger className="w-full sm:w-[180px]">
                         <SelectValue placeholder="Pilih Bulan" />
                     </SelectTrigger>
@@ -310,7 +368,7 @@ export function ServiceTable({
                         ))}
                     </SelectContent>
                 </Select>
-                <Select value={selectedYear} onValueChange={onYearChange}>
+                <Select value={selectedYear} onValueChange={setSelectedYear}>
                     <SelectTrigger className="w-full sm:w-[120px]">
                         <SelectValue placeholder="Pilih Tahun" />
                     </SelectTrigger>
@@ -331,7 +389,6 @@ export function ServiceTable({
         </div>
       </CardHeader>
       <CardContent className="p-0 md:p-6 md:pt-0">
-        {/* Mobile View */}
         <div className="md:hidden space-y-4 p-4">
             {searchedServices.length > 0 ? (
                 searchedServices.map(service => <ServiceCard key={service.id} service={service} onDelete={handleLocalDelete} />)
@@ -429,8 +486,3 @@ export function ServiceTable({
     </Card>
   );
 }
-
-    
-
-    
-
