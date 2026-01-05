@@ -98,7 +98,18 @@ export const medicineData = {
   Sedasi: ['Xylazine'],
   Antialergi: ['Vetadryl', 'Prodryl'],
   Antibloat: ['Antibloat', 'Tympanol'],
-  'Susu Mineral & As. Amino': [],
+  'Susu Mineral & As. Amino': [
+    'Lactomax',
+    'Lactova',
+    'Langantor',
+    'Maxinos',
+    'Mineral Permix',
+    'Mineral-10',
+    'Pigmix',
+    'ProLac',
+    'Susu Nutrinos',
+    'Ultra Mineral',
+  ],
   Lainnya: [],
 };
 
