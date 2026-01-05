@@ -71,7 +71,6 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
   });
 
   const watchedTreatments = form.watch("treatments");
-  const watchedTreatmentType = form.watch("treatmentType");
 
   async function onSubmit(values: HealthcareService) {
     if (!firestore) {
@@ -340,12 +339,20 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
                 <FormField
                   control={form.control}
                   name="treatmentType"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Jenis Penanganan</FormLabel>
-                        <Select 
-                            onValueChange={field.onChange} 
-                            value={treatmentTypes.includes(field.value) ? field.value : 'Lainnya'}
+                  render={({ field }) => {
+                    const isManualInput = !treatmentTypes.includes(field.value) && field.value !== '';
+                    return (
+                      <FormItem>
+                        <FormLabel>Jenis Penanganan</FormLabel>
+                        <Select
+                          onValueChange={(value) => {
+                            if (value === 'Lainnya') {
+                              field.onChange('');
+                            } else {
+                              field.onChange(value);
+                            }
+                          }}
+                          value={isManualInput ? 'Lainnya' : field.value}
                         >
                           <FormControl>
                             <SelectTrigger>
@@ -358,17 +365,20 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
                             ))}
                           </SelectContent>
                         </Select>
-                        {watchedTreatmentType === 'Lainnya' && (
-                             <FormControl>
+                        {isManualInput || field.value === '' && form.formState.isSubmitted ? (
+                            <FormControl>
                                 <Input
-                                placeholder="Masukkan jenis penanganan manual"
-                                {...field}
+                                    placeholder="Masukkan jenis penanganan manual"
+                                    value={field.value}
+                                    onChange={field.onChange}
+                                    className="mt-2"
                                 />
                             </FormControl>
-                        )}
-                      <FormMessage />
-                    </FormItem>
-                  )}
+                        ) : null}
+                        <FormMessage />
+                      </FormItem>
+                    );
+                  }}
                 />
               </CardContent>
             </Card>
