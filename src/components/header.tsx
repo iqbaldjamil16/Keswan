@@ -8,7 +8,7 @@ import { Logo } from './logo';
 import { cn } from '@/lib/utils';
 import { Button } from './ui/button';
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from './ui/sheet';
-import { Menu } from 'lucide-react';
+import { LayoutGrid } from 'lucide-react';
 
 const navItems = [
   { href: '/', label: 'Input Data' },
@@ -49,7 +49,7 @@ export function Header() {
            <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon" className="-ml-2">
-                <Menu className="h-6 w-6" />
+                <LayoutGrid className="h-6 w-6" />
                 <span className="sr-only">Buka Menu</span>
               </Button>
             </SheetTrigger>
