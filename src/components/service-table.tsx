@@ -128,15 +128,10 @@ export function ServiceTable({
     const lowercasedFilter = searchTerm.toLowerCase();
     
     return services.filter((service) => {
-        const serviceValues = Object.entries(service)
-            .filter(([key]) => key !== 'treatments')
-            .map(([, value]) => String(value).toLowerCase());
+        const ownerName = service.ownerName.toLowerCase();
+        const formattedDate = format(new Date(service.date), "dd MMM yyyy", { locale: id }).toLowerCase();
         
-        const treatmentValues = service.treatments.flatMap(t => Object.values(t).map(v => String(v).toLowerCase()));
-        
-        const allValues = [...serviceValues, ...treatmentValues];
-
-        return allValues.some(value => value.includes(lowercasedFilter));
+        return ownerName.includes(lowercasedFilter) || formattedDate.includes(lowercasedFilter);
     });
 }, [searchTerm, services]);
 
@@ -208,7 +203,7 @@ export function ServiceTable({
                 </Select>
             </div>
             <Input
-              placeholder="Cari di data terpilih..."
+              placeholder="Cari nama pemilik atau tanggal..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full md:w-64"
@@ -311,5 +306,7 @@ export function ServiceTable({
     </Card>
   );
 }
+
+    
 
     
