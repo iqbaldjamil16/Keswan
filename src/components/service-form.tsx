@@ -71,6 +71,7 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
   });
 
   const watchedTreatments = form.watch("treatments");
+  const watchedTreatmentType = form.watch("treatmentType");
 
   async function onSubmit(values: HealthcareService) {
     if (!firestore) {
@@ -342,18 +343,27 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Jenis Penanganan</FormLabel>
-                       <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}>
+                      {watchedTreatmentType === 'Lainnya' ? (
                         <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Pilih Jenis Penanganan" />
-                          </SelectTrigger>
+                            <Input
+                            placeholder="Masukkan jenis penanganan"
+                            {...field}
+                            />
                         </FormControl>
-                        <SelectContent>
-                          {treatmentTypes.map((type) => (
-                            <SelectItem key={type} value={type}>{type}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      ) : (
+                        <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Pilih Jenis Penanganan" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {treatmentTypes.map((type) => (
+                              <SelectItem key={type} value={type}>{type}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      )}
                       <FormMessage />
                     </FormItem>
                   )}
