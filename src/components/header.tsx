@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from 'next/link';
@@ -22,16 +23,32 @@ export function Header() {
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-14 items-center">
-        {/* Desktop Logo */}
-        <div className="mr-auto hidden md:flex">
-          <Logo />
+        {/* Desktop Logo & Nav */}
+        <div className="hidden md:flex items-center flex-1">
+          <div className="mr-6">
+            <Logo />
+          </div>
+          <nav className="flex items-center space-x-6 text-sm font-medium">
+            {navItems.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={cn(
+                  'transition-colors hover:text-primary',
+                  pathname === item.href ? 'text-primary' : 'text-foreground'
+                )}
+              >
+                {item.label}
+              </Link>
+            ))}
+          </nav>
         </div>
-        
-        {/* Mobile Menu and Logo */}
-        <div className="flex items-center gap-2 md:hidden">
+
+        {/* Mobile Menu & Logo */}
+        <div className="flex items-center md:hidden">
            <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon">
+              <Button variant="ghost" size="icon" className="-ml-2">
                 <Menu className="h-6 w-6" />
                 <span className="sr-only">Buka Menu</span>
               </Button>
@@ -57,25 +74,9 @@ export function Header() {
               </div>
             </SheetContent>
           </Sheet>
-          <Logo />
-        </div>
-
-        {/* Desktop Navigation */}
-        <div className="hidden md:flex items-center justify-end">
-          <nav className="flex items-center space-x-6 text-sm font-medium">
-            {navItems.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={cn(
-                  'transition-colors hover:text-primary',
-                  pathname === item.href ? 'text-primary' : 'text-foreground'
-                )}
-              >
-                {item.label}
-              </Link>
-            ))}
-          </nav>
+          <div className="ml-2">
+            <Logo />
+          </div>
         </div>
       </div>
     </header>
