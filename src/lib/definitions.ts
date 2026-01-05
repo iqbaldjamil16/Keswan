@@ -34,6 +34,18 @@ export const livestockTypes = [
   'Sapi Simental',
 ];
 
+export const treatmentTypes = [
+  'Injeksi',
+  'Per Oral',
+  'Kutaneus/Topikal',
+  'Subkutaneus',
+  'Intravena',
+  'Intrauteri',
+  'Intraanal',
+  'Intramamae',
+  'Lainnya',
+];
+
 export const medicineData = {
   Antibiotik: [
     'Colibact Bolus',

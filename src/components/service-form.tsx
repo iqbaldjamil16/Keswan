@@ -11,7 +11,7 @@ import { doc, updateDoc, addDoc, collection, Timestamp, Firestore } from 'fireba
 
 import { cn } from "@/lib/utils";
 import { serviceSchema, type HealthcareService } from "@/lib/types";
-import { medicineData, medicineTypes, type MedicineType, livestockTypes, puskeswanList } from "@/lib/definitions";
+import { medicineData, medicineTypes, type MedicineType, livestockTypes, puskeswanList, treatmentTypes } from "@/lib/definitions";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -342,9 +342,18 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Jenis Penanganan</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Injeksi, Oral, Topikal" {...field} />
-                      </FormControl>
+                       <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Pilih Jenis Penanganan" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {treatmentTypes.map((type) => (
+                            <SelectItem key={type} value={type}>{type}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -498,5 +507,3 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
     </Form>
   );
 }
-
-    
