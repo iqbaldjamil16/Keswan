@@ -242,9 +242,8 @@ function ActionsCell({ service, onDelete }: { service: HealthcareService, onDele
                 description="Silakan masukkan kata sandi untuk mengedit data."
                 onSuccess={() => router.push(`/laporan/${service.id}/edit`)}
                 trigger={
-                    <Button asChild variant="ghost" size="icon">
-                        {/* The actual button is rendered inside, so we use a span here as a placeholder for the trigger area */}
-                        <span><Pencil className="h-4 w-4" /></span>
+                    <Button variant="ghost" size="icon">
+                        <Pencil className="h-4 w-4" />
                     </Button>
                 }
             />

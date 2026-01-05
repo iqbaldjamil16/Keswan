@@ -10,6 +10,7 @@ import {
   DialogDescription,
   DialogFooter,
   DialogClose,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -44,17 +45,24 @@ export function PasswordDialog({ trigger, onSuccess, title, description }: Passw
     }
   };
 
+  const handleOpenChange = (open: boolean) => {
+    setIsOpen(open);
+    if (!open) {
+      setPassword("");
+    }
+  };
+
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <div onClick={() => setIsOpen(true)}>{trigger}</div>
+    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
+      <DialogTrigger asChild>{trigger}</DialogTrigger>
       <DialogContent className="w-[90%] rounded-md sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription>{description}</DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="password"className="text-right">
+          <div className="space-y-2">
+            <Label htmlFor="password">
               Kata Sandi
             </Label>
             <Input
@@ -62,7 +70,6 @@ export function PasswordDialog({ trigger, onSuccess, title, description }: Passw
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="col-span-3"
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
                   e.preventDefault();
