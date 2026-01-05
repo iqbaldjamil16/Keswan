@@ -52,10 +52,6 @@
           "type": "string",
           "description": "Diagnosis of the livestock condition."
         },
-        "handling": {
-          "type": "string",
-          "description": "Details of how the condition was handled."
-        },
         "treatmentType": {
           "type": "string",
           "description": "Type of treatment provided."
@@ -93,7 +89,6 @@
         "livestockCount",
         "clinicalSymptoms",
         "diagnosis",
-        "handling",
         "treatmentType",
         "treatments"
       ]
@@ -115,3 +110,5 @@
     }
   }
 }
+
+    

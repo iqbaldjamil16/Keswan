@@ -60,7 +60,6 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
       livestockCount: 1,
       clinicalSymptoms: "",
       diagnosis: "",
-      handling: "",
       treatmentType: "",
       treatments: [{ medicineType: "", medicineName: "", dosage: "" }],
     },
@@ -117,7 +116,6 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
                 livestockCount: 1,
                 clinicalSymptoms: "",
                 diagnosis: "",
-                handling: "",
                 treatmentType: "",
                 treatments: [{ medicineType: "", medicineName: "", dosage: "" }],
             });
@@ -340,23 +338,6 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
               <CardContent className="p-4">
                 <FormField
                   control={form.control}
-                  name="handling"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Penanganan</FormLabel>
-                      <FormControl>
-                        <Textarea placeholder="Tindakan yang dilakukan" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-4">
-                <FormField
-                  control={form.control}
                   name="treatmentType"
                   render={({ field }) => (
                     <FormItem>
@@ -517,3 +498,5 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
     </Form>
   );
 }
+
+    
