@@ -13,7 +13,7 @@ import { createService } from "@/lib/actions";
 import { medicineData, medicineTypes, type MedicineType, livestockTypes, puskeswanList, addService } from "@/lib/data";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Form,
   FormControl,
@@ -80,10 +80,8 @@ export function ServiceForm() {
 
     startTransition(async () => {
       try {
-        // First, save the data to Firestore directly from the client
         await addService(firestore, values);
         
-        // Then, call the server action just to revalidate paths
         const result = await createService(values);
 
         if (result.success) {
@@ -107,7 +105,6 @@ export function ServiceForm() {
               treatments: [{ medicineType: "", medicineName: "", dosage: "" }],
           });
         } else if (result.error) {
-           // This will now mostly be for validation errors from the server action
            toast({
             variant: "destructive",
             title: "Gagal Validasi",
@@ -115,7 +112,6 @@ export function ServiceForm() {
           });
         }
       } catch (error) {
-        // This will catch errors from the client-side addService call
         toast({
           variant: "destructive",
           title: "Gagal Menyimpan",
@@ -127,12 +123,11 @@ export function ServiceForm() {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)}>
-        <Card>
-          <CardContent className="p-4 md:p-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6">
-              <div className="space-y-6 flex flex-col">
-                {/* Mobile & Desktop */}
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 md:space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+          <div className="space-y-4 md:space-y-6">
+            <Card>
+              <CardContent className="p-4">
                 <FormField
                   control={form.control}
                   name="date"
@@ -144,7 +139,6 @@ export function ServiceForm() {
                           type="date"
                           value={format(field.value, 'yyyy-MM-dd')}
                           onChange={(e) => {
-                            // Ensure date is created in local timezone, not UTC
                             const date = new Date(e.target.value);
                             const userTimezoneOffset = date.getTimezoneOffset() * 60000;
                             field.onChange(new Date(date.getTime() + userTimezoneOffset));
@@ -155,8 +149,10 @@ export function ServiceForm() {
                     </FormItem>
                   )}
                 />
-                
-                {/* Mobile & Desktop */}
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-4">
                 <FormField
                   control={form.control}
                   name="officerName"
@@ -170,6 +166,10 @@ export function ServiceForm() {
                     </FormItem>
                   )}
                 />
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-4">
                 <FormField
                   control={form.control}
                   name="puskeswan"
@@ -192,7 +192,10 @@ export function ServiceForm() {
                     </FormItem>
                   )}
                 />
-                 {/* Mobile & Desktop */}
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-4">
                 <FormField
                   control={form.control}
                   name="ownerName"
@@ -206,7 +209,10 @@ export function ServiceForm() {
                     </FormItem>
                   )}
                 />
-                 {/* Mobile & Desktop */}
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-4">
                  <FormField
                   control={form.control}
                   name="ownerAddress"
@@ -220,7 +226,10 @@ export function ServiceForm() {
                     </FormItem>
                   )}
                 />
-                {/* Mobile & Desktop */}
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-4">
                 <FormField
                   control={form.control}
                   name="caseId"
@@ -234,48 +243,54 @@ export function ServiceForm() {
                     </FormItem>
                   )}
                 />
-                {/* Mobile & Desktop */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="livestockType"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Jenis Ternak</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}>
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Pilih Jenis Ternak" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {livestockTypes.map((type) => (
-                              <SelectItem key={type} value={type}>{type}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="livestockCount"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Jumlah</FormLabel>
-                        <FormControl>
-                          <Input type="number" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              </div>
+              </CardContent>
+            </Card>
+            <Card>
+                <CardContent className="p-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <FormField
+                        control={form.control}
+                        name="livestockType"
+                        render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Jenis Ternak</FormLabel>
+                            <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}>
+                            <FormControl>
+                                <SelectTrigger>
+                                <SelectValue placeholder="Pilih Jenis Ternak" />
+                                </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                                {livestockTypes.map((type) => (
+                                <SelectItem key={type} value={type}>{type}</SelectItem>
+                                ))}
+                            </SelectContent>
+                            </Select>
+                            <FormMessage />
+                        </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="livestockCount"
+                        render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Jumlah</FormLabel>
+                            <FormControl>
+                            <Input type="number" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                        )}
+                    />
+                    </div>
+                </CardContent>
+            </Card>
+          </div>
 
-              <div className="space-y-6 flex flex-col mt-6 md:mt-0">
-                {/* Mobile & Desktop */}
+          <div className="space-y-4 md:space-y-6">
+            <Card>
+              <CardContent className="p-4">
                 <FormField
                   control={form.control}
                   name="clinicalSymptoms"
@@ -289,7 +304,10 @@ export function ServiceForm() {
                     </FormItem>
                   )}
                 />
-                {/* Mobile & Desktop */}
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-4">
                  <FormField
                   control={form.control}
                   name="diagnosis"
@@ -303,7 +321,10 @@ export function ServiceForm() {
                     </FormItem>
                   )}
                 />
-                {/* Mobile & Desktop */}
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-4">
                 <FormField
                   control={form.control}
                   name="handling"
@@ -317,7 +338,10 @@ export function ServiceForm() {
                     </FormItem>
                   )}
                 />
-                {/* Mobile & Desktop */}
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-4">
                 <FormField
                   control={form.control}
                   name="treatmentType"
@@ -331,7 +355,10 @@ export function ServiceForm() {
                     </FormItem>
                   )}
                 />
-                {/* Mobile & Desktop */}
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-4">
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <Label>Pengobatan</Label>
@@ -349,7 +376,7 @@ export function ServiceForm() {
                   {fields.map((item, index) => {
                     const selectedMedicineType = watchedTreatments?.[index]?.medicineType as MedicineType;
                     return (
-                      <div key={item.id} className="grid grid-cols-1 sm:grid-cols-3 gap-4 p-4 border rounded-md relative">
+                      <div key={item.id} className="grid grid-cols-1 sm:grid-cols-3 gap-4 p-4 border rounded-md relative bg-background">
                           <FormField
                             control={form.control}
                             name={`treatments.${index}.medicineType`}
@@ -422,7 +449,7 @@ export function ServiceForm() {
                                 type="button"
                                 variant="ghost"
                                 size="icon"
-                                className="absolute -top-3 -right-3 h-6 w-6 bg-background"
+                                className="absolute -top-3 -right-3 h-6 w-6 bg-card"
                                 onClick={() => remove(index)}
                             >
                                 <Trash2 className="h-4 w-4 text-destructive" />
@@ -432,17 +459,19 @@ export function ServiceForm() {
                     )
                   })}
                 </div>
-              </div>
-            </div>
-          </CardContent>
-          <CardFooter className="flex justify-end p-4 md:p-6">
-            <Button type="submit" disabled={isPending}>
-              {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Simpan Data
-            </Button>
-          </CardFooter>
-        </Card>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+        <div className="flex justify-end">
+          <Button type="submit" disabled={isPending}>
+            {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            Simpan Data
+          </Button>
+        </div>
       </form>
     </Form>
   );
 }
+
+    
