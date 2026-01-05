@@ -58,7 +58,8 @@ function processRecapData(services: HealthcareService[]): RecapData {
         // Process medicines by summing up dosages
         service.treatments.forEach(treatment => {
             const medicineName = treatment.medicineName.trim();
-            const dosageValue = parseInt(treatment.dosage, 10) || 0;
+            // Replace comma with dot for correct float parsing, then parse
+            const dosageValue = parseFloat(treatment.dosage.replace(',', '.')) || 0;
             const dosageUnit = treatment.dosage.replace(/[\d\s.,]/g, '') || 'unit';
 
             if (!recap[service.puskeswan].medicines[medicineName]) {
@@ -124,6 +125,11 @@ export default function RekapPage() {
 
     const recapData = useMemo(() => processRecapData(filteredServices), [filteredServices]);
     const puskeswanList = Object.keys(recapData).sort();
+    
+    const formatDosage = (count: number) => {
+        // Format to a string with up to 2 decimal places, then replace dot with comma
+        return Number(count.toFixed(2)).toLocaleString("id-ID");
+    };
 
   return (
     <div className="container py-4 md:py-8">
@@ -207,7 +213,7 @@ export default function RekapPage() {
                                                         {sortedMedicines.map(([medicine, {count, unit}]) => (
                                                              <TableRow key={medicine}>
                                                                 <TableCell>{medicine}</TableCell>
-                                                                <TableCell className="text-right font-medium">{`${count} ${unit}`}</TableCell>
+                                                                <TableCell className="text-right font-medium">{`${formatDosage(count)} ${unit}`}</TableCell>
                                                             </TableRow>
                                                         ))}
                                                     </TableBody>
