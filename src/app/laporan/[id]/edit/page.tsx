@@ -3,9 +3,11 @@
 
 import { useEffect, useState } from 'react';
 import { notFound, useParams } from 'next/navigation';
+import { doc, getDoc, Timestamp } from 'firebase/firestore';
+import { useFirebase } from '@/firebase';
+
 import { ServiceForm } from '@/components/service-form';
-import { getServiceById } from '@/lib/data';
-import type { HealthcareService } from '@/lib/types';
+import { type HealthcareService, serviceSchema } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
 
 function EditSkeleton() {
@@ -27,23 +29,32 @@ function EditSkeleton() {
 export default function EditServicePage() {
   const params = useParams();
   const id = Array.isArray(params.id) ? params.id[0] : params.id;
+  const { firestore } = useFirebase();
   const [service, setService] = useState<HealthcareService | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchService() {
-      if (!id) {
+      if (!id || !firestore) {
         setLoading(false);
-        notFound();
+        if (!id) notFound();
         return;
       };
       try {
         setLoading(true);
-        const fetchedService = await getServiceById(id);
-        if (!fetchedService) {
-          notFound();
+        const docRef = doc(firestore, 'healthcareServices', id);
+        const docSnap = await getDoc(docRef);
+      
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          const serviceData = serviceSchema.parse({
+            ...data,
+            id: docSnap.id,
+            date: (data.date as Timestamp).toDate(),
+          });
+          setService(serviceData);
         } else {
-          setService(fetchedService);
+          notFound();
         }
       } catch (error) {
         console.error('Failed to fetch service:', error);
@@ -53,7 +64,7 @@ export default function EditServicePage() {
       }
     }
     fetchService();
-  }, [id]);
+  }, [id, firestore]);
 
   return (
     <div className="container py-4 md:py-8">

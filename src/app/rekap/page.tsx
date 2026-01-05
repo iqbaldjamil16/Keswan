@@ -14,8 +14,7 @@ import {
     AccordionItem,
     AccordionTrigger,
   } from "@/components/ui/accordion";
-import { getServices } from "@/lib/data";
-import type { HealthcareService } from "@/lib/types";
+import { type HealthcareService, serviceSchema } from "@/lib/types";
 import {
     Table,
     TableBody,
@@ -32,12 +31,14 @@ import {
     SelectTrigger,
     SelectValue,
   } from "@/components/ui/select";
-import { getMonth, getYear, subYears, format } from "date-fns";
+import { getMonth, getYear, subYears, format, startOfMonth, endOfMonth } from "date-fns";
 import { id } from 'date-fns/locale';
 import { Button } from "@/components/ui/button";
 import { Download } from "lucide-react";
 import * as XLSX from 'xlsx';
 import { cn } from "@/lib/utils";
+import { collection, query, where, getDocs, orderBy, Timestamp } from 'firebase/firestore';
+import { useFirebase } from "@/firebase";
 
 interface RecapData {
     [puskeswan: string]: {
@@ -55,14 +56,11 @@ function processRecapData(services: HealthcareService[]): RecapData {
             recap[service.puskeswan] = { medicines: {}, diagnoses: {} };
         }
 
-        // Process diagnoses
         const diagnosis = service.diagnosis.trim();
         recap[service.puskeswan].diagnoses[diagnosis] = (recap[service.puskeswan].diagnoses[diagnosis] || 0) + 1;
 
-        // Process medicines by summing up dosages
         service.treatments.forEach(treatment => {
             const medicineName = treatment.medicineName.trim();
-            // Replace comma with dot for correct float parsing, then parse
             const dosageValue = parseFloat(treatment.dosage.replace(',', '.')) || 0;
             const dosageUnit = treatment.dosage.replace(/[\d\s.,]/g, '') || 'unit';
 
@@ -71,7 +69,6 @@ function processRecapData(services: HealthcareService[]): RecapData {
             }
             
             recap[service.puskeswan].medicines[medicineName].count += dosageValue;
-            // Keep the unit from the first time we see the medicine
             if (!recap[service.puskeswan].medicines[medicineName].unit) {
                  recap[service.puskeswan].medicines[medicineName].unit = dosageUnit;
             }
@@ -105,10 +102,37 @@ export default function RekapPage() {
     const [isPending, startTransition] = useTransition();
     const [selectedMonth, setSelectedMonth] = useState(getMonth(new Date()).toString());
     const [selectedYear, setSelectedYear] = useState(getYear(new Date()).toString());
+    const { firestore } = useFirebase();
 
-    const loadServices = useCallback(async (year: string, month: string) => {
+    const loadServices = useCallback(async (yearStr: string, monthStr: string) => {
+        if (!firestore) return;
+        const year = parseInt(yearStr, 10);
+        const month = parseInt(monthStr, 10);
         try {
-          const fetchedServices = await getServices(parseInt(year, 10), parseInt(month, 10));
+          const startDate = startOfMonth(new Date(year, month));
+          const endDate = endOfMonth(new Date(year, month));
+          const servicesCollection = collection(firestore, 'healthcareServices');
+          const q = query(
+              servicesCollection, 
+              where('date', '>=', startDate),
+              where('date', '<=', endDate),
+          );
+
+          const querySnapshot = await getDocs(q);
+          const fetchedServices: HealthcareService[] = [];
+          querySnapshot.forEach((doc) => {
+              const data = doc.data();
+              try {
+                  const service = serviceSchema.parse({
+                      ...data,
+                      id: doc.id,
+                      date: (data.date as Timestamp).toDate(),
+                  });
+                  fetchedServices.push(service);
+              } catch (e) {
+                  console.error("Validation error parsing service data:", e);
+              }
+          });
           setServices(fetchedServices);
         } catch (error) {
           console.error("Failed to fetch services:", error);
@@ -118,39 +142,32 @@ export default function RekapPage() {
                 setLoading(false);
             }
         }
-      }, [loading]);
+      }, [firestore, loading]);
     
       useEffect(() => {
-        setLoading(true);
-        loadServices(selectedYear, selectedMonth);
-      }, [loadServices]);
+        startTransition(() => {
+            loadServices(selectedYear, selectedMonth);
+        });
+      }, [loadServices, selectedYear, selectedMonth]);
 
     const handleMonthChange = (month: string) => {
-        startTransition(() => {
-            setSelectedMonth(month);
-            loadServices(selectedYear, month);
-        });
+        setSelectedMonth(month);
     };
 
     const handleYearChange = (year: string) => {
-        startTransition(() => {
-            setSelectedYear(year);
-            loadServices(year, selectedMonth);
-        });
+        setSelectedYear(year);
     };
 
     const recapData = useMemo(() => processRecapData(services), [services]);
     const puskeswanList = Object.keys(recapData).sort();
     
     const formatDosage = (count: number) => {
-        // Format to a string with up to 2 decimal places, then replace dot with comma
         return Number(count.toFixed(2)).toLocaleString("id-ID");
     };
 
     const handleDownload = () => {
         const wb = XLSX.utils.book_new();
 
-        // 1. Medicine Recap Sheet
         const medicineDataForSheet = puskeswanList.flatMap(puskeswan => {
             const data = recapData[puskeswan];
             return Object.entries(data.medicines).map(([medicineName, { count, unit }]) => ({
@@ -162,7 +179,6 @@ export default function RekapPage() {
         const wsMedicines = XLSX.utils.json_to_sheet(medicineDataForSheet);
         XLSX.utils.book_append_sheet(wb, wsMedicines, "Rekap Obat");
 
-        // 2. Diagnosis Recap Sheet
         const diagnosisDataForSheet = puskeswanList.flatMap(puskeswan => {
             const data = recapData[puskeswan];
             return Object.entries(data.diagnoses).map(([diagnosis, count]) => ({
@@ -213,7 +229,7 @@ export default function RekapPage() {
                     Unduh Rekap
                 </Button>
             </div>
-            {loading ? (
+            {(loading && services.length === 0) ? (
               <RecapSkeleton />
             ) : puskeswanList.length > 0 ? (
                  <Accordion type="multiple" className={cn("w-full space-y-4 transition-opacity duration-300", isPending && "opacity-50")}>
@@ -292,5 +308,3 @@ export default function RekapPage() {
     </div>
   );
 }
-
-    

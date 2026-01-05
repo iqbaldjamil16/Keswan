@@ -7,11 +7,11 @@ import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, PlusCircle, Trash2 } from "lucide-react";
 import { format } from "date-fns";
-import { doc, updateDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, updateDoc, addDoc, collection, Timestamp, Firestore } from 'firebase/firestore';
 
 import { cn } from "@/lib/utils";
 import { serviceSchema, type HealthcareService } from "@/lib/types";
-import { medicineData, medicineTypes, type MedicineType, livestockTypes, puskeswanList, addService } from "@/lib/data";
+import { medicineData, medicineTypes, type MedicineType, livestockTypes, puskeswanList } from "@/lib/definitions";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -48,7 +48,6 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
     resolver: zodResolver(serviceSchema),
     defaultValues: initialData ? {
       ...initialData,
-      // Ensure date is a Date object if it's coming from Firestore timestamp
       date: initialData.date ? new Date(initialData.date) : new Date(),
     } : {
       date: new Date(),
@@ -86,12 +85,14 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
 
     startTransition(async () => {
       try {
+        const serviceData = {
+          ...values,
+          date: Timestamp.fromDate(values.date),
+        };
+
         if (isEditMode && initialData?.id) {
             const serviceDocRef = doc(firestore, 'healthcareServices', initialData.id);
-            await updateDoc(serviceDocRef, {
-                ...values,
-                // Add a server timestamp for updates if you want
-            });
+            await updateDoc(serviceDocRef, serviceData);
             toast({
               title: "Sukses",
               description: "Data pelayanan berhasil diperbarui!",
@@ -99,7 +100,8 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
             router.push('/laporan');
             router.refresh();
         } else {
-            await addService(firestore, values);
+            const servicesCollection = collection(firestore, 'healthcareServices');
+            await addDoc(servicesCollection, serviceData);
             toast({
                 title: "Sukses",
                 description: "Data pelayanan berhasil disimpan!",

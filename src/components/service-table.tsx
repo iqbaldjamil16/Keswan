@@ -4,13 +4,12 @@
 import { useState, useMemo, useTransition, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { format, getMonth, getYear, subYears } from "date-fns";
+import { format, getMonth, getYear, subYears, startOfMonth, endOfMonth } from "date-fns";
 import { id } from 'date-fns/locale';
 import * as XLSX from 'xlsx';
-import { doc, deleteDoc } from "firebase/firestore";
+import { doc, deleteDoc, collection, query, where, orderBy, getDocs, Timestamp } from "firebase/firestore";
 
-import { HealthcareService } from "@/lib/types";
-import { getServices } from "@/lib/data";
+import { HealthcareService, serviceSchema } from "@/lib/types";
 import { Input } from "@/components/ui/input";
 import {
   Table,
@@ -187,17 +186,13 @@ function ServiceCard({ service, onDelete }: { service: HealthcareService, onDele
                         </div>
                     </CardContent>
                     <CardFooter className="p-4 pt-0 flex justify-end gap-2">
-                        <Button asChild variant="outline" size="sm" className="h-7 w-7 p-0">
-                            <Link href={`/laporan/${service.id}/edit`}>
-                                <Pencil className="h-3.5 w-3.5" />
-                                <span className="sr-only">Edit</span>
-                            </Link>
+                         <Button asChild variant="ghost" size="icon" className="h-8 w-8">
+                            <Link href={`/laporan/${service.id}/edit`}><Pencil className="h-4 w-4" /></Link>
                         </Button>
                         <AlertDialog>
                             <AlertDialogTrigger asChild>
-                                <Button variant="destructive" size="sm" className="h-7 w-7 p-0" disabled={isDeleting}>
-                                    {isDeleting ? <Loader2 className="animate-spin h-3.5 w-3.5" /> : <Trash2 className="h-3.5 w-3.5" />}
-                                    <span className="sr-only">Hapus</span>
+                                <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive h-8 w-8" disabled={isDeleting}>
+                                     {isDeleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
                                 </Button>
                             </AlertDialogTrigger>
                             <AlertDialogContent>
@@ -289,96 +284,118 @@ export function ServiceTable({}: ServiceTableProps) {
     const [selectedMonth, setSelectedMonth] = useState(getMonth(new Date()).toString());
     const [selectedYear, setSelectedYear] = useState(getYear(new Date()).toString());
     const [searchTerm, setSearchTerm] = useState("");
+    const { firestore } = useFirebase();
   
-    const loadServices = useCallback(async (year: string, month: string) => {
+    const loadServices = useCallback(async (yearStr: string, monthStr: string) => {
+        if (!firestore) return;
+        const year = parseInt(yearStr, 10);
+        const month = parseInt(monthStr, 10);
+
         try {
-          const fetchedServices = await getServices(parseInt(year, 10), parseInt(month, 10));
-          setServices(fetchedServices);
+            const startDate = startOfMonth(new Date(year, month));
+            const endDate = endOfMonth(new Date(year, month));
+            const servicesCollection = collection(firestore, 'healthcareServices');
+            const q = query(
+                servicesCollection, 
+                where('date', '>=', startDate),
+                where('date', '<=', endDate),
+                orderBy('date', 'desc')
+            );
+
+            const querySnapshot = await getDocs(q);
+            const fetchedServices: HealthcareService[] = [];
+            querySnapshot.forEach((doc) => {
+                const data = doc.data();
+                try {
+                    const service = serviceSchema.parse({
+                        ...data,
+                        id: doc.id,
+                        date: (data.date as Timestamp).toDate(),
+                    });
+                    fetchedServices.push(service);
+                } catch (e) {
+                    console.error("Validation error parsing service data:", e);
+                }
+            });
+            setServices(fetchedServices);
         } catch (error) {
           console.error("Failed to fetch services:", error);
-          setServices([]); // Set to empty array on error
+          setServices([]);
         } finally {
-            if (loading) { // Only turn off initial loading once
+            if (loading) {
                 setLoading(false);
             }
         }
-    }, [loading]);
+    }, [firestore, loading]);
     
     useEffect(() => {
-        loadServices(selectedYear, selectedMonth);
-    }, []); // Removed dependencies to only run once on mount
-
-
-    const handleFilterChange = (year: string, month: string) => {
         startTransition(() => {
-            loadServices(year, month);
+            loadServices(selectedYear, selectedMonth);
         });
-    }
+    }, [selectedYear, selectedMonth, loadServices]);
+
 
     const handleMonthChange = (month: string) => {
         setSelectedMonth(month);
-        handleFilterChange(selectedYear, month);
     };
     
     const handleYearChange = (year: string) => {
         setSelectedYear(year);
-        handleFilterChange(year, selectedMonth);
     };
 
-  const handleLocalDelete = (serviceId: string) => {
-    setServices(currentServices => currentServices.filter(s => s.id !== serviceId));
-  };
+    const handleLocalDelete = (serviceId: string) => {
+        setServices(currentServices => currentServices.filter(s => s.id !== serviceId));
+    };
 
 
-  const searchedServices = useMemo(() => {
-    const lowercasedFilter = searchTerm.toLowerCase();
-    
-    return services.filter((service) => {
-        if (!searchTerm) return true;
-        const ownerName = service.ownerName.toLowerCase();
-        const formattedDate = format(new Date(service.date), "dd MMM yyyy", { locale: id }).toLowerCase();
+    const searchedServices = useMemo(() => {
+        const lowercasedFilter = searchTerm.toLowerCase();
         
-        return ownerName.includes(lowercasedFilter) || formattedDate.includes(lowercasedFilter);
-    });
-}, [searchTerm, services]);
+        return services.filter((service) => {
+            if (!searchTerm) return true;
+            const ownerName = service.ownerName.toLowerCase();
+            const formattedDate = format(new Date(service.date), "dd MMM yyyy", { locale: id }).toLowerCase();
+            
+            return ownerName.includes(lowercasedFilter) || formattedDate.includes(lowercasedFilter);
+        });
+    }, [searchTerm, services]);
 
-  const handleDownload = () => {
-    // 1. Sort the data
-    const sortedServices = [...searchedServices].sort((a, b) => {
-      if (a.puskeswan < b.puskeswan) return -1;
-      if (a.puskeswan > b.puskeswan) return 1;
-      if (a.officerName < b.officerName) return -1;
-      if (a.officerName > b.officerName) return 1;
-      return new Date(b.date).getTime() - new Date(a.date).getTime();
-    });
+    const handleDownload = () => {
+        const sortedServices = [...searchedServices].sort((a, b) => {
+          if (a.puskeswan < b.puskeswan) return -1;
+          if (a.puskeswan > b.puskeswan) return 1;
+          if (a.officerName < b.officerName) return -1;
+          if (a.officerName > b.officerName) return 1;
+          return new Date(b.date).getTime() - new Date(a.date).getTime();
+        });
 
-    const dataForSheet = sortedServices.map(service => ({
-      'Puskeswan': service.puskeswan,
-      'Nama Petugas': service.officerName,
-      'Tanggal Pelayanan': format(new Date(service.date), 'dd-MM-yyyy'),
-      'Nama Pemilik': service.ownerName,
-      'Alamat Pemilik': service.ownerAddress,
-      'ID Kasus iSIKHNAS': service.caseId,
-      'Jenis Ternak': service.livestockType,
-      'Jumlah': service.livestockCount,
-      'Gejala Klinis': service.clinicalSymptoms,
-      'Diagnosa': service.diagnosis,
-      'Penanganan': service.handling,
-      'Jenis Pengobatan': service.treatmentType,
-      'Obat yang Digunakan': service.treatments.map(t => `${t.medicineName} (${t.dosage})`).join(', '),
-    }));
+        const dataForSheet = sortedServices.map(service => ({
+          'Puskeswan': service.puskeswan,
+          'Nama Petugas': service.officerName,
+          'Tanggal Pelayanan': format(new Date(service.date), 'dd-MM-yyyy'),
+          'Nama Pemilik': service.ownerName,
+          'Alamat Pemilik': service.ownerAddress,
+          'ID Kasus iSIKHNAS': service.caseId,
+          'Jenis Ternak': service.livestockType,
+          'Jumlah': service.livestockCount,
+          'Gejala Klinis': service.clinicalSymptoms,
+          'Diagnosa': service.diagnosis,
+          'Penanganan': service.handling,
+          'Jenis Pengobatan': service.treatmentType,
+          'Obat yang Digunakan': service.treatments.map(t => `${t.medicineName} (${t.dosage})`).join(', '),
+        }));
 
-    const ws = XLSX.utils.json_to_sheet(dataForSheet);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Data Pelayanan");
+        const ws = XLSX.utils.json_to_sheet(dataForSheet);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Data Pelayanan");
 
-    const monthLabel = months.find(m => m.value === selectedMonth)?.label || '';
-    XLSX.writeFile(wb, `laporan_pelayanan_${monthLabel}_${selectedYear}.xlsx`);
-  };
+        const monthLabel = months.find(m => m.value === selectedMonth)?.label || '';
+        XLSX.writeFile(wb, `laporan_pelayanan_${monthLabel}_${selectedYear}.xlsx`);
+    };
 
-  if (loading) {
-    return <ReportSkeleton />;
-  }
+    if (loading && services.length === 0) {
+        return <ReportSkeleton />;
+    }
 
 
   return (
