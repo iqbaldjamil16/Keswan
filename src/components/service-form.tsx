@@ -233,7 +233,7 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
                     <FormItem>
                       <FormLabel>Alamat Pemilik</FormLabel>
                       <FormControl>
-                        <Textarea placeholder="Alamat lengkap pemilik ternak" {...field} />
+                        <Textarea placeholder="Alamat lengkap pemilik ternak" {...field} className="min-h-[60px]" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
