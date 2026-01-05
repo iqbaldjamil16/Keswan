@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { format, getMonth, getYear, subYears, startOfMonth, endOfMonth } from "date-fns";
 import { id } from 'date-fns/locale';
-import * * as XLSX from 'xlsx';
+import * as XLSX from 'xlsx';
 import { doc, deleteDoc, collection, query, where, orderBy, getDocs, Timestamp } from "firebase/firestore";
 
 import { HealthcareService, serviceSchema } from "@/lib/types";
@@ -187,12 +187,12 @@ function ServiceCard({ service, onDelete }: { service: HealthcareService, onDele
                         </div>
                     </CardContent>
                     <CardFooter className="p-4 pt-0 flex justify-end gap-2">
-                         <Button asChild variant="ghost" size="icon" className="h-7 w-7">
+                         <Button asChild variant="ghost" size="icon" className="h-8 w-8">
                             <Link href={`/laporan/${service.id}/edit`}><Pencil className="h-4 w-4" /></Link>
                         </Button>
                         <AlertDialog>
                             <AlertDialogTrigger asChild>
-                                <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive h-7 w-7" disabled={isDeleting}>
+                                <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive h-8 w-8" disabled={isDeleting}>
                                      {isDeleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
                                 </Button>
                             </AlertDialogTrigger>
@@ -534,5 +534,7 @@ export function ServiceTable({}: ServiceTableProps) {
     </Card>
   );
 }
+
+    
 
     
