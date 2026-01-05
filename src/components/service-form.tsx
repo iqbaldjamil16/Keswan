@@ -336,22 +336,17 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
               </CardContent>
             </Card>
             <Card>
-              <CardContent className="p-4">
+              <CardContent className="p-4 space-y-2">
                 <FormField
                   control={form.control}
                   name="treatmentType"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Jenis Penanganan</FormLabel>
-                      {watchedTreatmentType === 'Lainnya' ? (
-                        <FormControl>
-                            <Input
-                            placeholder="Masukkan jenis penanganan"
-                            {...field}
-                            />
-                        </FormControl>
-                      ) : (
-                        <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}>
+                        <Select 
+                            onValueChange={field.onChange} 
+                            value={treatmentTypes.includes(field.value) ? field.value : 'Lainnya'}
+                        >
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue placeholder="Pilih Jenis Penanganan" />
@@ -363,7 +358,14 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
                             ))}
                           </SelectContent>
                         </Select>
-                      )}
+                        {watchedTreatmentType === 'Lainnya' && (
+                             <FormControl>
+                                <Input
+                                placeholder="Masukkan jenis penanganan manual"
+                                {...field}
+                                />
+                            </FormControl>
+                        )}
                       <FormMessage />
                     </FormItem>
                   )}
@@ -517,3 +519,5 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
     </Form>
   );
 }
+
+    
