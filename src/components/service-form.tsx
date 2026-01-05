@@ -390,98 +390,88 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
                   {fields.map((item, index) => {
                     const selectedMedicineType = watchedTreatments?.[index]?.medicineType as MedicineType;
                     return (
-                      <div key={item.id} className="relative space-y-4">
-                        {fields.length > 1 && (
+                      <Card key={item.id} className="relative p-4">
+                         {fields.length > 1 && (
                             <Button
                                 type="button"
                                 variant="ghost"
                                 size="icon"
-                                className="absolute -top-3 -right-3 h-6 w-6"
+                                className="absolute -top-1 -right-1 h-6 w-6"
                                 onClick={() => remove(index)}
                             >
                                 <Trash2 className="h-4 w-4 text-destructive" />
                             </Button>
                         )}
-                        <Card>
-                            <CardContent className="p-4">
-                                <FormField
-                                    control={form.control}
-                                    name={`treatments.${index}.medicineType`}
-                                    render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Jenis Obat</FormLabel>
-                                        <Select
-                                        onValueChange={(value) => {
-                                            field.onChange(value);
-                                            form.setValue(`treatments.${index}.medicineName`, '');
-                                        }}
-                                        defaultValue={field.value}
-                                        >
-                                        <FormControl>
-                                            <SelectTrigger>
-                                            <SelectValue placeholder="Pilih Jenis" />
-                                            </SelectTrigger>
-                                        </FormControl>
-                                        <SelectContent>
-                                            {medicineTypes.map((type) => (
-                                            <SelectItem key={type} value={type}>{type}</SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                        </Select>
-                                        <FormMessage />
-                                    </FormItem>
-                                    )}
-                                />
-                            </CardContent>
-                        </Card>
-                        <Card>
-                            <CardContent className="p-4">
-                                <FormField
-                                    control={form.control}
-                                    name={`treatments.${index}.medicineName`}
-                                    render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Nama Obat</FormLabel>
-                                        <Select onValueChange={field.onChange} value={field.value} disabled={!selectedMedicineType}>
-                                        <FormControl>
-                                            <SelectTrigger>
-                                            <SelectValue placeholder="Pilih Obat" />
-                                            </SelectTrigger>
-                                        </FormControl>
-                                        <SelectContent>
-                                            {selectedMedicineType && medicineData[selectedMedicineType] && medicineData[selectedMedicineType].length > 0 ? (
-                                            medicineData[selectedMedicineType].map((drug) => (
-                                                <SelectItem key={drug} value={drug}>{drug}</SelectItem>
-                                            ))
-                                            ) : (
-                                            <SelectItem value="-" disabled>Pilih jenis dahulu</SelectItem>
-                                            )}
-                                        </SelectContent>
-                                        </Select>
-                                        <FormMessage />
-                                    </FormItem>
-                                    )}
-                                />
-                            </CardContent>
-                        </Card>
-                        <Card>
-                            <CardContent className="p-4">
-                                <FormField
-                                    control={form.control}
-                                    name={`treatments.${index}.dosage`}
-                                    render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Dosis</FormLabel>
-                                        <FormControl>
-                                        <Input placeholder="cth: 10ml" {...field} />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                    )}
-                                />
-                            </CardContent>
-                        </Card>
-                      </div>
+                        <div className="space-y-4">
+                            <FormField
+                                control={form.control}
+                                name={`treatments.${index}.medicineType`}
+                                render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Jenis Obat</FormLabel>
+                                    <Select
+                                    onValueChange={(value) => {
+                                        field.onChange(value);
+                                        form.setValue(`treatments.${index}.medicineName`, '');
+                                    }}
+                                    defaultValue={field.value}
+                                    >
+                                    <FormControl>
+                                        <SelectTrigger>
+                                        <SelectValue placeholder="Pilih Jenis" />
+                                        </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                        {medicineTypes.map((type) => (
+                                        <SelectItem key={type} value={type}>{type}</SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name={`treatments.${index}.medicineName`}
+                                render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Nama Obat</FormLabel>
+                                    <Select onValueChange={field.onChange} value={field.value} disabled={!selectedMedicineType}>
+                                    <FormControl>
+                                        <SelectTrigger>
+                                        <SelectValue placeholder="Pilih Obat" />
+                                        </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                        {selectedMedicineType && medicineData[selectedMedicineType] && medicineData[selectedMedicineType].length > 0 ? (
+                                        medicineData[selectedMedicineType].map((drug) => (
+                                            <SelectItem key={drug} value={drug}>{drug}</SelectItem>
+                                        ))
+                                        ) : (
+                                        <SelectItem value="-" disabled>Pilih jenis dahulu</SelectItem>
+                                        )}
+                                    </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name={`treatments.${index}.dosage`}
+                                render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Dosis</FormLabel>
+                                    <FormControl>
+                                    <Input placeholder="cth: 10ml" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                                )}
+                            />
+                        </div>
+                      </Card>
                     )
                   })}
                 </div>
@@ -499,3 +489,5 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
     </Form>
   );
 }
+
+    
