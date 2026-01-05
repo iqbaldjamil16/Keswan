@@ -53,6 +53,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "./ui/skeleton";
+import { cn } from "@/lib/utils";
 
   
   interface ServiceTableProps {}
@@ -180,16 +181,16 @@ function ServiceCard({ service, onDelete }: { service: HealthcareService, onDele
                         </div>
                     </CardContent>
                     <CardFooter className="p-4 pt-0 flex justify-end gap-2">
-                        <Button asChild variant="outline" size="sm" className="h-6 w-6 p-0">
-                        <Link href={`/laporan/${service.id}/edit`}>
-                            <Pencil className="h-3 w-3" />
-                            <span className="sr-only">Edit</span>
-                        </Link>
+                        <Button asChild variant="outline" size="sm" className="h-8 w-8 p-0">
+                            <Link href={`/laporan/${service.id}/edit`}>
+                                <Pencil className="h-4 w-4" />
+                                <span className="sr-only">Edit</span>
+                            </Link>
                         </Button>
                         <AlertDialog>
                             <AlertDialogTrigger asChild>
-                                <Button variant="destructive" size="sm" className="h-6 w-6 p-0" disabled={isDeleting}>
-                                    {isDeleting ? <Loader2 className="animate-spin h-3 w-3" /> : <Trash2 className="h-3 w-3" />}
+                                <Button variant="destructive" size="sm" className="h-8 w-8 p-0" disabled={isDeleting}>
+                                    {isDeleting ? <Loader2 className="animate-spin h-4 w-4" /> : <Trash2 className="h-4 w-4" />}
                                     <span className="sr-only">Hapus</span>
                                 </Button>
                             </AlertDialogTrigger>
@@ -272,45 +273,62 @@ const months = Array.from({ length: 12 }, (_, i) => ({
 
 
 export function ServiceTable({}: ServiceTableProps) {
-    const [initialServices, setInitialServices] = useState<HealthcareService[]>([]);
+    const [services, setServices] = useState<HealthcareService[]>([]);
     const [loading, setLoading] = useState(true);
+    const [isPending, startTransition] = useTransition();
     const [selectedMonth, setSelectedMonth] = useState(getMonth(new Date()).toString());
     const [selectedYear, setSelectedYear] = useState(getYear(new Date()).toString());
     const [searchTerm, setSearchTerm] = useState("");
   
     const loadServices = useCallback(async (year: string, month: string) => {
         try {
-          setLoading(true);
           const fetchedServices = await getServices(parseInt(year, 10), parseInt(month, 10));
-          setInitialServices(fetchedServices);
+          setServices(fetchedServices);
         } catch (error) {
           console.error("Failed to fetch services:", error);
+          setServices([]); // Set to empty array on error
         } finally {
-          setLoading(false);
+            if (loading) { // Only turn off initial loading once
+                setLoading(false);
+            }
         }
-      }, []);
+    }, [loading]);
     
     useEffect(() => {
+        setLoading(true);
         loadServices(selectedYear, selectedMonth);
-    }, [selectedYear, selectedMonth, loadServices]);
+    }, [loadServices]);
 
+    const handleMonthChange = (month: string) => {
+        startTransition(() => {
+          setSelectedMonth(month);
+          loadServices(selectedYear, month);
+        });
+      };
+    
+      const handleYearChange = (year: string) => {
+        startTransition(() => {
+          setSelectedYear(year);
+          loadServices(year, selectedMonth);
+        });
+      };
 
   const handleLocalDelete = (serviceId: string) => {
-    setInitialServices(currentServices => currentServices.filter(s => s.id !== serviceId));
+    setServices(currentServices => currentServices.filter(s => s.id !== serviceId));
   };
 
 
   const searchedServices = useMemo(() => {
     const lowercasedFilter = searchTerm.toLowerCase();
     
-    return initialServices.filter((service) => {
+    return services.filter((service) => {
         if (!searchTerm) return true;
         const ownerName = service.ownerName.toLowerCase();
         const formattedDate = format(new Date(service.date), "dd MMM yyyy", { locale: id }).toLowerCase();
         
         return ownerName.includes(lowercasedFilter) || formattedDate.includes(lowercasedFilter);
     });
-}, [searchTerm, initialServices]);
+}, [searchTerm, services]);
 
   const handleDownload = () => {
     // 1. Sort the data
@@ -358,7 +376,7 @@ export function ServiceTable({}: ServiceTableProps) {
           <CardTitle>Data Pelayanan</CardTitle>
           <div className="flex flex-col sm:flex-row w-full md:w-auto md:justify-end gap-2">
             <div className="flex gap-2">
-                <Select value={selectedMonth} onValueChange={setSelectedMonth}>
+                <Select value={selectedMonth} onValueChange={handleMonthChange}>
                     <SelectTrigger className="w-full sm:w-[180px]">
                         <SelectValue placeholder="Pilih Bulan" />
                     </SelectTrigger>
@@ -368,7 +386,7 @@ export function ServiceTable({}: ServiceTableProps) {
                         ))}
                     </SelectContent>
                 </Select>
-                <Select value={selectedYear} onValueChange={setSelectedYear}>
+                <Select value={selectedYear} onValueChange={handleYearChange}>
                     <SelectTrigger className="w-full sm:w-[120px]">
                         <SelectValue placeholder="Pilih Tahun" />
                     </SelectTrigger>
@@ -388,7 +406,10 @@ export function ServiceTable({}: ServiceTableProps) {
           </div>
         </div>
       </CardHeader>
-      <CardContent className="p-0 md:p-6 md:pt-0">
+      <CardContent className={cn(
+        "p-0 md:p-6 md:pt-0 transition-opacity duration-300",
+        isPending && "opacity-50"
+      )}>
         <div className="md:hidden space-y-4 p-4">
             {searchedServices.length > 0 ? (
                 searchedServices.map(service => <ServiceCard key={service.id} service={service} onDelete={handleLocalDelete} />)
@@ -478,7 +499,7 @@ export function ServiceTable({}: ServiceTableProps) {
         </div>
       </CardContent>
       <CardFooter className="p-4 md:p-6 flex justify-end">
-        <Button onClick={handleDownload} variant="outline" disabled={searchedServices.length === 0}>
+        <Button onClick={handleDownload} variant="outline" disabled={searchedServices.length === 0 || isPending}>
             <Download className="mr-2 h-4 w-4" />
             Unduh Laporan
         </Button>
@@ -486,3 +507,5 @@ export function ServiceTable({}: ServiceTableProps) {
     </Card>
   );
 }
+
+    

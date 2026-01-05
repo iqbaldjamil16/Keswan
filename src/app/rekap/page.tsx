@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useEffect, useState, useMemo, useCallback } from "react";
+import { useEffect, useState, useMemo, useCallback, useTransition } from "react";
 import {
   Card,
   CardContent,
@@ -37,6 +37,7 @@ import { id } from 'date-fns/locale';
 import { Button } from "@/components/ui/button";
 import { Download } from "lucide-react";
 import * as XLSX from 'xlsx';
+import { cn } from "@/lib/utils";
 
 interface RecapData {
     [puskeswan: string]: {
@@ -101,24 +102,42 @@ const months = Array.from({ length: 12 }, (_, i) => ({
 export default function RekapPage() {
     const [services, setServices] = useState<HealthcareService[]>([]);
     const [loading, setLoading] = useState(true);
+    const [isPending, startTransition] = useTransition();
     const [selectedMonth, setSelectedMonth] = useState(getMonth(new Date()).toString());
     const [selectedYear, setSelectedYear] = useState(getYear(new Date()).toString());
 
     const loadServices = useCallback(async (year: string, month: string) => {
         try {
-          setLoading(true);
           const fetchedServices = await getServices(parseInt(year, 10), parseInt(month, 10));
           setServices(fetchedServices);
         } catch (error) {
           console.error("Failed to fetch services:", error);
+          setServices([]);
         } finally {
-          setLoading(false);
+            if (loading) {
+                setLoading(false);
+            }
         }
-      }, []);
+      }, [loading]);
     
       useEffect(() => {
+        setLoading(true);
         loadServices(selectedYear, selectedMonth);
-      }, [selectedYear, selectedMonth, loadServices]);
+      }, [loadServices]);
+
+    const handleMonthChange = (month: string) => {
+        startTransition(() => {
+            setSelectedMonth(month);
+            loadServices(selectedYear, month);
+        });
+    };
+
+    const handleYearChange = (year: string) => {
+        startTransition(() => {
+            setSelectedYear(year);
+            loadServices(year, selectedMonth);
+        });
+    };
 
     const recapData = useMemo(() => processRecapData(services), [services]);
     const puskeswanList = Object.keys(recapData).sort();
@@ -169,7 +188,7 @@ export default function RekapPage() {
 
         <div className="mt-6 md:mt-8">
             <div className="flex flex-col sm:flex-row gap-4 mb-6">
-                <Select value={selectedMonth} onValueChange={setSelectedMonth}>
+                <Select value={selectedMonth} onValueChange={handleMonthChange}>
                     <SelectTrigger className="w-full sm:w-[180px]">
                         <SelectValue placeholder="Pilih Bulan" />
                     </SelectTrigger>
@@ -179,7 +198,7 @@ export default function RekapPage() {
                         ))}
                     </SelectContent>
                 </Select>
-                <Select value={selectedYear} onValueChange={setSelectedYear}>
+                <Select value={selectedYear} onValueChange={handleYearChange}>
                     <SelectTrigger className="w-full sm:w-[120px]">
                         <SelectValue placeholder="Pilih Tahun" />
                     </SelectTrigger>
@@ -189,7 +208,7 @@ export default function RekapPage() {
                         ))}
                     </SelectContent>
                 </Select>
-                <Button onClick={handleDownload} variant="outline" className="sm:ml-auto" disabled={loading || puskeswanList.length === 0}>
+                <Button onClick={handleDownload} variant="outline" className="sm:ml-auto" disabled={loading || puskeswanList.length === 0 || isPending}>
                     <Download className="mr-2 h-4 w-4" />
                     Unduh Rekap
                 </Button>
@@ -197,7 +216,7 @@ export default function RekapPage() {
             {loading ? (
               <RecapSkeleton />
             ) : puskeswanList.length > 0 ? (
-                 <Accordion type="multiple" className="w-full space-y-4">
+                 <Accordion type="multiple" className={cn("w-full space-y-4 transition-opacity duration-300", isPending && "opacity-50")}>
                     {puskeswanList.map(puskeswan => {
                         const data = recapData[puskeswan];
                         const sortedDiagnoses = Object.entries(data.diagnoses).sort(([, a], [, b]) => b - a);
@@ -273,3 +292,5 @@ export default function RekapPage() {
     </div>
   );
 }
+
+    
