@@ -153,7 +153,22 @@ export function ServiceForm() {
                     </FormItem>
                   )}
                 />
-                 <FormField
+                
+                {/* Mobile & Desktop */}
+                <FormField
+                  control={form.control}
+                  name="officerName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Nama Petugas</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Nama lengkap petugas" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
                   control={form.control}
                   name="puskeswan"
                   render={({ field }) => (
@@ -171,20 +186,6 @@ export function ServiceForm() {
                           ))}
                         </SelectContent>
                       </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                {/* Mobile & Desktop */}
-                <FormField
-                  control={form.control}
-                  name="officerName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Nama Petugas</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Nama lengkap petugas" {...field} />
-                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -443,3 +444,5 @@ export function ServiceForm() {
     </Form>
   );
 }
+
+    
