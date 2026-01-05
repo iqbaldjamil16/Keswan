@@ -138,7 +138,7 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-          <div className="space-y-4">
+          <div className="space-y-4 md:space-y-6">
             <Card>
               <CardContent className="p-4">
                 <FormField
@@ -301,7 +301,7 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
             </Card>
           </div>
 
-          <div className="space-y-4">
+          <div className="space-y-4 md:space-y-6">
             <Card>
               <CardContent className="p-4">
                 <FormField
@@ -377,8 +377,9 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
                     <Label>Pengobatan</Label>
                     <Button
                       type="button"
-                      variant="ghost"
+                      variant="default"
                       size="sm"
+                      className="bg-accent text-accent-foreground hover:bg-accent/90"
                       onClick={() => append({ medicineType: "", medicineName: "", dosage: "" })}
                     >
                       <PlusCircle className="mr-2 h-4 w-4" />
@@ -395,7 +396,7 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
                                 type="button"
                                 variant="ghost"
                                 size="icon"
-                                className="absolute -top-3 -right-3 h-6 w-6 bg-card"
+                                className="absolute -top-3 -right-3 h-6 w-6"
                                 onClick={() => remove(index)}
                             >
                                 <Trash2 className="h-4 w-4 text-destructive" />
@@ -498,7 +499,3 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
     </Form>
   );
 }
-
-    
-
-    
