@@ -5,8 +5,8 @@ export default function Home() {
   return (
     <div className="container py-4 md:py-8">
       <div className="max-w-4xl mx-auto">
-        <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-center md:text-left font-headline">Input Pelayanan Kesehatan Hewan</h1>
-        <p className="text-muted-foreground mt-2 text-center md:text-left text-sm md:text-base">
+        <h1 className="text-2xl md:text-3xl font-bold tracking-tight font-headline">Input Pelayanan Kesehatan Hewan</h1>
+        <p className="text-muted-foreground mt-2 text-sm md:text-base">
           Masukkan detail pelayanan yang telah diberikan.
         </p>
         <div className="mt-6 md:mt-8">
