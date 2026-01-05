@@ -8,6 +8,7 @@ import {
   query,
   orderBy,
   Timestamp,
+  Firestore,
 } from 'firebase/firestore';
 import { getSdks, addDocumentNonBlocking } from '@/firebase';
 import type { HealthcareService } from './types';
@@ -16,6 +17,10 @@ import { serviceSchema } from './types';
 // This function now fetches from Firestore
 export async function getServices(): Promise<HealthcareService[]> {
   const { firestore } = getSdks();
+  if (!firestore) {
+      console.error("Firestore is not initialized.");
+      return [];
+  }
   const servicesCollection = collection(firestore, 'healthcareServices');
   const q = query(servicesCollection, orderBy('date', 'desc'));
   const querySnapshot = await getDocs(q);
@@ -30,6 +35,7 @@ export async function getServices(): Promise<HealthcareService[]> {
       });
       services.push(service);
     } catch(e) {
+        console.error("Validation error parsing service data:", e)
         // Ignore validation errors for now
     }
   });
@@ -37,10 +43,10 @@ export async function getServices(): Promise<HealthcareService[]> {
 }
 
 // This function now adds to Firestore using a non-blocking update
-export function addService(
+export async function addService(
+  firestore: Firestore,
   service: Omit<HealthcareService, 'id'>
-): void {
-  const { firestore } = getSdks();
+): Promise<void> {
   const validatedService = {
     ...service,
     date: Timestamp.fromDate(service.date),
@@ -48,7 +54,7 @@ export function addService(
   const servicesCollection = collection(firestore, 'healthcareServices');
   // Use the non-blocking function to add the document.
   // This handles errors via the global error emitter.
-  addDocumentNonBlocking(servicesCollection, validatedService);
+  await addDoc(servicesCollection, validatedService);
 }
 
 export const puskeswanList = [

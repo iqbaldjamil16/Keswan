@@ -10,7 +10,7 @@ import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { serviceSchema, type HealthcareService } from "@/lib/types";
 import { createService } from "@/lib/actions";
-import { medicineData, medicineTypes, type MedicineType, livestockTypes, puskeswanList } from "@/lib/data";
+import { medicineData, medicineTypes, type MedicineType, livestockTypes, puskeswanList, addService } from "@/lib/data";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
@@ -34,10 +34,13 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { Label } from "@/components/ui/label";
+import { useFirebase } from "@/firebase";
+
 
 export function ServiceForm() {
   const [isPending, startTransition] = useTransition();
   const { toast } = useToast();
+  const { firestore } = useFirebase();
 
   const form = useForm<HealthcareService>({
     resolver: zodResolver(serviceSchema),
@@ -66,33 +69,57 @@ export function ServiceForm() {
   const watchedTreatments = form.watch("treatments");
 
   function onSubmit(values: HealthcareService) {
-    startTransition(async () => {
-      const result = await createService(values);
-      if (result.success) {
-        toast({
-          title: "Sukses",
-          description: result.success,
-        });
-        form.reset({
-            date: new Date(),
-            puskeswan: "",
-            officerName: "",
-            ownerName: "",
-            ownerAddress: "",
-            caseId: "",
-            livestockType: "",
-            livestockCount: 1,
-            clinicalSymptoms: "",
-            diagnosis: "",
-            handling: "",
-            treatmentType: "",
-            treatments: [{ medicineType: "", medicineName: "", dosage: "" }],
-        });
-      } else if (result.error) {
+    if (!firestore) {
         toast({
           variant: "destructive",
           title: "Gagal Menyimpan",
-          description: result.error,
+          description: "Koneksi database tidak tersedia.",
+        });
+        return;
+    }
+
+    startTransition(async () => {
+      try {
+        // First, save the data to Firestore directly from the client
+        await addService(firestore, values);
+        
+        // Then, call the server action just to revalidate paths
+        const result = await createService(values);
+
+        if (result.success) {
+          toast({
+            title: "Sukses",
+            description: result.success,
+          });
+          form.reset({
+              date: new Date(),
+              puskeswan: "",
+              officerName: "",
+              ownerName: "",
+              ownerAddress: "",
+              caseId: "",
+              livestockType: "",
+              livestockCount: 1,
+              clinicalSymptoms: "",
+              diagnosis: "",
+              handling: "",
+              treatmentType: "",
+              treatments: [{ medicineType: "", medicineName: "", dosage: "" }],
+          });
+        } else if (result.error) {
+           // This will now mostly be for validation errors from the server action
+           toast({
+            variant: "destructive",
+            title: "Gagal Validasi",
+            description: result.error,
+          });
+        }
+      } catch (error) {
+        // This will catch errors from the client-side addService call
+        toast({
+          variant: "destructive",
+          title: "Gagal Menyimpan",
+          description: "Terjadi kesalahan saat menyimpan data ke database.",
         });
       }
     });
@@ -149,7 +176,7 @@ export function ServiceForm() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Puskeswan</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}>
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Pilih Puskeswan" />
@@ -215,7 +242,7 @@ export function ServiceForm() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Jenis Ternak</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}>
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue placeholder="Pilih Jenis Ternak" />
@@ -419,5 +446,3 @@ export function ServiceForm() {
     </Form>
   );
 }
-
-    

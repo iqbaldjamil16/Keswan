@@ -16,7 +16,7 @@ export const serviceSchema = z.object({
   officerName: z.string().min(1, "Nama petugas harus diisi."),
   ownerName: z.string().min(1, "Nama pemilik harus diisi."),
   ownerAddress: z.string().min(1, "Alamat pemilik harus diisi."),
-  caseId: z.string().optional(),
+  caseId: z.string().optional().default(''),
   livestockType: z.string().min(1, "Jenis ternak harus diisi."),
   livestockCount: z.coerce.number().min(1, "Jumlah ternak harus minimal 1."),
   clinicalSymptoms: z.string().min(1, "Gejala klinis harus diisi."),
@@ -28,5 +28,3 @@ export const serviceSchema = z.object({
 
 export type HealthcareService = z.infer<typeof serviceSchema>;
 export type Treatment = z.infer<typeof treatmentSchema>;
-
-    

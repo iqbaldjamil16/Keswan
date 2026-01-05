@@ -4,7 +4,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { serviceSchema } from "./types";
-import { addService } from "./data";
+// The addService function is no longer needed here as logic is moved to client.
 
 export async function createService(data: z.infer<typeof serviceSchema>) {
   const validatedFields = serviceSchema.safeParse(data);
@@ -32,13 +32,12 @@ export async function createService(data: z.infer<typeof serviceSchema>) {
   }
 
   try {
-    // This no longer awaits, but we keep the try/catch for initial validation errors if any were missed.
-    addService(validatedFields.data);
+    // We only revalidate paths now. The actual data saving is done on the client.
     revalidatePath('/laporan');
+    revalidatePath('/rekap');
     revalidatePath('/');
     return { success: "Data pelayanan berhasil disimpan!" };
   } catch (e) {
-    // This will now likely only catch synchronous errors before the Firestore call.
-    return { error: "Gagal memproses permintaan penyimpanan." };
+    return { error: "Gagal menyegarkan data." };
   }
 }
