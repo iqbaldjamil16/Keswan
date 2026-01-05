@@ -64,7 +64,7 @@ export function Header() {
                     href={item.href}
                     onClick={() => setIsSheetOpen(false)}
                     className={cn(
-                    "text-lg font-medium p-3 rounded-md transition-colors",
+                    "text-base font-medium p-3 rounded-md transition-colors",
                     pathname === item.href ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-accent/50'
                     )}
                   >
