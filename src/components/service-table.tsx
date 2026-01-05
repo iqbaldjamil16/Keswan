@@ -1,12 +1,14 @@
 
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useTransition } from "react";
+import Link from "next/link";
 import { format } from "date-fns";
 import { id } from 'date-fns/locale';
 import * as XLSX from 'xlsx';
 
 import { HealthcareService } from "@/lib/types";
+import { deleteService } from "@/lib/actions";
 import { Input } from "@/components/ui/input";
 import {
   Table,
@@ -18,7 +20,7 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "./ui/badge";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "./ui/card";
-import { PawPrint, PlusCircle, ChevronDown, Download } from "lucide-react";
+import { PawPrint, PlusCircle, ChevronDown, Download, Pencil, Trash2, Loader2 } from "lucide-react";
 import {
   Accordion,
   AccordionContent,
@@ -38,6 +40,18 @@ import {
     SelectTrigger,
     SelectValue,
   } from "@/components/ui/select";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { useToast } from "@/hooks/use-toast";
   
   interface ServiceTableProps {
     services: HealthcareService[];
@@ -49,8 +63,23 @@ import {
     years: string[];
   }
 
-function ServiceCard({ service }: { service: HealthcareService }) {
+function ServiceCard({ service, onDelete }: { service: HealthcareService, onDelete: (id: string) => void }) {
     const [isOpen, setIsOpen] = useState(false);
+    const [isDeleting, startDeleteTransition] = useTransition();
+    const { toast } = useToast();
+
+    const handleDelete = () => {
+        startDeleteTransition(async () => {
+            const result = await deleteService(service.id!);
+            if (result.success) {
+                toast({ title: "Sukses", description: result.success });
+                onDelete(service.id!);
+            } else {
+                toast({ variant: "destructive", title: "Gagal", description: result.error });
+            }
+        });
+    };
+
     return (
         <Collapsible
             asChild
@@ -68,12 +97,14 @@ function ServiceCard({ service }: { service: HealthcareService }) {
                                 {format(new Date(service.date), "dd MMM yyyy", { locale: id })}
                             </div>
                         </div>
-                        <CollapsibleTrigger asChild>
-                            <Button variant="ghost" size="sm">
-                                <ChevronDown className={`h-4 w-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
-                                <span className="sr-only">Toggle</span>
-                            </Button>
-                        </CollapsibleTrigger>
+                        <div className="flex items-center">
+                            <CollapsibleTrigger asChild>
+                                <Button variant="ghost" size="sm">
+                                    <ChevronDown className={`h-4 w-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+                                    <span className="sr-only">Toggle</span>
+                                </Button>
+                            </CollapsibleTrigger>
+                        </div>
                     </div>
                 </CardHeader>
                 <CollapsibleContent>
@@ -105,14 +136,88 @@ function ServiceCard({ service }: { service: HealthcareService }) {
                         </div>
                     </CardContent>
                 </CollapsibleContent>
+                 <CardFooter className="p-4 pt-0 flex justify-end gap-2">
+                    <Button asChild variant="outline" size="sm">
+                        <Link href={`/laporan/${service.id}/edit`}><Pencil className="mr-2 h-4 w-4" />Edit</Link>
+                    </Button>
+                    <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                            <Button variant="destructive" size="sm" disabled={isDeleting}>
+                                {isDeleting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Trash2 className="mr-2 h-4 w-4" />}
+                                Hapus
+                            </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                            <AlertDialogHeader>
+                                <AlertDialogTitle>Anda yakin?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                    Tindakan ini tidak bisa dibatalkan. Data pelayanan akan dihapus secara permanen.
+                                </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                                <AlertDialogCancel>Batal</AlertDialogCancel>
+                                <AlertDialogAction onClick={handleDelete} disabled={isDeleting}>
+                                    {isDeleting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                                    Ya, Hapus
+                                </AlertDialogAction>
+                            </AlertDialogFooter>
+                        </AlertDialogContent>
+                    </AlertDialog>
+                </CardFooter>
             </Card>
         </Collapsible>
     )
 }
 
+function ActionsCell({ service, onDelete }: { service: HealthcareService, onDelete: (id: string) => void }) {
+    const [isDeleting, startDeleteTransition] = useTransition();
+    const { toast } = useToast();
+
+    const handleDelete = () => {
+        startDeleteTransition(async () => {
+            const result = await deleteService(service.id!);
+            if (result.success) {
+                toast({ title: "Sukses", description: result.success });
+                onDelete(service.id!);
+            } else {
+                toast({ variant: "destructive", title: "Gagal", description: result.error });
+            }
+        });
+    };
+
+    return (
+        <div className="flex items-center gap-2">
+            <Button asChild variant="ghost" size="icon">
+                <Link href={`/laporan/${service.id}/edit`}><Pencil className="h-4 w-4" /></Link>
+            </Button>
+            <AlertDialog>
+                <AlertDialogTrigger asChild>
+                    <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive" disabled={isDeleting}>
+                         {isDeleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+                    </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Anda yakin?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            Tindakan ini tidak bisa dibatalkan. Data pelayanan akan dihapus secara permanen.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Batal</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleDelete} disabled={isDeleting}>
+                            {isDeleting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                            Ya, Hapus
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+        </div>
+    );
+}
 
 export function ServiceTable({ 
-    services, 
+    services: initialServices, 
     selectedMonth, 
     selectedYear, 
     onMonthChange, 
@@ -121,13 +226,23 @@ export function ServiceTable({
     years 
 }: ServiceTableProps) {
   const [searchTerm, setSearchTerm] = useState("");
+  const [services, setServices] = useState(initialServices);
+  
+  // Update internal state if initialServices prop changes
+  useState(() => {
+    setServices(initialServices);
+  });
+
+  const handleLocalDelete = (serviceId: string) => {
+    setServices(currentServices => currentServices.filter(s => s.id !== serviceId));
+  };
+
 
   const searchedServices = useMemo(() => {
-    if (!searchTerm) return services;
-
     const lowercasedFilter = searchTerm.toLowerCase();
     
     return services.filter((service) => {
+        if (!searchTerm) return true; // if no search term, return all services for the selected period
         const ownerName = service.ownerName.toLowerCase();
         const formattedDate = format(new Date(service.date), "dd MMM yyyy", { locale: id }).toLowerCase();
         
@@ -215,7 +330,7 @@ export function ServiceTable({
         {/* Mobile View */}
         <div className="md:hidden space-y-4 p-4">
             {searchedServices.length > 0 ? (
-                searchedServices.map(service => <ServiceCard key={service.id} service={service} />)
+                searchedServices.map(service => <ServiceCard key={service.id} service={service} onDelete={handleLocalDelete} />)
             ) : (
                 <div className="flex flex-col items-center justify-center gap-2 py-12">
                     <PawPrint className="h-8 w-8 text-muted-foreground" />
@@ -238,6 +353,7 @@ export function ServiceTable({
                 <TableHead>Diagnosa</TableHead>
                 <TableHead>Pengobatan</TableHead>
                 <TableHead>Petugas</TableHead>
+                <TableHead className="w-[100px] text-center">Aksi</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -279,11 +395,14 @@ export function ServiceTable({
                         <div className="font-medium">{service.officerName}</div>
                         <div className="text-xs text-muted-foreground">{service.puskeswan}</div>
                     </TableCell>
+                    <TableCell className="align-top text-center">
+                        <ActionsCell service={service} onDelete={handleLocalDelete} />
+                    </TableCell>
                   </TableRow>
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={6} className="h-24 text-center">
+                  <TableCell colSpan={7} className="h-24 text-center">
                     <div className="flex flex-col items-center justify-center gap-2">
                       <PawPrint className="h-8 w-8 text-muted-foreground" />
                       <p className="text-muted-foreground">
@@ -306,7 +425,3 @@ export function ServiceTable({
     </Card>
   );
 }
-
-    
-
-    

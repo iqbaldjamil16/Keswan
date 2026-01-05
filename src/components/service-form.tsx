@@ -2,10 +2,12 @@
 "use client";
 
 import { useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, PlusCircle, Trash2 } from "lucide-react";
 import { format } from "date-fns";
+import { doc, updateDoc } from 'firebase/firestore';
 
 import { cn } from "@/lib/utils";
 import { serviceSchema, type HealthcareService } from "@/lib/types";
@@ -37,14 +39,16 @@ import { Label } from "@/components/ui/label";
 import { useFirebase } from "@/firebase";
 
 
-export function ServiceForm() {
+export function ServiceForm({ initialData }: { initialData?: HealthcareService }) {
   const [isPending, startTransition] = useTransition();
   const { toast } = useToast();
   const { firestore } = useFirebase();
+  const router = useRouter();
+  const isEditMode = !!initialData;
 
   const form = useForm<HealthcareService>({
     resolver: zodResolver(serviceSchema),
-    defaultValues: {
+    defaultValues: initialData || {
       date: new Date(),
       puskeswan: "",
       officerName: "",
@@ -68,7 +72,7 @@ export function ServiceForm() {
 
   const watchedTreatments = form.watch("treatments");
 
-  function onSubmit(values: HealthcareService) {
+  async function onSubmit(values: HealthcareService) {
     if (!firestore) {
         toast({
           variant: "destructive",
@@ -80,36 +84,45 @@ export function ServiceForm() {
 
     startTransition(async () => {
       try {
-        await addService(firestore, values);
-        
-        const result = await createService(values);
+        if (isEditMode && initialData?.id) {
+            const serviceDocRef = doc(firestore, 'healthcareServices', initialData.id);
+            await updateDoc(serviceDocRef, values);
+            toast({
+              title: "Sukses",
+              description: "Data pelayanan berhasil diperbarui!",
+            });
+            router.push('/laporan');
+        } else {
+            await addService(firestore, values);
+            const result = await createService(values);
 
-        if (result.success) {
-          toast({
-            title: "Sukses",
-            description: result.success,
-          });
-          form.reset({
-              date: new Date(),
-              puskeswan: "",
-              officerName: "",
-              ownerName: "",
-              ownerAddress: "",
-              caseId: "",
-              livestockType: "",
-              livestockCount: 1,
-              clinicalSymptoms: "",
-              diagnosis: "",
-              handling: "",
-              treatmentType: "",
-              treatments: [{ medicineType: "", medicineName: "", dosage: "" }],
-          });
-        } else if (result.error) {
-           toast({
-            variant: "destructive",
-            title: "Gagal Validasi",
-            description: result.error,
-          });
+            if (result.success) {
+                toast({
+                    title: "Sukses",
+                    description: result.success,
+                });
+                form.reset({
+                    date: new Date(),
+                    puskeswan: "",
+                    officerName: "",
+                    ownerName: "",
+                    ownerAddress: "",
+                    caseId: "",
+                    livestockType: "",
+                    livestockCount: 1,
+                    clinicalSymptoms: "",
+                    diagnosis: "",
+                    handling: "",
+                    treatmentType: "",
+                    treatments: [{ medicineType: "", medicineName: "", dosage: "" }],
+                });
+            } else if (result.error) {
+                toast({
+                    variant: "destructive",
+                    title: "Gagal Validasi",
+                    description: result.error,
+                });
+            }
         }
       } catch (error) {
         toast({
@@ -137,7 +150,7 @@ export function ServiceForm() {
                       <FormControl>
                         <Input
                           type="date"
-                          value={format(field.value, 'yyyy-MM-dd')}
+                          value={format(new Date(field.value), 'yyyy-MM-dd')}
                           onChange={(e) => {
                             const date = new Date(e.target.value);
                             const userTimezoneOffset = date.getTimezoneOffset() * 60000;
@@ -468,7 +481,7 @@ export function ServiceForm() {
         <div className="flex justify-end">
           <Button type="submit" disabled={isPending}>
             {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            Simpan Data
+            {isEditMode ? 'Simpan Perubahan' : 'Simpan Data'}
           </Button>
         </div>
       </form>

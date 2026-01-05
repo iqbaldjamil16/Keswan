@@ -4,6 +4,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { serviceSchema } from "./types";
+import { deleteServiceById } from "./data";
 // The addService function is no longer needed here as logic is moved to client.
 
 export async function createService(data: z.infer<typeof serviceSchema>) {
@@ -41,3 +42,17 @@ export async function createService(data: z.infer<typeof serviceSchema>) {
     return { error: "Gagal menyegarkan data." };
   }
 }
+
+export async function deleteService(serviceId: string) {
+    if (!serviceId) {
+      return { error: "ID layanan tidak valid." };
+    }
+    try {
+      await deleteServiceById(serviceId);
+      revalidatePath("/laporan");
+      revalidatePath("/rekap");
+      return { success: "Data berhasil dihapus." };
+    } catch (e) {
+      return { error: "Gagal menghapus data." };
+    }
+  }

@@ -9,8 +9,11 @@ import {
   orderBy,
   Timestamp,
   Firestore,
+  doc,
+  deleteDoc,
+  getDoc
 } from 'firebase/firestore';
-import { getSdks, addDocumentNonBlocking } from '@/firebase';
+import { getSdks } from '@/firebase';
 import type { HealthcareService } from './types';
 import { serviceSchema } from './types';
 
@@ -41,6 +44,37 @@ export async function getServices(): Promise<HealthcareService[]> {
   });
   return services;
 }
+
+export async function getServiceById(id: string): Promise<HealthcareService | null> {
+    const { firestore } = getSdks();
+    if (!firestore) {
+      console.error("Firestore is not initialized.");
+      return null;
+    }
+    const docRef = doc(firestore, 'healthcareServices', id);
+    const docSnap = await getDoc(docRef);
+  
+    if (docSnap.exists()) {
+      const data = docSnap.data();
+      const service: HealthcareService = serviceSchema.parse({
+        ...data,
+        id: docSnap.id,
+        date: (data.date as Timestamp).toDate(),
+      });
+      return service;
+    } else {
+      return null;
+    }
+  }
+
+export async function deleteServiceById(serviceId: string): Promise<void> {
+    const { firestore } = getSdks();
+    if (!firestore) {
+      throw new Error("Firestore is not initialized.");
+    }
+    const serviceDoc = doc(firestore, "healthcareServices", serviceId);
+    await deleteDoc(serviceDoc);
+  }
 
 // This function now adds to Firestore using a non-blocking update
 export async function addService(
