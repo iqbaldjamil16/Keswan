@@ -435,22 +435,25 @@ export function ServiceTable({}: ServiceTableProps) {
         </div>
       </CardHeader>
       <CardContent className="p-0 md:p-6 md:pt-0">
-        <div className="md:hidden space-y-4 p-4">
-            {searchedServices.length > 0 ? (
-                searchedServices.map(service => <ServiceCard key={service.id} service={service} onDelete={handleLocalDelete} />)
-            ) : (
-                <div className="flex flex-col items-center justify-center gap-2 py-12">
-                    <PawPrint className="h-8 w-8 text-muted-foreground" />
-                    <p className="text-muted-foreground text-center">
-                    {searchTerm ? "Tidak ada hasil ditemukan." : "Belum ada data untuk periode ini."}
-                    </p>
-                </div>
-            )}
+        {/* Mobile View */}
+        <div className="md:hidden p-4">
+            <div className="space-y-4 max-h-[70vh] overflow-y-auto">
+                {searchedServices.length > 0 ? (
+                    searchedServices.map(service => <ServiceCard key={service.id} service={service} onDelete={handleLocalDelete} />)
+                ) : (
+                    <div className="flex flex-col items-center justify-center gap-2 py-12">
+                        <PawPrint className="h-8 w-8 text-muted-foreground" />
+                        <p className="text-muted-foreground text-center">
+                        {searchTerm ? "Tidak ada hasil ditemukan." : "Belum ada data untuk periode ini."}
+                        </p>
+                    </div>
+                )}
+            </div>
         </div>
 
 
         {/* Desktop View */}
-        <div className="hidden md:block relative w-full overflow-auto rounded-md border h-[420px]">
+        <div className="hidden md:block relative w-full overflow-auto rounded-md border h-[520px]">
           <Table>
             <TableHeader className="sticky top-0 bg-card">
               <TableRow>
