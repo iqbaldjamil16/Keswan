@@ -46,6 +46,9 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
   const [showManualTreatmentType, setShowManualTreatmentType] = useState(
     initialData ? !treatmentTypes.includes(initialData.treatmentType) : false
   );
+  const [showManualLivestockType, setShowManualLivestockType] = useState(
+    initialData ? !livestockTypes.includes(initialData.livestockType) : false
+  );
 
   const form = useForm<HealthcareService>({
     resolver: zodResolver(serviceSchema),
@@ -123,6 +126,7 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
                 treatments: [{ medicineType: "", medicineName: "", dosage: "" }],
             });
             setShowManualTreatmentType(false);
+            setShowManualLivestockType(false);
              router.refresh();
         }
       } catch (error: any) {
@@ -269,18 +273,37 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
                         render={({ field }) => (
                         <FormItem>
                             <FormLabel>Jenis Ternak</FormLabel>
-                            <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}>
-                            <FormControl>
-                                <SelectTrigger>
-                                <SelectValue placeholder="Pilih Jenis Ternak" />
-                                </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                                {livestockTypes.map((type) => (
-                                <SelectItem key={type} value={type}>{type}</SelectItem>
-                                ))}
-                            </SelectContent>
-                            </Select>
+                            {showManualLivestockType ? (
+                              <FormControl>
+                                <Input 
+                                  placeholder="Masukkan jenis ternak"
+                                  {...field}
+                                />
+                              </FormControl>
+                            ) : (
+                              <Select 
+                                onValueChange={(value) => {
+                                  if (value === 'Lainnya') {
+                                    setShowManualLivestockType(true);
+                                    field.onChange('');
+                                  } else {
+                                    field.onChange(value);
+                                  }
+                                }} 
+                                value={field.value}
+                              >
+                                <FormControl>
+                                    <SelectTrigger>
+                                      <SelectValue placeholder="Pilih Jenis Ternak" />
+                                    </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                    {livestockTypes.map((type) => (
+                                    <SelectItem key={type} value={type}>{type}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                              </Select>
+                            )}
                             <FormMessage />
                         </FormItem>
                         )}
@@ -408,7 +431,7 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
                     const isManualMedicineName = medicineNameValue === 'Lainnya';
 
                     return (
-                      <Card key={item.id} className="relative p-4 bg-background/50">
+                      <Card key={item.id} className="relative p-4 bg-card">
                          {fields.length > 1 && (
                             <Button
                                 type="button"
@@ -531,3 +554,5 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
     </Form>
   );
 }
+
+    

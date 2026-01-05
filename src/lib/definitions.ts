@@ -32,6 +32,7 @@ export const livestockTypes = [
   'Sapi Bali',
   'Sapi Limosin',
   'Sapi Simental',
+  'Lainnya',
 ];
 
 export const treatmentTypes = [
@@ -121,3 +122,5 @@ export const medicineData = {
 export type MedicineType = keyof typeof medicineData;
 
 export const medicineTypes = Object.keys(medicineData) as MedicineType[];
+
+    
