@@ -47,6 +47,15 @@ export const treatmentTypes = [
   'Lainnya',
 ];
 
+export const dosageUnits = [
+  'ml',
+  'mg',
+  'g',
+  'Bolus',
+  'Kaplet',
+  'Lainnya',
+];
+
 export const medicineData = {
   Antibiotik: [
     'Colibact Bolus',

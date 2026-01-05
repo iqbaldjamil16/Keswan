@@ -3,8 +3,9 @@ import { z } from 'zod';
 
 export const treatmentSchema = z.object({
   medicineType: z.string().min(1, "Jenis obat harus dipilih."),
-  medicineName: z.string().min(1, "Nama obat harus dipilih."),
-  dosage: z.string().min(1, "Dosis harus diisi."),
+  medicineName: z.string().min(1, "Nama obat harus diisi."),
+  dosageValue: z.coerce.number().min(0, "Jumlah dosis harus diisi."),
+  dosageUnit: z.string().min(1, "Satuan dosis harus dipilih."),
 });
 
 export const serviceSchema = z.object({

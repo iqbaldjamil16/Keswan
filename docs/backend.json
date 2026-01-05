@@ -67,14 +67,18 @@
               "medicineName": {
                 "type": "string"
               },
-              "dosage": {
+              "dosageValue": {
+                "type": "number"
+              },
+              "dosageUnit": {
                 "type": "string"
               }
             },
             "required": [
               "medicineType",
               "medicineName",
-              "dosage"
+              "dosageValue",
+              "dosageUnit"
             ]
           }
         }

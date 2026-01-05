@@ -79,15 +79,15 @@ function processRecapData(services: HealthcareService[]): RecapData {
 
         service.treatments.forEach(treatment => {
             const medicineName = treatment.medicineName.trim();
-            const dosageValue = parseFloat(treatment.dosage.replace(',', '.')) || 0;
-            const dosageUnit = treatment.dosage.replace(/[\d\s.,]/g, '') || 'unit';
+            const dosageValue = treatment.dosageValue || 0;
+            const dosageUnit = treatment.dosageUnit || 'unit';
 
             if (!recap[service.puskeswan].medicines[medicineName]) {
                 recap[service.puskeswan].medicines[medicineName] = { count: 0, unit: dosageUnit };
             }
             
             recap[service.puskeswan].medicines[medicineName].count += dosageValue;
-            if (!recap[service.puskeswan].medicines[medicineName].unit) {
+            if (recap[service.puskeswan].medicines[medicineName].unit === 'unit' && dosageUnit !== 'unit') {
                  recap[service.puskeswan].medicines[medicineName].unit = dosageUnit;
             }
         });
@@ -364,3 +364,5 @@ export default function RekapPage() {
     </div>
   );
 }
+
+    

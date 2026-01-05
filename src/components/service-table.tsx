@@ -178,7 +178,7 @@ function ServiceCard({ service, onDelete }: { service: HealthcareService, onDele
                              <ul className="list-disc pl-5 mt-1 space-y-1 text-sm">
                               {service.treatments.map((treatment, index) => (
                                 <li key={index}>
-                                  <span className="font-semibold">{treatment.medicineName}</span> ({treatment.dosage})
+                                  <span className="font-semibold">{treatment.medicineName}</span> ({treatment.dosageValue} {treatment.dosageUnit})
                                   <br />
                                   <span className="text-muted-foreground text-xs">{treatment.medicineType}</span>
                                 </li>
@@ -381,7 +381,7 @@ export function ServiceTable({}: ServiceTableProps) {
           'Gejala Klinis': service.clinicalSymptoms,
           'Diagnosa': service.diagnosis,
           'Jenis Penanganan': service.treatmentType,
-          'Obat yang Digunakan': service.treatments.map(t => `${t.medicineName} (${t.dosage})`).join(', '),
+          'Obat yang Digunakan': service.treatments.map(t => `${t.medicineName} (${t.dosageValue} ${t.dosageUnit})`).join(', '),
         }));
 
         const ws = XLSX.utils.json_to_sheet(dataForSheet);
@@ -491,7 +491,7 @@ export function ServiceTable({}: ServiceTableProps) {
                             <ul className="list-disc pl-5 space-y-1 text-xs">
                               {service.treatments.map((treatment, index) => (
                                 <li key={index}>
-                                  <span className="font-semibold">{treatment.medicineName}</span> ({treatment.dosage})
+                                  <span className="font-semibold">{treatment.medicineName}</span> ({treatment.dosageValue} {treatment.dosageUnit})
                                   <br />
                                   <span className="text-muted-foreground">{treatment.medicineType}</span>
                                 </li>

@@ -11,7 +11,7 @@ import { doc, updateDoc, addDoc, collection, Timestamp, Firestore } from 'fireba
 
 import { cn } from "@/lib/utils";
 import { serviceSchema, type HealthcareService } from "@/lib/types";
-import { medicineData, medicineTypes, type MedicineType, livestockTypes, puskeswanList, treatmentTypes } from "@/lib/definitions";
+import { medicineData, medicineTypes, type MedicineType, livestockTypes, puskeswanList, treatmentTypes, dosageUnits } from "@/lib/definitions";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -67,7 +67,7 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
       clinicalSymptoms: "",
       diagnosis: "",
       treatmentType: "",
-      treatments: [{ medicineType: "", medicineName: "", dosage: "" }],
+      treatments: [{ medicineType: "", medicineName: "", dosageValue: undefined, dosageUnit: "" }],
     },
   });
   
@@ -123,7 +123,7 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
                 clinicalSymptoms: "",
                 diagnosis: "",
                 treatmentType: "",
-                treatments: [{ medicineType: "", medicineName: "", dosage: "" }],
+                treatments: [{ medicineType: "", medicineName: "", dosageValue: undefined, dosageUnit: "" }],
             });
             setShowManualTreatmentType(false);
             setShowManualLivestockType(false);
@@ -418,7 +418,7 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
                       variant="default"
                       size="sm"
                       className="bg-accent text-accent-foreground hover:bg-accent/90"
-                      onClick={() => append({ medicineType: "", medicineName: "", dosage: "" })}
+                      onClick={() => append({ medicineType: "", medicineName: "", dosageValue: undefined, dosageUnit: "" })}
                     >
                       <PlusCircle className="mr-2 h-4 w-4" />
                       Tambah
@@ -429,6 +429,8 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
                     const selectedMedicineType = watchedTreatments?.[index]?.medicineType as MedicineType;
                     const medicineNameValue = form.watch(`treatments.${index}.medicineName`);
                     const isManualMedicineName = medicineNameValue === 'Lainnya';
+                    const dosageUnitValue = form.watch(`treatments.${index}.dosageUnit`);
+                    const isManualDosageUnit = dosageUnitValue === 'Lainnya';
 
                     return (
                       <Card key={item.id} className="relative p-4 bg-card">
@@ -522,19 +524,60 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
                               </FormItem>
                             )}
                           />
-                          <FormField
-                              control={form.control}
-                              name={`treatments.${index}.dosage`}
-                              render={({ field }) => (
-                              <FormItem>
-                                  <FormLabel>Dosis</FormLabel>
-                                  <FormControl>
-                                  <Input placeholder="cth: 10ml" {...field} />
-                                  </FormControl>
-                                  <FormMessage />
-                              </FormItem>
-                              )}
-                          />
+                          <div className="space-y-2">
+                            <FormLabel>Dosis</FormLabel>
+                            <div className="grid grid-cols-2 gap-2">
+                              <FormField
+                                  control={form.control}
+                                  name={`treatments.${index}.dosageValue`}
+                                  render={({ field }) => (
+                                  <FormItem>
+                                      <FormControl>
+                                        <Input type="number" placeholder="Jumlah" {...field} onChange={e => field.onChange(e.target.value === '' ? '' : Number(e.target.value))} />
+                                      </FormControl>
+                                      <FormMessage />
+                                  </FormItem>
+                                  )}
+                              />
+                               <FormField
+                                control={form.control}
+                                name={`treatments.${index}.dosageUnit`}
+                                render={({ field }) => (
+                                  <FormItem>
+                                    {isManualDosageUnit ? (
+                                       <FormControl>
+                                          <Input
+                                            placeholder="Satuan"
+                                            {...field}
+                                            value={field.value === 'Lainnya' ? '' : field.value}
+                                            onChange={(e) => field.onChange(e.target.value)}
+                                          />
+                                        </FormControl>
+                                    ) : (
+                                      <Select
+                                        onValueChange={field.onChange}
+                                        value={field.value}
+                                      >
+                                        <FormControl>
+                                          <SelectTrigger>
+                                            <SelectValue placeholder="Satuan" />
+                                          </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                          {dosageUnits.map((unit) => (
+                                            <SelectItem key={unit} value={unit}>
+                                              {unit}
+                                            </SelectItem>
+                                          ))}
+                                        </SelectContent>
+                                      </Select>
+                                    )}
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </div>
+                          </div>
                         </div>
                       </Card>
                     )
