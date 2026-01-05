@@ -138,16 +138,16 @@ function ServiceCard({ service, onDelete }: { service: HealthcareService, onDele
                     </CardContent>
                 </CollapsibleContent>
                  <CardFooter className="p-4 pt-0 flex justify-end gap-2">
-                    <Button asChild variant="outline" size="sm" className="h-8 w-8 p-0">
+                    <Button asChild variant="outline" size="sm" className="h-7 w-7 p-0">
                       <Link href={`/laporan/${service.id}/edit`}>
-                        <Pencil className="h-4 w-4" />
+                        <Pencil className="h-3.5 w-3.5" />
                         <span className="sr-only">Edit</span>
                       </Link>
                     </Button>
                     <AlertDialog>
                         <AlertDialogTrigger asChild>
-                            <Button variant="destructive" size="sm" className="h-8 w-8 p-0" disabled={isDeleting}>
-                                {isDeleting ? <Loader2 className="animate-spin h-4 w-4" /> : <Trash2 className="h-4 w-4" />}
+                            <Button variant="destructive" size="sm" className="h-7 w-7 p-0" disabled={isDeleting}>
+                                {isDeleting ? <Loader2 className="animate-spin h-3.5 w-3.5" /> : <Trash2 className="h-3.5 w-3.5" />}
                                 <span className="sr-only">Hapus</span>
                             </Button>
                         </AlertDialogTrigger>
@@ -429,5 +429,7 @@ export function ServiceTable({
     </Card>
   );
 }
+
+    
 
     
