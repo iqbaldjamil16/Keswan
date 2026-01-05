@@ -12,7 +12,7 @@ import { Menu } from 'lucide-react';
 
 const navItems = [
   { href: '/', label: 'Input Data' },
-  { href: '/laporan', label: 'Laporan & Cari' },
+  { href: '/laporan', label: 'Data Laporan' },
   { href: '/rekap', label: 'Rekap Obat dan kasus' },
 ];
 
