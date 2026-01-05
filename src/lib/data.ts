@@ -65,6 +65,10 @@ export async function addService(service: Omit<HealthcareService, 'id'>): Promis
   return newService;
 }
 
+export const livestockTypes = [
+  'Anjing', 'Anjing Ras', 'Ayam Buras', 'Ayam Domestik', 'Ayam Petelur', 'Babi', 'Burung', 'Itik', 'Kambing Jawa Randu', 'Kambing Kacang', 'Kambing PE', 'Kerbau', 'Kucing Bengal', 'Kucing British', 'Kucing Domestik', 'Kucing Himalaya', 'Kucing MixDom', 'Kucing Persia', 'Kuda', 'Manila', 'Sapi Angus', 'Sapi Bali', 'Sapi Limosin', 'Sapi Simental'
+];
+
 export const medicineData = {
   "Antibiotik": ["Colibact Bolus", "Duodin", "Gusanex", "Interflox", "Intramox La", "Kaloxy La", "Limoxin La", "Limoxin Spray", "Medoxy La", "Penstrep", "Proxy Vet La", "Sulfastrong", "Vet Oxy La", "Vet oxy sb"],
   "Anti Radang Analgesia & Piretik": ["Dexapros", "Glucortin-20", "Sulpidon", "Sulprodon"],

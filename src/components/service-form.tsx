@@ -10,7 +10,7 @@ import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { serviceSchema, type HealthcareService } from "@/lib/types";
 import { createService } from "@/lib/actions";
-import { medicineData, medicineTypes, type MedicineType } from "@/lib/data";
+import { medicineData, medicineTypes, type MedicineType, livestockTypes } from "@/lib/data";
 
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -129,9 +129,18 @@ export function ServiceForm() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Jenis Ternak</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Sapi, Kambing, Ayam" {...field} />
-                        </FormControl>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Pilih Jenis Ternak" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {livestockTypes.map((type) => (
+                              <SelectItem key={type} value={type}>{type}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -386,5 +395,3 @@ export function ServiceForm() {
     </Form>
   );
 }
-
-    
