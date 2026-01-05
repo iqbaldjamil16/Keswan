@@ -1,0 +1,254 @@
+{
+  "entities": {
+    "HealthcareService": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "HealthcareService",
+      "type": "object",
+      "description": "Represents a healthcare service record for livestock.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Healthcare Service record."
+        },
+        "serviceDate": {
+          "type": "string",
+          "description": "Date when the service was provided.",
+          "format": "date-time"
+        },
+        "officerId": {
+          "type": "string",
+          "description": "Reference to the Officer who provided the service. (Relationship: Officer 1:N HealthcareService)"
+        },
+        "ownerId": {
+          "type": "string",
+          "description": "Reference to the Owner of the livestock. (Relationship: Owner 1:N HealthcareService)"
+        },
+        "isikhnasCaseId": {
+          "type": "string",
+          "description": "ID Kasus iSIKHNAS (Indonesian Animal Health Information System)."
+        },
+        "livestockTypeId": {
+          "type": "string",
+          "description": "Reference to the type of livestock. (Relationship: LivestockType 1:N HealthcareService)"
+        },
+        "livestockCount": {
+          "type": "number",
+          "description": "Number of livestock affected."
+        },
+        "clinicalSymptoms": {
+          "type": "string",
+          "description": "Observed clinical symptoms."
+        },
+        "diagnosis": {
+          "type": "string",
+          "description": "Diagnosis of the livestock condition."
+        },
+        "handling": {
+          "type": "string",
+          "description": "Details of how the condition was handled."
+        },
+        "treatmentTypeId": {
+          "type": "string",
+          "description": "Reference to the type of treatment provided. (Relationship: TreatmentType 1:N HealthcareService)"
+        },
+        "treatmentDetails": {
+          "type": "string",
+          "description": "Details of the treatment provided."
+        }
+      },
+      "required": [
+        "id",
+        "serviceDate",
+        "officerId",
+        "ownerId",
+        "livestockTypeId",
+        "livestockCount",
+        "clinicalSymptoms",
+        "diagnosis",
+        "handling",
+        "treatmentTypeId",
+        "treatmentDetails"
+      ]
+    },
+    "Officer": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Officer",
+      "type": "object",
+      "description": "Represents a healthcare officer.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Officer."
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the officer."
+        }
+      },
+      "required": [
+        "id",
+        "name"
+      ]
+    },
+    "Owner": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Owner",
+      "type": "object",
+      "description": "Represents a livestock owner.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Owner."
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the owner."
+        },
+        "address": {
+          "type": "string",
+          "description": "Address of the owner."
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "address"
+      ]
+    },
+    "LivestockType": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "LivestockType",
+      "type": "object",
+      "description": "Represents a type of livestock.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Livestock Type."
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the livestock type (e.g., Cow, Goat, Chicken)."
+        }
+      },
+      "required": [
+        "id",
+        "name"
+      ]
+    },
+    "TreatmentType": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "TreatmentType",
+      "type": "object",
+      "description": "Represents a type of treatment.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Treatment Type."
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the treatment type (e.g., Antibiotics, Vaccination)."
+        }
+      },
+      "required": [
+        "id",
+        "name"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/owners/{ownerId}",
+        "definition": {
+          "entityName": "Owner",
+          "schema": {
+            "$ref": "#/backend/entities/Owner"
+          },
+          "description": "Stores livestock owner information. The 'ownerId' is used for path-based ownership of healthcare service records.",
+          "params": [
+            {
+              "name": "ownerId",
+              "description": "The unique identifier of the livestock owner."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/owners/{ownerId}/healthcareServices/{healthcareServiceId}",
+        "definition": {
+          "entityName": "HealthcareService",
+          "schema": {
+            "$ref": "#/backend/entities/HealthcareService"
+          },
+          "description": "Stores healthcare service records associated with a specific livestock owner. Uses path-based ownership for secure access. Requires 'ownerId' for authorization.",
+          "params": [
+            {
+              "name": "ownerId",
+              "description": "The unique identifier of the livestock owner."
+            },
+            {
+              "name": "healthcareServiceId",
+              "description": "The unique identifier of the healthcare service record."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/officers/{officerId}",
+        "definition": {
+          "entityName": "Officer",
+          "schema": {
+            "$ref": "#/backend/entities/Officer"
+          },
+          "description": "Stores healthcare officer information.",
+          "params": [
+            {
+              "name": "officerId",
+              "description": "The unique identifier of the healthcare officer."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/livestockTypes/{livestockTypeId}",
+        "definition": {
+          "entityName": "LivestockType",
+          "schema": {
+            "$ref": "#/backend/entities/LivestockType"
+          },
+          "description": "Stores livestock types.",
+          "params": [
+            {
+              "name": "livestockTypeId",
+              "description": "The unique identifier of the livestock type."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/treatmentTypes/{treatmentTypeId}",
+        "definition": {
+          "entityName": "TreatmentType",
+          "schema": {
+            "$ref": "#/backend/entities/TreatmentType"
+          },
+          "description": "Stores treatment types.",
+          "params": [
+            {
+              "name": "treatmentTypeId",
+              "description": "The unique identifier of the treatment type."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore structure is designed to store healthcare service records for livestock, along with related data about officers, owners, livestock types, and treatment types. The design prioritizes Authorization Independence by using path-based ownership for healthcare service records, ensuring that security rules can be applied without relying on `get()` calls. Each `HealthcareService` record is stored under the respective `Owner` which allows for simple and robust security rules based on the authenticated user's ID. This structure supports the required QAPs by segregating data based on ownership, allowing secure `list` operations within a user's owned documents.  Officer, LivestockType, and TreatmentType are stored in top-level collections as their scope is global, this also reduces data duplication."
+  }
+}
