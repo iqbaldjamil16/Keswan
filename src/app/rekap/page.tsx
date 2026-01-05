@@ -32,8 +32,11 @@ import {
     SelectTrigger,
     SelectValue,
   } from "@/components/ui/select";
-import { getMonth, getYear, subYears } from "date-fns";
+import { getMonth, getYear, subYears, format } from "date-fns";
 import { id } from 'date-fns/locale';
+import { Button } from "@/components/ui/button";
+import { Download } from "lucide-react";
+import * as XLSX from 'xlsx';
 
 interface RecapData {
     [puskeswan: string]: {
@@ -131,6 +134,37 @@ export default function RekapPage() {
         return Number(count.toFixed(2)).toLocaleString("id-ID");
     };
 
+    const handleDownload = () => {
+        const wb = XLSX.utils.book_new();
+
+        // 1. Medicine Recap Sheet
+        const medicineDataForSheet = puskeswanList.flatMap(puskeswan => {
+            const data = recapData[puskeswan];
+            return Object.entries(data.medicines).map(([medicineName, { count, unit }]) => ({
+                'Puskeswan': puskeswan,
+                'Nama Obat': medicineName,
+                'Total Dosis': `${formatDosage(count)} ${unit}`,
+            }));
+        });
+        const wsMedicines = XLSX.utils.json_to_sheet(medicineDataForSheet);
+        XLSX.utils.book_append_sheet(wb, wsMedicines, "Rekap Obat");
+
+        // 2. Diagnosis Recap Sheet
+        const diagnosisDataForSheet = puskeswanList.flatMap(puskeswan => {
+            const data = recapData[puskeswan];
+            return Object.entries(data.diagnoses).map(([diagnosis, count]) => ({
+                'Puskeswan': puskeswan,
+                'Diagnosa': diagnosis,
+                'Jumlah Kasus': count,
+            }));
+        });
+        const wsDiagnoses = XLSX.utils.json_to_sheet(diagnosisDataForSheet);
+        XLSX.utils.book_append_sheet(wb, wsDiagnoses, "Rekap Kasus");
+        
+        const monthLabel = months.find(m => m.value === selectedMonth)?.label || '';
+        XLSX.writeFile(wb, `rekap_obat_kasus_${monthLabel}_${selectedYear}.xlsx`);
+    };
+
   return (
     <div className="container py-4 md:py-8">
        <div className="max-w-4xl mx-auto">
@@ -161,6 +195,10 @@ export default function RekapPage() {
                         ))}
                     </SelectContent>
                 </Select>
+                <Button onClick={handleDownload} variant="outline" className="sm:ml-auto" disabled={loading || puskeswanList.length === 0}>
+                    <Download className="mr-2 h-4 w-4" />
+                    Unduh Rekap
+                </Button>
             </div>
             {loading ? (
               <RecapSkeleton />
