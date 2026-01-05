@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import { ServiceTable } from "@/components/service-table";
 import { getServices } from "@/lib/data";
 import type { HealthcareService } from "@/lib/types";
@@ -51,33 +51,26 @@ const months = Array.from({ length: 12 }, (_, i) => ({
 }));
 
 export default function ReportPage() {
-  const [allServices, setAllServices] = useState<HealthcareService[]>([]);
+  const [services, setServices] = useState<HealthcareService[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedMonth, setSelectedMonth] = useState(getMonth(new Date()).toString());
   const [selectedYear, setSelectedYear] = useState(getYear(new Date()).toString());
 
-  useEffect(() => {
-    async function loadServices() {
-      try {
-        setLoading(true);
-        const fetchedServices = await getServices();
-        setAllServices(fetchedServices);
-      } catch (error) {
-        console.error("Failed to fetch services:", error);
-      } finally {
-        setLoading(false);
-      }
+  const loadServices = useCallback(async (year: string, month: string) => {
+    try {
+      setLoading(true);
+      const fetchedServices = await getServices(parseInt(year, 10), parseInt(month, 10));
+      setServices(fetchedServices);
+    } catch (error) {
+      console.error("Failed to fetch services:", error);
+    } finally {
+      setLoading(false);
     }
-    loadServices();
   }, []);
 
-  const filteredServices = useMemo(() => {
-    if (!allServices) return [];
-    return allServices.filter(service => {
-        const serviceDate = new Date(service.date);
-        return getMonth(serviceDate).toString() === selectedMonth && getYear(serviceDate).toString() === selectedYear;
-    });
-}, [allServices, selectedMonth, selectedYear]);
+  useEffect(() => {
+    loadServices(selectedYear, selectedMonth);
+  }, [selectedYear, selectedMonth, loadServices]);
 
   return (
     <div className="container py-4 md:py-8">
@@ -88,7 +81,7 @@ export default function ReportPage() {
       <div className="mt-6 md:mt-8">
         {loading ? <ReportSkeleton /> : (
             <ServiceTable
-                services={filteredServices}
+                services={services}
                 selectedMonth={selectedMonth}
                 selectedYear={selectedYear}
                 onMonthChange={setSelectedMonth}

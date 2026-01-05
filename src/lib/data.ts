@@ -11,21 +11,37 @@ import {
   Firestore,
   doc,
   deleteDoc,
-  getDoc
+  getDoc,
+  where
 } from 'firebase/firestore';
 import { getSdks } from '@/firebase';
 import type { HealthcareService } from './types';
 import { serviceSchema } from './types';
+import { startOfMonth, endOfMonth } from 'date-fns';
 
-// This function now fetches from Firestore
-export async function getServices(): Promise<HealthcareService[]> {
+// This function now fetches from Firestore with date range filtering
+export async function getServices(year?: number, month?: number): Promise<HealthcareService[]> {
   const { firestore } = getSdks();
   if (!firestore) {
       console.error("Firestore is not initialized.");
       return [];
   }
   const servicesCollection = collection(firestore, 'healthcareServices');
-  const q = query(servicesCollection, orderBy('date', 'desc'));
+  
+  let q;
+  if (year !== undefined && month !== undefined) {
+    const startDate = startOfMonth(new Date(year, month));
+    const endDate = endOfMonth(new Date(year, month));
+    q = query(
+        servicesCollection, 
+        where('date', '>=', startDate),
+        where('date', '<=', endDate),
+        orderBy('date', 'desc')
+    );
+  } else {
+    q = query(servicesCollection, orderBy('date', 'desc'));
+  }
+
   const querySnapshot = await getDocs(q);
   const services: HealthcareService[] = [];
   querySnapshot.forEach((doc) => {

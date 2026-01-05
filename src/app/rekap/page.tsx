@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import {
   Card,
   CardContent,
@@ -99,34 +99,28 @@ const months = Array.from({ length: 12 }, (_, i) => ({
 
 
 export default function RekapPage() {
-    const [allServices, setAllServices] = useState<HealthcareService[]>([]);
+    const [services, setServices] = useState<HealthcareService[]>([]);
     const [loading, setLoading] = useState(true);
     const [selectedMonth, setSelectedMonth] = useState(getMonth(new Date()).toString());
     const [selectedYear, setSelectedYear] = useState(getYear(new Date()).toString());
 
-    useEffect(() => {
-      async function loadServices() {
+    const loadServices = useCallback(async (year: string, month: string) => {
         try {
           setLoading(true);
-          const services = await getServices();
-          setAllServices(services);
+          const fetchedServices = await getServices(parseInt(year, 10), parseInt(month, 10));
+          setServices(fetchedServices);
         } catch (error) {
           console.error("Failed to fetch services:", error);
         } finally {
           setLoading(false);
         }
-      }
-      loadServices();
-    }, []);
+      }, []);
+    
+      useEffect(() => {
+        loadServices(selectedYear, selectedMonth);
+      }, [selectedYear, selectedMonth, loadServices]);
 
-    const filteredServices = useMemo(() => {
-        return allServices.filter(service => {
-            const serviceDate = new Date(service.date);
-            return getMonth(serviceDate).toString() === selectedMonth && getYear(serviceDate).toString() === selectedYear;
-        });
-    }, [allServices, selectedMonth, selectedYear]);
-
-    const recapData = useMemo(() => processRecapData(filteredServices), [filteredServices]);
+    const recapData = useMemo(() => processRecapData(services), [services]);
     const puskeswanList = Object.keys(recapData).sort();
     
     const formatDosage = (count: number) => {
