@@ -450,9 +450,9 @@ export function ServiceTable({}: ServiceTableProps) {
 
 
         {/* Desktop View */}
-        <div className="hidden md:block relative w-full overflow-auto rounded-md border">
+        <div className="hidden md:block relative w-full overflow-auto rounded-md border h-[420px]">
           <Table>
-            <TableHeader>
+            <TableHeader className="sticky top-0 bg-card">
               <TableRow>
                 <TableHead className="w-[120px]">Tanggal</TableHead>
                 <TableHead>Pemilik</TableHead>
@@ -539,3 +539,5 @@ export function ServiceTable({}: ServiceTableProps) {
     </Card>
   );
 }
+
+    
