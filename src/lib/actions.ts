@@ -5,7 +5,6 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { serviceSchema } from "./types";
 import { deleteServiceById } from "./data";
-// The addService function is no longer needed here as logic is moved to client.
 
 export async function createService(data: z.infer<typeof serviceSchema>) {
   const validatedFields = serviceSchema.safeParse(data);
@@ -32,14 +31,16 @@ export async function createService(data: z.infer<typeof serviceSchema>) {
     };
   }
 
+  // If validation is successful, revalidate paths and return success.
+  // The actual database operation is handled on the client.
   try {
-    // We only revalidate paths now. The actual data saving is done on the client.
     revalidatePath('/laporan');
     revalidatePath('/rekap');
     revalidatePath('/');
-    return { success: "Data pelayanan berhasil disimpan!" };
+    return { success: true };
   } catch (e) {
-    return { error: "Gagal menyegarkan data." };
+    // This catch block is for potential revalidation errors, which are rare.
+    return { error: "Gagal menyegarkan data cache." };
   }
 }
 
@@ -56,3 +57,5 @@ export async function deleteService(serviceId: string) {
       return { error: "Gagal menghapus data." };
     }
   }
+
+    

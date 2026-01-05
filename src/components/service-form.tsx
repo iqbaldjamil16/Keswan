@@ -84,51 +84,57 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
 
     startTransition(async () => {
       try {
+        const result = await createService(values);
+
+        if (result.error) {
+            toast({
+                variant: "destructive",
+                title: "Gagal Validasi",
+                description: result.error,
+            });
+            return;
+        }
+
         if (isEditMode && initialData?.id) {
             const serviceDocRef = doc(firestore, 'healthcareServices', initialData.id);
+            // Server action already validated, now we update firestore
             await updateDoc(serviceDocRef, values);
             toast({
               title: "Sukses",
               description: "Data pelayanan berhasil diperbarui!",
             });
             router.push('/laporan');
+            router.refresh();
         } else {
+            // Server action validated, now add to firestore
             await addService(firestore, values);
-            const result = await createService(values);
-
-            if (result.success) {
-                toast({
-                    title: "Sukses",
-                    description: result.success,
-                });
-                form.reset({
-                    date: new Date(),
-                    puskeswan: "",
-                    officerName: "",
-                    ownerName: "",
-                    ownerAddress: "",
-                    caseId: "",
-                    livestockType: "",
-                    livestockCount: 1,
-                    clinicalSymptoms: "",
-                    diagnosis: "",
-                    handling: "",
-                    treatmentType: "",
-                    treatments: [{ medicineType: "", medicineName: "", dosage: "" }],
-                });
-            } else if (result.error) {
-                toast({
-                    variant: "destructive",
-                    title: "Gagal Validasi",
-                    description: result.error,
-                });
-            }
+            toast({
+                title: "Sukses",
+                description: "Data pelayanan berhasil disimpan!",
+            });
+            form.reset({
+                date: new Date(),
+                puskeswan: "",
+                officerName: "",
+                ownerName: "",
+                ownerAddress: "",
+                caseId: "",
+                livestockType: "",
+                livestockCount: 1,
+                clinicalSymptoms: "",
+                diagnosis: "",
+                handling: "",
+                treatmentType: "",
+                treatments: [{ medicineType: "", medicineName: "", dosage: "" }],
+            });
+             router.refresh();
         }
       } catch (error) {
+        console.error("Submit error:", error);
         toast({
           variant: "destructive",
           title: "Gagal Menyimpan",
-          description: "Terjadi kesalahan saat menyimpan data ke database.",
+          description: "Terjadi kesalahan saat menyimpan data.",
         });
       }
     });
@@ -488,3 +494,5 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
     </Form>
   );
 }
+
+    
