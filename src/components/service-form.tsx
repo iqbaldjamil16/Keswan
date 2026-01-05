@@ -390,7 +390,7 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
                   {fields.map((item, index) => {
                     const selectedMedicineType = watchedTreatments?.[index]?.medicineType as MedicineType;
                     return (
-                      <Card key={item.id} className="relative p-4">
+                      <Card key={item.id} className="relative p-4 bg-background/50">
                          {fields.length > 1 && (
                             <Button
                                 type="button"
@@ -437,22 +437,28 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
                                 render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Nama Obat</FormLabel>
-                                    <Select onValueChange={field.onChange} value={field.value} disabled={!selectedMedicineType}>
-                                    <FormControl>
-                                        <SelectTrigger>
-                                        <SelectValue placeholder="Pilih Obat" />
-                                        </SelectTrigger>
-                                    </FormControl>
-                                    <SelectContent>
-                                        {selectedMedicineType && medicineData[selectedMedicineType] && medicineData[selectedMedicineType].length > 0 ? (
-                                        medicineData[selectedMedicineType].map((drug) => (
-                                            <SelectItem key={drug} value={drug}>{drug}</SelectItem>
-                                        ))
-                                        ) : (
-                                        <SelectItem value="-" disabled>Pilih jenis dahulu</SelectItem>
-                                        )}
-                                    </SelectContent>
-                                    </Select>
+                                    {selectedMedicineType === 'Lainnya' ? (
+                                        <FormControl>
+                                            <Input placeholder="Masukkan nama obat" {...field} />
+                                        </FormControl>
+                                    ) : (
+                                        <Select onValueChange={field.onChange} value={field.value} disabled={!selectedMedicineType}>
+                                            <FormControl>
+                                                <SelectTrigger>
+                                                <SelectValue placeholder="Pilih Obat" />
+                                                </SelectTrigger>
+                                            </FormControl>
+                                            <SelectContent>
+                                                {selectedMedicineType && medicineData[selectedMedicineType] && medicineData[selectedMedicineType].length > 0 ? (
+                                                medicineData[selectedMedicineType].map((drug) => (
+                                                    <SelectItem key={drug} value={drug}>{drug}</SelectItem>
+                                                ))
+                                                ) : (
+                                                <SelectItem value="-" disabled>Pilih jenis dahulu</SelectItem>
+                                                )}
+                                            </SelectContent>
+                                        </Select>
+                                    )}
                                     <FormMessage />
                                 </FormItem>
                                 )}

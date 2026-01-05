@@ -87,6 +87,7 @@ export const medicineData = {
   Antialergi: ['Vetadryl', 'Prodryl'],
   Antibloat: [],
   'Susu Mineral & As. Amino': [],
+  Lainnya: [],
 };
 
 export type MedicineType = keyof typeof medicineData;
