@@ -10,12 +10,21 @@ export async function createService(data: z.infer<typeof serviceSchema>) {
   const validatedFields = serviceSchema.safeParse(data);
 
   if (!validatedFields.success) {
-    const errorMessages = Object.values(validatedFields.error.flatten().fieldErrors).flat().join(' ');
-    // Handle array-specific errors
+    const errorMessages: string[] = [];
+    for (const key in validatedFields.error.flatten().fieldErrors) {
+      if (Object.prototype.hasOwnProperty.call(validatedFields.error.flatten().fieldErrors, key)) {
+        const fieldError = (validatedFields.error.flatten().fieldErrors as any)[key];
+        if(fieldError) {
+          errorMessages.push(fieldError[0]);
+        }
+      }
+    }
+
     const formErrors = validatedFields.error.flatten().formErrors.join(' ');
+    const finalErrorMessage = errorMessages.length > 0 ? errorMessages.join(". ") : formErrors;
     
     return {
-      error: errorMessages || formErrors || "Data tidak valid. Silakan periksa kembali.",
+      error: finalErrorMessage || "Data tidak valid. Silakan periksa kembali.",
     };
   }
 
@@ -28,5 +37,3 @@ export async function createService(data: z.infer<typeof serviceSchema>) {
     return { error: "Gagal menyimpan data ke server." };
   }
 }
-
-    

@@ -78,7 +78,20 @@ export function ServiceForm() {
           title: "Sukses",
           description: result.success,
         });
-        form.reset();
+        form.reset({
+            date: new Date(),
+            officerName: "",
+            ownerName: "",
+            ownerAddress: "",
+            caseId: "",
+            livestockType: "",
+            livestockCount: 1,
+            clinicalSymptoms: "",
+            diagnosis: "",
+            handling: "",
+            treatmentType: "",
+            treatments: [{ medicineType: "", medicineName: "", dosage: "" }],
+        });
       } else if (result.error) {
         toast({
           variant: "destructive",
@@ -406,5 +419,3 @@ export function ServiceForm() {
     </Form>
   );
 }
-
-    
