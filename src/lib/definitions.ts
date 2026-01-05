@@ -97,7 +97,7 @@ export const medicineData = {
   Anastesia: ['Ketamine', 'Lidocain'],
   Sedasi: ['Xylazine'],
   Antialergi: ['Vetadryl', 'Prodryl'],
-  Antibloat: [],
+  Antibloat: ['Antibloat', 'Tympanol'],
   'Susu Mineral & As. Amino': [],
   Lainnya: [],
 };
