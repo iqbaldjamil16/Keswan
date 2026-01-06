@@ -17,7 +17,7 @@ import { type HealthcareService } from "@/lib/types";
 export default function ReportPage() {
 
   return (
-    <div className="container px-4 sm:px-8 py-4 md:py-8 space-y-6 pb-24 sm:pb-8">
+    <div className="container px-4 sm:px-8 py-4 md:py-8 space-y-6">
       <Card>
         <CardHeader>
           <CardTitle>Data Laporan Pelayanan</CardTitle>
