@@ -135,7 +135,7 @@ export function Header() {
             href="/laporan"
             className={cn(
                 buttonVariants({ variant: "outline", size: "default" }),
-                "text-sm font-medium transition-colors flex items-center gap-2"
+                "bg-white text-sm font-medium transition-colors flex items-center gap-2"
             )}
             >
             <ClipboardList className="h-4 w-4" />
