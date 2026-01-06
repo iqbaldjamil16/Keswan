@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { Logo } from './logo';
 import { cn } from '@/lib/utils';
-import { Button } from './ui/button';
+import { Button, buttonVariants } from './ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from './ui/sheet';
 import { PanelLeft, ScrollText } from 'lucide-react';
 
@@ -68,8 +68,9 @@ export function Header() {
              <Link
                 href="/laporan"
                 className={cn(
+                    buttonVariants({ variant: "secondary", size: "default" }),
                     "text-sm font-medium transition-colors flex items-center gap-2",
-                    pathname === "/laporan" ? 'text-primary' : 'text-muted-foreground hover:text-primary'
+                    pathname === "/laporan" ? 'ring-2 ring-primary' : ''
                 )}
                 >
                 <ScrollText className="h-4 w-4" />
