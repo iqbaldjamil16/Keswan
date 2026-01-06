@@ -288,7 +288,7 @@ export default function RekapPage() {
                                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                                         <div>
                                             <h3 className="font-semibold mb-2">Rekap Kasus/Diagnosa</h3>
-                                            <div className="rounded-md border">
+                                            <div className="rounded-md border overflow-x-auto">
                                                 <Table>
                                                     <TableHeader>
                                                         <TableRow>
@@ -331,7 +331,7 @@ export default function RekapPage() {
                                         </div>
                                         <div>
                                             <h3 className="font-semibold mb-2">Rekap Penggunaan Obat</h3>
-                                             <div className="rounded-md border">
+                                             <div className="rounded-md border overflow-x-auto">
                                                 <Table>
                                                     <TableHeader>
                                                         <TableRow>
@@ -384,5 +384,3 @@ export default function RekapPage() {
     </div>
   );
 }
-
-    

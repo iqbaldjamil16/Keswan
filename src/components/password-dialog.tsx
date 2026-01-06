@@ -55,7 +55,7 @@ export function PasswordDialog({ trigger, onSuccess, title, description }: Passw
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>{trigger}</DialogTrigger>
-      <DialogContent className="w-[90%] rounded-md sm:max-w-[425px]">
+      <DialogContent className="w-[90%] max-w-[425px] rounded-md">
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription>{description}</DialogDescription>

@@ -1,13 +1,12 @@
 
 "use client";
 
-import { useState, useMemo, useTransition, useEffect, useCallback } from "react";
-import Link from "next/link";
+import { useState, useTransition, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { format, getMonth, getYear, subYears, startOfMonth, endOfMonth } from "date-fns";
+import { format, getMonth, getYear, subYears } from "date-fns";
 import { id } from 'date-fns/locale';
 import * as XLSX from 'xlsx';
-import { doc, deleteDoc, collection, query, where, orderBy, getDocs, Timestamp } from "firebase/firestore";
+import { doc, deleteDoc, collection, query, orderBy, getDocs, Timestamp } from "firebase/firestore";
 
 import { HealthcareService, serviceSchema } from "@/lib/types";
 import { Input } from "@/components/ui/input";
@@ -41,16 +40,6 @@ import {
     SelectTrigger,
     SelectValue,
   } from "@/components/ui/select";
-import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "./ui/skeleton";
 import { cn } from "@/lib/utils";
@@ -448,8 +437,8 @@ export function ServiceTable({}: ServiceTableProps) {
       </CardHeader>
       <CardContent className="p-0 md:p-6 md:pt-0">
         {/* Mobile View */}
-        <div className="md:hidden p-4">
-            <div className="space-y-4 max-h-[70vh] overflow-y-auto">
+        <div className="md:hidden">
+            <div className="space-y-4 p-4 max-h-[70vh] overflow-y-auto">
                 {filteredServices.length > 0 ? (
                     filteredServices.map(service => <ServiceCard key={service.id} service={service} onDelete={handleLocalDelete} />)
                 ) : (
@@ -554,5 +543,3 @@ export function ServiceTable({}: ServiceTableProps) {
     </Card>
   );
 }
-
-    
