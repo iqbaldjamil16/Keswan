@@ -65,6 +65,7 @@ export function Header() {
           <Logo />
         </div>
         <nav className="flex items-center">
+            {isClient && (
              <Link
                 href="/laporan"
                 className={cn(
@@ -76,6 +77,7 @@ export function Header() {
                 <ScrollText className="h-4 w-4" />
                 Data Lap.
             </Link>
+            )}
         </nav>
       </div>
     </header>
