@@ -8,7 +8,7 @@ import { Logo } from './logo';
 import { cn } from '@/lib/utils';
 import { Button, buttonVariants } from './ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from './ui/sheet';
-import { PanelLeft, ScrollText } from 'lucide-react';
+import { PanelLeft, ClipboardList } from 'lucide-react';
 
 const navItems = [
   { href: '/', label: 'Input Data' },
@@ -21,8 +21,8 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-14 items-center justify-between">
-        <div className="flex items-center gap-2">
+      <div className="container flex h-14 items-center justify-between px-4 sm:px-6">
+        <div className="flex items-center gap-4">
           <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon" className="bg-accent text-accent-foreground hover:bg-accent/90">
@@ -57,13 +57,13 @@ export function Header() {
          <Link
             href="/laporan"
             className={cn(
-                buttonVariants({ variant: "secondary", size: "default" }),
+                buttonVariants({ variant: "ghost", size: "default" }),
                 "text-sm font-medium transition-colors flex items-center gap-2",
-                pathname === "/laporan" ? 'bg-muted' : ''
+                pathname === "/laporan" ? 'text-primary' : ''
             )}
             >
-            <ScrollText className="h-4 w-4" />
-            Data Lap.
+            <ClipboardList className="h-4 w-4" />
+            Catatan IB
         </Link>
         </nav>
       </div>
