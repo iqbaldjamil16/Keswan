@@ -13,7 +13,7 @@ export default function ReportPage() {
     <div className="container px-4 sm:px-8 py-4 md:py-8 space-y-6 pb-20">
       <Card>
         <CardHeader>
-          <CardTitle>Laporan Pelayanan</CardTitle>
+          <CardTitle>Data Laporan Pelayanan</CardTitle>
           <CardDescription>Cari dan lihat semua data pelayanan yang telah diinput.</CardDescription>
         </CardHeader>
       </Card>
