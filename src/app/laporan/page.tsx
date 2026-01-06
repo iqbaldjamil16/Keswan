@@ -10,7 +10,7 @@ import Link from "next/link";
 export default function ReportPage() {
 
   return (
-    <div className="container px-4 sm:px-8 py-4 md:py-8 space-y-6 pb-4 md:pb-12">
+    <div className="container px-4 sm:px-8 py-4 md:py-8 space-y-6 pb-0 md:pb-12">
       <Card>
         <CardHeader>
           <CardTitle>Data Laporan Pelayanan</CardTitle>
