@@ -119,7 +119,7 @@ export default function RekapPage() {
     const [loading, setLoading] = useState(true);
     const [isPending, startTransition] = useTransition();
     const [selectedMonth, setSelectedMonth] = useState('');
-    const [selectedYear, setSelectedYear] = useState(getYear(new Date()).toString());
+    const [selectedYear, setSelectedYear] = useState('');
     const { firestore } = useFirebase();
 
     const loadServices = useCallback(async (yearStr: string, monthStr: string) => {

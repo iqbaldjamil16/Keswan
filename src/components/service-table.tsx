@@ -273,7 +273,7 @@ export function ServiceTable({}: ServiceTableProps) {
     const [loading, setLoading] = useState(true);
     const [isPending, startTransition] = useTransition();
     const [selectedMonth, setSelectedMonth] = useState('');
-    const [selectedYear, setSelectedYear] = useState(getYear(new Date()).toString());
+    const [selectedYear, setSelectedYear] = useState('');
     const [searchTerm, setSearchTerm] = useState("");
     const { firestore } = useFirebase();
   
