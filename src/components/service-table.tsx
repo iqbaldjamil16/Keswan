@@ -602,7 +602,7 @@ export function ServiceTable({}: ServiceTableProps) {
                 <Skeleton className="h-24 w-full" />
               </div>
             ) : (
-              <div className="space-y-4 p-4 max-h-[65vh] overflow-y-auto">
+              <div className="space-y-4 p-4 max-h-[60vh] overflow-y-auto">
                 {filteredServices.length > 0 ? (
                   filteredServices.map((service) => (
                     <ServiceCard
