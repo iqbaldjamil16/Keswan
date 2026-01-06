@@ -125,20 +125,31 @@ export default function RekapPage() {
     const loadServices = useCallback(async (yearStr: string, monthStr: string) => {
         if (!firestore) return;
         setServices([]);
-        if (!monthStr && !yearStr) {
+        
+        const year = yearStr === 'all-years' ? null : parseInt(yearStr, 10);
+        const month = monthStr === 'all-months' ? null : parseInt(monthStr, 10);
+
+        if (!year && !month) {
             if (loading) setLoading(false);
+            setServices([]); // Clear services if no filter
             return;
         }
 
         let q;
         const servicesCollection = collection(firestore, 'healthcareServices');
 
-        if (monthStr && yearStr) {
-            const year = parseInt(yearStr, 10);
-            const month = parseInt(monthStr, 10);
+        if (year !== null && month !== null) {
             const startDate = startOfMonth(new Date(year, month));
             const endDate = endOfMonth(new Date(year, month));
             q = query(
+                servicesCollection, 
+                where('date', '>=', startDate),
+                where('date', '<=', endDate),
+            );
+        } else if (year !== null) {
+            const startDate = new Date(year, 0, 1);
+            const endDate = new Date(year, 11, 31, 23, 59, 59);
+             q = query(
                 servicesCollection, 
                 where('date', '>=', startDate),
                 where('date', '<=', endDate),
@@ -186,6 +197,9 @@ export default function RekapPage() {
 
     const handleYearChange = (year: string) => {
         setSelectedYear(year);
+         if (year === 'all-years') {
+            setSelectedMonth('all-months');
+        }
     };
 
     const recapData = useMemo(() => processRecapData(services), [services]);
@@ -241,12 +255,12 @@ export default function RekapPage() {
 
         <div className="mt-6 md:mt-8">
             <div className="flex flex-col sm:flex-row gap-4 mb-6">
-                <Select value={selectedMonth} onValueChange={handleMonthChange}>
+                <Select value={selectedMonth} onValueChange={handleMonthChange} disabled={selectedYear === 'all-years'}>
                     <SelectTrigger className="w-full sm:w-[180px]">
                         <SelectValue placeholder="Pilih Bulan" />
                     </SelectTrigger>
                     <SelectContent>
-                        <SelectItem value="">Semua Bulan</SelectItem>
+                        <SelectItem value="all-months">Semua Bulan</SelectItem>
                         {months.map(month => (
                         <SelectItem key={month.value} value={month.value}>{month.label}</SelectItem>
                         ))}
@@ -257,7 +271,7 @@ export default function RekapPage() {
                         <SelectValue placeholder="Pilih Tahun" />
                     </SelectTrigger>
                     <SelectContent>
-                         <SelectItem value="">Semua Tahun</SelectItem>
+                         <SelectItem value="all-years">Semua Tahun</SelectItem>
                         {years.map(year => (
                         <SelectItem key={year} value={year}>{year}</SelectItem>
                         ))}

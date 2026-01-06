@@ -273,8 +273,8 @@ export function ServiceTable({}: ServiceTableProps) {
     const [filteredServices, setFilteredServices] = useState<HealthcareService[]>([]);
     const [loading, setLoading] = useState(true);
     const [isPending, startTransition] = useTransition();
-    const [selectedMonth, setSelectedMonth] = useState<string>('');
-    const [selectedYear, setSelectedYear] = useState<string>('');
+    const [selectedMonth, setSelectedMonth] = useState<string>('all-months');
+    const [selectedYear, setSelectedYear] = useState<string>(getYear(new Date()).toString());
     const [searchTerm, setSearchTerm] = useState("");
     const { firestore } = useFirebase();
   
@@ -319,17 +319,16 @@ export function ServiceTable({}: ServiceTableProps) {
         startTransition(() => {
             let servicesToFilter = allServices;
 
-            if (selectedMonth && selectedYear) {
-                const month = parseInt(selectedMonth, 10);
-                const year = parseInt(selectedYear, 10);
-                servicesToFilter = servicesToFilter.filter(service => {
-                    const serviceDate = new Date(service.date);
-                    return getMonth(serviceDate) === month && getYear(serviceDate) === year;
-                });
-            } else if (selectedYear) {
-                const year = parseInt(selectedYear, 10);
-                servicesToFilter = servicesToFilter.filter(service => getYear(new Date(service.date)) === year);
+            const year = selectedYear === 'all-years' ? null : parseInt(selectedYear, 10);
+            const month = selectedMonth === 'all-months' ? null : parseInt(selectedMonth, 10);
+
+            if (year) {
+                 servicesToFilter = servicesToFilter.filter(service => getYear(new Date(service.date)) === year);
+                 if (month !== null) {
+                    servicesToFilter = servicesToFilter.filter(service => getMonth(new Date(service.date)) === month);
+                 }
             }
+
 
             const lowercasedFilter = searchTerm.toLowerCase();
             if (lowercasedFilter) {
@@ -361,9 +360,8 @@ export function ServiceTable({}: ServiceTableProps) {
     
     const handleYearChange = (year: string) => {
         setSelectedYear(year);
-        // If year is cleared, also clear month
-        if (!year) {
-            setSelectedMonth('');
+        if (year === 'all-years') {
+            setSelectedMonth('all-months');
         }
     };
 
@@ -416,12 +414,12 @@ export function ServiceTable({}: ServiceTableProps) {
           <CardTitle>Data Pelayanan</CardTitle>
           <div className="flex flex-col sm:flex-row w-full md:w-auto md:justify-end gap-2">
             <div className="flex gap-2">
-                <Select value={selectedMonth} onValueChange={handleMonthChange} disabled={!selectedYear}>
+                <Select value={selectedMonth} onValueChange={handleMonthChange} disabled={selectedYear === 'all-years'}>
                     <SelectTrigger className="w-full sm:w-[180px]">
                         <SelectValue placeholder="Pilih Bulan" />
                     </SelectTrigger>
                     <SelectContent>
-                        <SelectItem value="">Semua Bulan</SelectItem>
+                        <SelectItem value="all-months">Semua Bulan</SelectItem>
                         {months.map(month => (
                         <SelectItem key={month.value} value={month.value}>{month.label}</SelectItem>
                         ))}
@@ -432,7 +430,7 @@ export function ServiceTable({}: ServiceTableProps) {
                         <SelectValue placeholder="Pilih Tahun" />
                     </SelectTrigger>
                     <SelectContent>
-                        <SelectItem value="">Semua Tahun</SelectItem>
+                        <SelectItem value="all-years">Semua Tahun</SelectItem>
                         {years.map(year => (
                         <SelectItem key={year} value={year}>{year}</SelectItem>
                         ))}
