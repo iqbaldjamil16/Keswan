@@ -31,9 +31,6 @@ export function Header() {
               </Button>
             </SheetTrigger>
             <SheetContent side="left" className="w-[200px]">
-              <SheetHeader>
-                <SheetTitle className="sr-only">Menu Navigasi</SheetTitle>
-              </SheetHeader>
               <div className="px-2 pt-6">
                 <Logo />
               </div>
