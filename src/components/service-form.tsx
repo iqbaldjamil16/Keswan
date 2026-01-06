@@ -111,23 +111,8 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
                 title: "Sukses",
                 description: "Data pelayanan berhasil disimpan!",
             });
-            form.reset({
-                date: new Date(),
-                puskeswan: "",
-                officerName: "",
-                ownerName: "",
-                ownerAddress: "",
-                caseId: "",
-                livestockType: "",
-                livestockCount: 1,
-                clinicalSymptoms: "",
-                diagnosis: "",
-                treatmentType: "",
-                treatments: [{ medicineType: "", medicineName: "", dosageValue: 0, dosageUnit: "ml" }],
-            });
-            setShowManualTreatmentType(false);
-            setShowManualLivestockType(false);
-             router.refresh();
+            router.push('/laporan');
+            router.refresh();
         }
       } catch (error: any) {
         console.error("Submit error:", error);
@@ -602,3 +587,5 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
     </Form>
   );
 }
+
+    
