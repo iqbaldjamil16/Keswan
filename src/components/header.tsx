@@ -63,7 +63,7 @@ export function Header() {
             )}
             >
             <ClipboardList className="h-4 w-4" />
-            Catatan IB
+            Data Lap.
         </Link>
         </nav>
       </div>
