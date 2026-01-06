@@ -62,7 +62,7 @@ export function Header() {
             className={cn(
                 buttonVariants({ variant: "secondary", size: "default" }),
                 "text-sm font-medium transition-colors flex items-center gap-2",
-                pathname === "/laporan" ? 'ring-2 ring-primary' : ''
+                pathname === "/laporan" ? 'bg-muted' : ''
             )}
             >
             <ScrollText className="h-4 w-4" />
