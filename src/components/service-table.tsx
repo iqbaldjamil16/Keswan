@@ -1,8 +1,8 @@
 
 'use client';
 
-import { useState, useTransition, useEffect, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useTransition, useEffect, useCallback, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { format, getMonth, getYear, subYears } from 'date-fns';
 import { id } from 'date-fns/locale';
 import * as XLSX from 'xlsx';
@@ -148,9 +148,11 @@ function ReportSkeleton() {
 function ServiceCard({
   service,
   onDelete,
+  isHighlighted,
 }: {
   service: HealthcareService;
   onDelete: (id: string) => void;
+  isHighlighted: boolean;
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const [isDeleting, startDeleteTransition] = useTransition();
@@ -187,7 +189,7 @@ function ServiceCard({
       open={isOpen}
       onOpenChange={setIsOpen}
     >
-      <Card>
+      <Card className={cn(isHighlighted && "highlight-new")}>
         <CardHeader className="p-4">
           <div className="flex justify-between items-start">
             <div>
@@ -368,7 +370,7 @@ const months = Array.from({ length: 12 }, (_, i) => ({
   label: new Date(0, i).toLocaleString(id, { month: 'long' }),
 }));
 
-export function ServiceTable() {
+function ServiceTableInternal() {
   const [allServices, setAllServices] = useState<HealthcareService[]>([]);
   const [filteredServices, setFilteredServices] = useState<HealthcareService[]>([]);
   const [loading, setLoading] = useState(true);
@@ -376,7 +378,22 @@ export function ServiceTable() {
   const [selectedMonth, setSelectedMonth] = useState<string>('');
   const [selectedYear, setSelectedYear] = useState<string>('');
   const [searchTerm, setSearchTerm] = useState('');
+  const [highlightedId, setHighlightedId] = useState<string | null>(null);
+
   const { firestore } = useFirebase();
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    const newId = searchParams.get('new');
+    if (newId) {
+      setHighlightedId(newId);
+      const timer = setTimeout(() => {
+        setHighlightedId(null);
+      }, 10000); // 10 seconds
+
+      return () => clearTimeout(timer);
+    }
+  }, [searchParams]);
 
   const loadAllServices = useCallback(async () => {
     if (!firestore) return;
@@ -458,10 +475,18 @@ export function ServiceTable() {
           );
         });
       }
+      
+      if (highlightedId) {
+        const highlightedItem = servicesToFilter.find(s => s.id === highlightedId);
+        if (highlightedItem) {
+          const restItems = servicesToFilter.filter(s => s.id !== highlightedId);
+          servicesToFilter = [highlightedItem, ...restItems];
+        }
+      }
 
       setFilteredServices(servicesToFilter);
     });
-  }, [selectedMonth, selectedYear, searchTerm, allServices]);
+  }, [selectedMonth, selectedYear, searchTerm, allServices, highlightedId]);
 
 
   const handleLocalDelete = (serviceId: string) => {
@@ -590,6 +615,7 @@ export function ServiceTable() {
                       key={service.id}
                       service={service}
                       onDelete={handleLocalDelete}
+                      isHighlighted={highlightedId === service.id}
                     />
                   ))
                 ) : (
@@ -641,7 +667,7 @@ export function ServiceTable() {
                   </>
                 ) : filteredServices.length > 0 ? (
                   filteredServices.map((service) => (
-                    <TableRow key={service.id}>
+                    <TableRow key={service.id} className={cn(highlightedId === service.id && "highlight-new")}>
                       <TableCell className="font-medium align-top">
                         {format(new Date(service.date), 'dd MMM yyyy', {
                           locale: id,
@@ -744,4 +770,11 @@ export function ServiceTable() {
   );
 }
 
-    
+
+export function ServiceTable() {
+  return (
+    <Suspense fallback={<ReportSkeleton />}>
+      <ServiceTableInternal />
+    </Suspense>
+  )
+}

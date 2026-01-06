@@ -106,12 +106,12 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
             router.refresh();
         } else {
             const servicesCollection = collection(firestore, 'healthcareServices');
-            await addDoc(servicesCollection, serviceData);
+            const newDocRef = await addDoc(servicesCollection, serviceData);
             toast({
                 title: "Sukses",
                 description: "Data pelayanan berhasil disimpan!",
             });
-            router.push('/laporan');
+            router.push(`/laporan?new=${newDocRef.id}`);
             router.refresh();
         }
       } catch (error: any) {
