@@ -118,7 +118,7 @@ export default function RekapPage() {
     const [services, setServices] = useState<HealthcareService[]>([]);
     const [loading, setLoading] = useState(true);
     const [isPending, startTransition] = useTransition();
-    const [selectedMonth, setSelectedMonth] = useState<string>(getMonth(new Date()).toString());
+    const [selectedMonth, setSelectedMonth] = useState<string>('');
     const [selectedYear, setSelectedYear] = useState<string>(getYear(new Date()).toString());
     const { firestore } = useFirebase();
 
@@ -127,7 +127,7 @@ export default function RekapPage() {
         setLoading(true);
         
         const year = yearStr === 'all-years' ? null : parseInt(yearStr, 10);
-        const month = monthStr === 'all-months' ? null : parseInt(monthStr, 10);
+        const month = monthStr === 'all-months' || monthStr === '' ? null : parseInt(monthStr, 10);
 
         let q;
         const servicesCollection = collection(firestore, 'healthcareServices');
@@ -248,7 +248,7 @@ export default function RekapPage() {
 
         <div className="mt-6 md:mt-8">
             <div className="flex flex-col sm:flex-row gap-4 mb-6">
-                <Select value={selectedMonth} onValueChange={handleMonthChange} disabled={selectedYear === 'all-years'}>
+                <Select value={selectedMonth} onValueChange={handleMonthChange}>
                     <SelectTrigger className="w-full sm:w-[180px]">
                         <SelectValue placeholder="Pilih Bulan" />
                     </SelectTrigger>

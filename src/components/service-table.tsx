@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "./ui/badge";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "./ui/card";
-import { PawPrint, PlusCircle, ChevronDown, Download, Pencil, Trash2, Loader2 } from "lucide-react";
+import { PawPrint, PlusCircle, ChevronDown, Download, Pencil, Trash2, Loader2, CornerUpLeft } from "lucide-react";
 import {
   Accordion,
   AccordionContent,
@@ -45,6 +45,7 @@ import { Skeleton } from "./ui/skeleton";
 import { cn } from "@/lib/utils";
 import { useFirebase } from "@/firebase";
 import { PasswordDialog } from "./password-dialog";
+import Link from "next/link";
 
   
   interface ServiceTableProps {}
@@ -262,7 +263,7 @@ export function ServiceTable({}: ServiceTableProps) {
     const [filteredServices, setFilteredServices] = useState<HealthcareService[]>([]);
     const [loading, setLoading] = useState(true);
     const [isPending, startTransition] = useTransition();
-    const [selectedMonth, setSelectedMonth] = useState<string>('all-months');
+    const [selectedMonth, setSelectedMonth] = useState<string>('');
     const [selectedYear, setSelectedYear] = useState<string>(getYear(new Date()).toString());
     const [searchTerm, setSearchTerm] = useState("");
     const { firestore } = useFirebase();
@@ -290,11 +291,9 @@ export function ServiceTable({}: ServiceTableProps) {
                 }
             });
             setAllServices(fetchedServices);
-            setFilteredServices(fetchedServices);
         } catch (error) {
           console.error("Failed to fetch services:", error);
           setAllServices([]);
-          setFilteredServices([]);
         } finally {
             setLoading(false);
         }
@@ -309,13 +308,13 @@ export function ServiceTable({}: ServiceTableProps) {
             let servicesToFilter = allServices;
 
             const year = selectedYear === 'all-years' ? null : parseInt(selectedYear, 10);
-            const month = selectedMonth === 'all-months' ? null : parseInt(selectedMonth, 10);
+            const month = selectedMonth === 'all-months' || selectedMonth === '' ? null : parseInt(selectedMonth, 10);
 
             if (year) {
                  servicesToFilter = servicesToFilter.filter(service => getYear(new Date(service.date)) === year);
-                 if (month !== null) {
-                    servicesToFilter = servicesToFilter.filter(service => getMonth(new Date(service.date)) === month);
-                 }
+            }
+            if (month !== null) {
+                servicesToFilter = servicesToFilter.filter(service => getMonth(new Date(service.date)) === month);
             }
 
 
@@ -349,8 +348,10 @@ export function ServiceTable({}: ServiceTableProps) {
     
     const handleYearChange = (year: string) => {
         setSelectedYear(year);
-        if (year === 'all-years') {
+        if (year === 'all-years' && selectedMonth !== 'all-months') {
             setSelectedMonth('all-months');
+        } else if (year !== 'all-years' && selectedMonth === '') {
+            // Keep placeholder
         }
     };
 
@@ -404,7 +405,7 @@ export function ServiceTable({}: ServiceTableProps) {
           <CardTitle>Data Pelayanan</CardTitle>
           <div className="flex flex-col sm:flex-row w-full md:w-auto md:justify-end gap-2">
             <div className="flex gap-2">
-                <Select value={selectedMonth} onValueChange={handleMonthChange} disabled={selectedYear === 'all-years'}>
+                <Select value={selectedMonth} onValueChange={handleMonthChange}>
                     <SelectTrigger className="w-full sm:w-[180px]">
                         <SelectValue placeholder="Pilih Bulan" />
                     </SelectTrigger>
@@ -518,7 +519,7 @@ export function ServiceTable({}: ServiceTableProps) {
                     <div className="flex flex-col items-center justify-center gap-2">
                       <PawPrint className="h-8 w-8 text-muted-foreground" />
                       <p className="text-muted-foreground">
-                        {searchTerm ? "Tidak ada hasil ditemukan." : "Belum ada data pelayanan."}
+                        {searchTerm ? "Tidak ada hasil ditemukan." : "Pilih bulan untuk menampilkan data."}
                       </p>
                     </div>
                   </TableCell>
@@ -529,7 +530,7 @@ export function ServiceTable({}: ServiceTableProps) {
         </div>
       </CardContent>
     </Card>
-    <div className="mt-6 flex justify-center md:justify-end">
+    <div className="mt-6 flex justify-start md:justify-end">
         <PasswordDialog
             title="Akses Terbatas"
             description="Silakan masukkan kata sandi untuk mengunduh laporan."
