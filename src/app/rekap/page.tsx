@@ -124,16 +124,10 @@ export default function RekapPage() {
 
     const loadServices = useCallback(async (yearStr: string, monthStr: string) => {
         if (!firestore) return;
-        setServices([]);
+        setLoading(true);
         
         const year = yearStr === 'all-years' ? null : parseInt(yearStr, 10);
         const month = monthStr === 'all-months' ? null : parseInt(monthStr, 10);
-
-        if (!year && !month) {
-            if (loading) setLoading(false);
-            setServices([]); // Clear services if no filter
-            return;
-        }
 
         let q;
         const servicesCollection = collection(firestore, 'healthcareServices');
@@ -155,7 +149,7 @@ export default function RekapPage() {
                 where('date', '<=', endDate),
             );
         } else {
-             q = query(servicesCollection);
+             q = query(servicesCollection, orderBy('date', 'desc'));
         }
 
         try {
@@ -179,11 +173,9 @@ export default function RekapPage() {
           console.error("Failed to fetch services:", error);
           setServices([]);
         } finally {
-            if (loading) {
-                setLoading(false);
-            }
+            setLoading(false);
         }
-      }, [firestore, loading]);
+      }, [firestore]);
     
       useEffect(() => {
         startTransition(() => {
