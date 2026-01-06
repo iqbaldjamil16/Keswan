@@ -529,9 +529,9 @@ export function ServiceTable() {
   }
 
   return (
-    <div>
+    <div className='md:h-auto h-[calc(100vh-210px)] overflow-hidden'>
       <Card
-        className={cn(isPending && 'opacity-50 transition-opacity duration-300')}
+        className={cn('h-full flex flex-col', isPending && 'opacity-50 transition-opacity duration-300')}
       >
         <CardHeader className="p-4 md:p-6">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
@@ -573,9 +573,9 @@ export function ServiceTable() {
             </div>
           </div>
         </CardHeader>
-        <CardContent className="p-0 md:p-6 md:pt-0">
+        <CardContent className="p-0 md:p-6 md:pt-0 flex-grow overflow-hidden">
           {/* Mobile View */}
-          <div className="md:hidden">
+          <div className="md:hidden h-full overflow-y-auto">
             {loading && filteredServices.length === 0 ? (
               <div className="space-y-4 p-4">
                 <Skeleton className="h-24 w-full" />
@@ -583,7 +583,7 @@ export function ServiceTable() {
                 <Skeleton className="h-24 w-full" />
               </div>
             ) : (
-              <div className="space-y-4 p-4 max-h-[calc(100vh-320px)] overflow-y-auto">
+              <div className="space-y-4 p-4">
                 {filteredServices.length > 0 ? (
                   filteredServices.map((service) => (
                     <ServiceCard
