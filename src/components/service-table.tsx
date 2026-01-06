@@ -5,7 +5,6 @@ import { useState, useTransition, useEffect, useCallback, Suspense } from 'react
 import { useRouter, useSearchParams } from 'next/navigation';
 import { format, getMonth, getYear, subYears } from 'date-fns';
 import { id } from 'date-fns/locale';
-import * as XLSX from 'xlsx';
 import {
   doc,
   deleteDoc,
@@ -40,7 +39,6 @@ import {
   Pencil,
   Trash2,
   Loader2,
-  Download,
 } from 'lucide-react';
 import {
   Accordion,
@@ -66,7 +64,6 @@ import { Skeleton } from './ui/skeleton';
 import { cn } from '@/lib/utils';
 import { useFirebase } from '@/firebase';
 import { PasswordDialog } from './password-dialog';
-import { puskeswanList } from '@/lib/definitions';
 
 
 function ReportSkeleton() {
@@ -138,9 +135,6 @@ function ReportSkeleton() {
           </Table>
         </div>
       </CardContent>
-      <CardFooter className="p-4 md:p-6 flex justify-end">
-        <Skeleton className="h-10 w-36" />
-      </CardFooter>
     </Card>
   );
 }
@@ -370,7 +364,13 @@ const months = Array.from({ length: 12 }, (_, i) => ({
   label: new Date(0, i).toLocaleString(id, { month: 'long' }),
 }));
 
-function ServiceTableInternal() {
+interface ServiceTableInternalProps {
+  onServicesFiltered: (services: HealthcareService[]) => void;
+  onMonthChange: (month: string) => void;
+  onYearChange: (year: string) => void;
+}
+
+function ServiceTableInternal({ onServicesFiltered, onMonthChange, onYearChange }: ServiceTableInternalProps) {
   const [allServices, setAllServices] = useState<HealthcareService[]>([]);
   const [filteredServices, setFilteredServices] = useState<HealthcareService[]>([]);
   const [loading, setLoading] = useState(true);
@@ -382,6 +382,10 @@ function ServiceTableInternal() {
 
   const { firestore } = useFirebase();
   const searchParams = useSearchParams();
+
+  useEffect(() => {
+    onServicesFiltered(filteredServices);
+  }, [filteredServices, onServicesFiltered]);
 
   useEffect(() => {
     const newId = searchParams.get('new');
@@ -495,59 +499,16 @@ function ServiceTableInternal() {
     );
   };
   
-  const handleDownload = () => {
-    const wb = XLSX.utils.book_new();
+  const handleMonthChange = (month: string) => {
+    setSelectedMonth(month);
+    onMonthChange(month);
+  }
 
-    puskeswanList.forEach((puskeswan) => {
-      const servicesByPuskeswan = filteredServices.filter(
-        (s) => s.puskeswan === puskeswan
-      );
+  const handleYearChange = (year: string) => {
+    setSelectedYear(year);
+    onYearChange(year);
+  }
 
-      if (servicesByPuskeswan.length === 0) return;
-
-      const sortedServices = servicesByPuskeswan.sort((a, b) => {
-        const nameA = a.officerName.toLowerCase();
-        const nameB = b.officerName.toLowerCase();
-        if (nameA < nameB) return -1;
-        if (nameA > nameB) return 1;
-        return new Date(b.date).getTime() - new Date(a.date).getTime();
-      });
-
-      const dataForSheet = sortedServices.map((service) => ({
-        Tanggal: format(new Date(service.date), 'dd-MM-yyyy'),
-        'Nama Petugas': service.officerName,
-        'Nama Pemilik': service.ownerName,
-        'Alamat Pemilik': service.ownerAddress,
-        'Jenis Ternak': service.livestockType,
-        'Gejala Klinis': service.clinicalSymptoms,
-        Diagnosa: service.diagnosis,
-        'Jenis Penanganan': service.treatmentType,
-        'Obat yang Digunakan': service.treatments
-          .map((t) => `${t.medicineName} (${t.dosageValue} ${t.dosageUnit})`)
-          .join(', '),
-        'Jumlah Ternak': service.livestockCount,
-      }));
-
-      const sheetName = puskeswan
-        .replace('Puskeswan ', '')
-        .replace(/[/\\?*:[\]]/g, ''); // Sanitize sheet name
-      const ws = XLSX.utils.json_to_sheet(dataForSheet);
-      XLSX.utils.book_append_sheet(wb, ws, sheetName.substring(0, 31));
-    });
-
-    const monthLabel =
-      selectedMonth === 'all-months'
-        ? 'SemuaBulan'
-        : months.find((m) => m.value === selectedMonth)?.label || 'SemuaBulan';
-    const yearLabel =
-      selectedYear === 'all-years'
-        ? 'SemuaTahun'
-        : selectedYear === ''
-        ? getYear(new Date()).toString()
-        : selectedYear;
-
-    XLSX.writeFile(wb, `laporan_pelayanan_${monthLabel}_${yearLabel}.xlsx`);
-  };
 
   if (loading && allServices.length === 0) {
     return <ReportSkeleton />;
@@ -562,7 +523,7 @@ function ServiceTableInternal() {
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="flex flex-col sm:flex-row w-full md:w-auto md:justify-end gap-2">
               <div className="flex gap-2">
-                <Select value={selectedMonth} onValueChange={setSelectedMonth}>
+                <Select value={selectedMonth} onValueChange={handleMonthChange}>
                   <SelectTrigger className="w-full sm:w-[180px]">
                     <SelectValue placeholder="Pilih Bulan" />
                   </SelectTrigger>
@@ -575,7 +536,7 @@ function ServiceTableInternal() {
                     ))}
                   </SelectContent>
                 </Select>
-                <Select value={selectedYear} onValueChange={setSelectedYear}>
+                <Select value={selectedYear} onValueChange={handleYearChange}>
                   <SelectTrigger className="w-full sm:w-[120px]">
                     <SelectValue placeholder="Pilih Tahun" />
                   </SelectTrigger>
@@ -750,31 +711,21 @@ function ServiceTableInternal() {
             </Table>
           </div>
         </CardContent>
-        <CardFooter className="p-4 md:p-6 flex justify-end">
-            <PasswordDialog
-              title="Akses Terbatas"
-              description="Silakan masukkan kata sandi untuk mengunduh laporan."
-              onSuccess={handleDownload}
-              trigger={
-                <Button 
-                  disabled={filteredServices.length === 0 || isPending}
-                >
-                  <Download className="mr-2 h-5 w-5" />
-                  Unduh Laporan
-                </Button>
-              }
-            />
-        </CardFooter>
       </Card>
     </div>
   );
 }
 
+interface ServiceTableProps {
+  onServicesFiltered: (services: HealthcareService[]) => void;
+  onMonthChange: (month: string) => void;
+  onYearChange: (year: string) => void;
+}
 
-export function ServiceTable() {
+export function ServiceTable(props: ServiceTableProps) {
   return (
     <Suspense fallback={<ReportSkeleton />}>
-      <ServiceTableInternal />
+      <ServiceTableInternal {...props} />
     </Suspense>
   )
 }
