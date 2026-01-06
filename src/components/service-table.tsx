@@ -393,7 +393,7 @@ function ServiceTableInternal({ onServicesFiltered, onMonthChange, onYearChange 
       setHighlightedId(newId);
       const timer = setTimeout(() => {
         setHighlightedId(null);
-      }, 10000); // 10 seconds
+      }, 3600000); // 1 hour
 
       return () => clearTimeout(timer);
     }
@@ -729,3 +729,5 @@ export function ServiceTable(props: ServiceTableProps) {
     </Suspense>
   )
 }
+
+    
