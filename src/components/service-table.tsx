@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useTransition, useEffect, useCallback } from "react";
@@ -397,6 +396,7 @@ export function ServiceTable({}: ServiceTableProps) {
 
 
   return (
+    <>
     <Card className={cn(isPending && "opacity-50 transition-opacity duration-300")}>
       <CardHeader className="p-4 md:p-6">
         <div className="flex flex-col md:flex-row items-center justify-between gap-4">
@@ -527,7 +527,8 @@ export function ServiceTable({}: ServiceTableProps) {
           </Table>
         </div>
       </CardContent>
-      <CardFooter className="p-4 md:p-6 flex justify-center md:justify-end">
+    </Card>
+    <div className="mt-6 flex justify-center md:justify-end">
         <PasswordDialog
             title="Akses Terbatas"
             description="Silakan masukkan kata sandi untuk mengunduh laporan."
@@ -539,7 +540,7 @@ export function ServiceTable({}: ServiceTableProps) {
                 </Button>
             }
         />
-      </CardFooter>
-    </Card>
+      </div>
+    </>
   );
 }

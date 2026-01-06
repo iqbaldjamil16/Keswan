@@ -1,4 +1,3 @@
-
 'use client';
 
 import { ServiceTable } from "@/components/service-table";
