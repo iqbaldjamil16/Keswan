@@ -396,13 +396,13 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
             <Card>
               <CardContent className="p-4">
                 <div className="space-y-4">
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                  <div className="flex flex-row items-center justify-between gap-2">
                     <Label>Pengobatan</Label>
                     <Button
                       type="button"
                       variant="default"
                       size="sm"
-                      className="bg-accent text-accent-foreground hover:bg-accent/90 self-start sm:self-center"
+                      className="bg-accent text-accent-foreground hover:bg-accent/90"
                       onClick={() => append({ medicineType: "", medicineName: "", dosageValue: 0, dosageUnit: "ml" })}
                     >
                       <PlusCircle className="mr-2 h-4 w-4" />
@@ -587,3 +587,5 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
     </Form>
   );
 }
+
+    
