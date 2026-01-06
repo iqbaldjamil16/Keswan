@@ -512,7 +512,7 @@ export function ServiceTable({
   }
 
   return (
-    <div className="pb-24">
+    <div className="pb-16">
       <Card
         className={cn(isPending && 'opacity-50 transition-opacity duration-300')}
       >
@@ -566,7 +566,7 @@ export function ServiceTable({
                 <Skeleton className="h-24 w-full" />
               </div>
             ) : (
-              <div className="space-y-4 p-4 max-h-[calc(100vh-320px)] overflow-y-auto">
+              <div className="space-y-4 p-4 max-h-[calc(100vh-280px)] overflow-y-auto">
                 {filteredServices.length > 0 ? (
                   filteredServices.map((service) => (
                     <ServiceCard
