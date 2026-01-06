@@ -210,13 +210,16 @@ export default function RekapPage() {
             : selectedMonth === ''
             ? 'Pilih Bulan'
             : months.find(m => m.value === selectedMonth)?.label || '';
-
-        const diagnosisDataForSheet = puskeswanList.flatMap(puskeswan => {
+    
+        puskeswanList.forEach(puskeswan => {
             const data = recapData[puskeswan];
-            return Object.entries(data.cases).flatMap(([desa, livestockData]) => {
+            if (!data) return;
+
+            // Rekap Kasus
+            const diagnosisHeader = [{ 'Rekap Kasus/Diagnosa': '' }];
+            const diagnosisDataForSheet = Object.entries(data.cases).flatMap(([desa, livestockData]) => {
                 return Object.entries(livestockData).flatMap(([livestockType, diagnoses]) => {
                     return Object.entries(diagnoses).map(([diagnosis, count]) => ({
-                        'Puskeswan': puskeswan,
                         'Bulan': monthLabel,
                         'Desa': desa,
                         'Jenis Hewan': livestockType,
@@ -225,23 +228,29 @@ export default function RekapPage() {
                     }));
                 });
             });
-        });
 
-        const wsDiagnoses = XLSX.utils.json_to_sheet(diagnosisDataForSheet);
-        XLSX.utils.book_append_sheet(wb, wsDiagnoses, "Rekap Kasus");
-
-        const medicineDataForSheet = puskeswanList.flatMap(puskeswan => {
-            const data = recapData[puskeswan];
-            return Object.entries(data.medicines).map(([medicineName, { count, unit }]) => ({
-                'Puskeswan': puskeswan,
+            // Rekap Obat
+            const medicineHeader = [{ 'Rekap Obat': '' }];
+            const medicineDataForSheet = Object.entries(data.medicines).map(([medicineName, { count, unit }]) => ({
                 'Bulan': monthLabel,
                 'Nama Obat': medicineName,
                 'Total Dosis': `${formatDosage(count)} ${unit}`,
             }));
-        });
-        const wsMedicines = XLSX.utils.json_to_sheet(medicineDataForSheet);
-        XLSX.utils.book_append_sheet(wb, wsMedicines, "Rekap Obat");
+            
+            const ws = XLSX.utils.json_to_sheet(diagnosisHeader, { skipHeader: true });
+            XLSX.utils.sheet_add_json(ws, diagnosisDataForSheet, { origin: 'A2' });
 
+            // Add some empty rows for spacing
+            XLSX.utils.sheet_add_json(ws, [{}], { origin: -1, skipHeader: true });
+            XLSX.utils.sheet_add_json(ws, [{}], { origin: -1, skipHeader: true });
+
+            XLSX.utils.sheet_add_json(ws, medicineHeader, { origin: -1, skipHeader: true });
+            XLSX.utils.sheet_add_json(ws, medicineDataForSheet, { origin: -1 });
+            
+            const sheetName = puskeswan.replace('Puskeswan ', '').replace(/[/\\?*:[\]]/g, ""); // Sanitize sheet name
+            XLSX.utils.book_append_sheet(wb, ws, sheetName.substring(0, 31));
+        });
+    
         const yearLabel = selectedYear === 'all-years' ? 'SemuaTahun' : selectedYear;
         const filenameMonthLabel = selectedMonth === 'all-months' ? 'SemuaBulan' : months.find(m => m.value === selectedMonth)?.label || 'Bulan';
         XLSX.writeFile(wb, `rekap_data_${filenameMonthLabel}_${yearLabel}.xlsx`);
