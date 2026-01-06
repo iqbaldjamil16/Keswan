@@ -1,13 +1,15 @@
+
 "use client";
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { Logo } from './logo';
 import { cn } from '@/lib/utils';
 import { Button, buttonVariants } from './ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from './ui/sheet';
 import { PanelLeft, ClipboardList } from 'lucide-react';
+import { ActivationDialog } from './activation-dialog';
 
 const navItems = [
   { href: '/', label: 'Input Data' },
@@ -41,23 +43,91 @@ function NavContent({ onLinkClick }: { onLinkClick: () => void }) {
   }
 
 export function Header() {
+  const [isClient, setIsClient] = useState(false);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const [isActivationDialog, setIsActivationDialog] = useState(false);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  const handleButtonPress = useCallback(() => {
+    timerRef.current = setTimeout(() => {
+      setIsActivationDialog(true);
+    }, 2000); // 2 seconds
+  }, []);
+
+  const handleButtonRelease = useCallback(() => {
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
+  }, []);
+  
+  const handleSuccess = useCallback(() => {
+    setIsActivationDialog(false);
+    setIsSheetOpen(true);
+  }, []);
+
+  if (!isClient) {
+    return (
+      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="container flex h-14 items-center justify-between px-4 sm:px-6">
+          <div className="flex items-center gap-2">
+             <Button variant="ghost" size="icon" className="bg-accent text-accent-foreground hover:bg-accent/90">
+                <PanelLeft className="h-6 w-6" />
+                <span className="sr-only">Buka Menu</span>
+              </Button>
+            <Logo />
+          </div>
+          <nav className="flex items-center">
+          <Link
+              href="/laporan"
+              className={cn(
+                  buttonVariants({ variant: "ghost", size: "default" }),
+                  "text-sm font-medium transition-colors flex items-center gap-2"
+              )}
+              >
+              <ClipboardList className="h-4 w-4" />
+              Data Lap.
+          </Link>
+          </nav>
+        </div>
+      </header>
+    );
+  }
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-14 items-center justify-between px-4 sm:px-6">
         <div className="flex items-center gap-2">
-          <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-            <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="bg-accent text-accent-foreground hover:bg-accent/90">
-                <PanelLeft className="h-6 w-6" />
-                <span className="sr-only">Buka Menu</span>
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="left" className="w-[200px]">
-              <NavContent onLinkClick={() => setIsSheetOpen(false)} />
-            </SheetContent>
-          </Sheet>
+            <ActivationDialog 
+              open={isActivationDialog} 
+              onOpenChange={setIsActivationDialog} 
+              onSuccess={handleSuccess}
+            >
+              <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="bg-accent text-accent-foreground hover:bg-accent/90"
+                  onMouseDown={handleButtonPress}
+                  onMouseUp={handleButtonRelease}
+                  onTouchStart={handleButtonPress}
+                  onTouchEnd={handleButtonRelease}
+                  onClick={() => {
+                    if(isSheetOpen) setIsSheetOpen(false);
+                  }}
+                >
+                  <PanelLeft className="h-6 w-6" />
+                  <span className="sr-only">Buka Menu</span>
+                </Button>
+                <SheetContent side="left" className="w-[200px]">
+                  <NavContent onLinkClick={() => setIsSheetOpen(false)} />
+                </SheetContent>
+              </Sheet>
+            </ActivationDialog>
           <Logo />
         </div>
         <nav className="flex items-center">
