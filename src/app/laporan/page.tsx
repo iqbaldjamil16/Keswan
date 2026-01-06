@@ -1,7 +1,8 @@
+
 'use client';
 
 import { ServiceTable } from "@/components/service-table";
-import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CornerUpLeft } from "lucide-react";
 import Link from "next/link";

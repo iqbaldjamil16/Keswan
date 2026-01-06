@@ -292,9 +292,11 @@ export function ServiceTable({}: ServiceTableProps) {
                 }
             });
             setAllServices(fetchedServices);
+            setFilteredServices(fetchedServices);
         } catch (error) {
           console.error("Failed to fetch services:", error);
           setAllServices([]);
+          setFilteredServices([]);
         } finally {
             setLoading(false);
         }
@@ -311,11 +313,13 @@ export function ServiceTable({}: ServiceTableProps) {
             const year = selectedYear === 'all-years' || selectedYear === '' ? null : parseInt(selectedYear, 10);
             const month = selectedMonth === 'all-months' || selectedMonth === '' ? null : parseInt(selectedMonth, 10);
 
-            if (year) {
-                 servicesToFilter = servicesToFilter.filter(service => getYear(new Date(service.date)) === year);
-            }
-            if (month !== null) {
-                servicesToFilter = servicesToFilter.filter(service => getMonth(new Date(service.date)) === month);
+            if (year || month !== null) {
+              servicesToFilter = allServices.filter(service => {
+                const serviceDate = new Date(service.date);
+                const isYearMatch = year ? getYear(serviceDate) === year : true;
+                const isMonthMatch = month !== null ? getMonth(serviceDate) === month : true;
+                return isYearMatch && isMonthMatch;
+              });
             }
 
 
@@ -351,8 +355,8 @@ export function ServiceTable({}: ServiceTableProps) {
         setSelectedYear(year);
         if (year === 'all-years' && selectedMonth !== 'all-months') {
             setSelectedMonth('all-months');
-        } else if (year !== 'all-years' && selectedMonth === '') {
-            // Keep placeholder
+        } else if (selectedMonth === '') {
+            setSelectedMonth('all-months');
         }
     };
 
@@ -369,8 +373,10 @@ export function ServiceTable({}: ServiceTableProps) {
             if (servicesByPuskeswan.length === 0) return;
 
             const sortedServices = servicesByPuskeswan.sort((a, b) => {
-                if (a.officerName < b.officerName) return -1;
-                if (a.officerName > b.officerName) return 1;
+                const nameA = a.officerName.toLowerCase();
+                const nameB = b.officerName.toLowerCase();
+                if (nameA < nameB) return -1;
+                if (nameA > nameB) return 1;
                 return new Date(b.date).getTime() - new Date(a.date).getTime();
             });
 
@@ -399,7 +405,7 @@ export function ServiceTable({}: ServiceTableProps) {
         XLSX.writeFile(wb, `laporan_pelayanan_${monthLabel}_${yearLabel}.xlsx`);
     };
 
-    if (loading) {
+    if (loading && allServices.length === 0) {
         return <ReportSkeleton />;
     }
 
@@ -447,18 +453,26 @@ export function ServiceTable({}: ServiceTableProps) {
       <CardContent className="p-0 md:p-6 md:pt-0">
         {/* Mobile View */}
         <div className="md:hidden">
-            <div className="space-y-4 p-4 max-h-[70vh] overflow-y-auto">
-                {filteredServices.length > 0 ? (
-                    filteredServices.map(service => <ServiceCard key={service.id} service={service} onDelete={handleLocalDelete} />)
-                ) : (
-                    <div className="flex flex-col items-center justify-center gap-2 py-12">
-                        <PawPrint className="h-8 w-8 text-muted-foreground" />
-                        <p className="text-muted-foreground text-center">
-                        {searchTerm ? "Tidak ada hasil ditemukan." : "Belum ada data untuk periode ini."}
-                        </p>
-                    </div>
-                )}
-            </div>
+             {loading && filteredServices.length === 0 ? (
+                <div className="space-y-4 p-4">
+                    <Skeleton className="h-24 w-full" />
+                    <Skeleton className="h-24 w-full" />
+                    <Skeleton className="h-24 w-full" />
+                </div>
+            ) : (
+                <div className="space-y-4 p-4 max-h-[70vh] overflow-y-auto">
+                    {filteredServices.length > 0 ? (
+                        filteredServices.map(service => <ServiceCard key={service.id} service={service} onDelete={handleLocalDelete} />)
+                    ) : (
+                        <div className="flex flex-col items-center justify-center gap-2 py-12">
+                            <PawPrint className="h-8 w-8 text-muted-foreground" />
+                            <p className="text-muted-foreground text-center">
+                            {searchTerm ? "Tidak ada hasil ditemukan." : "Belum ada data untuk periode ini."}
+                            </p>
+                        </div>
+                    )}
+                </div>
+            )}
         </div>
 
 
@@ -477,7 +491,13 @@ export function ServiceTable({}: ServiceTableProps) {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredServices.length > 0 ? (
+            {loading && filteredServices.length === 0 ? (
+                <>
+                    <TableRow><TableCell colSpan={7}><Skeleton className="h-10 w-full" /></TableCell></TableRow>
+                    <TableRow><TableCell colSpan={7}><Skeleton className="h-10 w-full" /></TableCell></TableRow>
+                    <TableRow><TableCell colSpan={7}><Skeleton className="h-10 w-full" /></TableCell></TableRow>
+                </>
+            ) : filteredServices.length > 0 ? (
                 filteredServices.map((service) => (
                   <TableRow key={service.id}>
                     <TableCell className="font-medium align-top">
@@ -554,4 +574,3 @@ export function ServiceTable({}: ServiceTableProps) {
   );
 }
 
-    

@@ -118,7 +118,7 @@ export default function RekapPage() {
     const [services, setServices] = useState<HealthcareService[]>([]);
     const [loading, setLoading] = useState(true);
     const [isPending, startTransition] = useTransition();
-    const [selectedMonth, setSelectedMonth] = useState<string>('');
+    const [selectedMonth, setSelectedMonth] = useState<string>(getMonth(new Date()).toString());
     const [selectedYear, setSelectedYear] = useState<string>(getYear(new Date()).toString());
     const { firestore } = useFirebase();
 
@@ -191,8 +191,8 @@ export default function RekapPage() {
         setSelectedYear(year);
          if (year === 'all-years') {
             setSelectedMonth('all-months');
-        } else if (year !== 'all-years' && selectedMonth === '') {
-            // Keep placeholder
+        } else if (year !== getYear(new Date()).toString() && selectedMonth === getMonth(new Date()).toString()){
+            setSelectedMonth('all-months');
         }
     };
 
@@ -205,10 +205,9 @@ export default function RekapPage() {
 
     const handleDownload = () => {
         const wb = XLSX.utils.book_new();
+    
         const monthLabel = selectedMonth === 'all-months' 
             ? 'Semua Bulan' 
-            : selectedMonth === ''
-            ? 'Pilih Bulan'
             : months.find(m => m.value === selectedMonth)?.label || '';
     
         puskeswanList.forEach(puskeswan => {
@@ -289,7 +288,7 @@ export default function RekapPage() {
                     </SelectContent>
                 </Select>
             </div>
-            {(loading) ? (
+            {(loading || isPending) && puskeswanList.length === 0 ? (
               <RecapSkeleton />
             ) : puskeswanList.length > 0 ? (
                  <Accordion type="multiple" className={cn("w-full space-y-4 transition-opacity duration-300", isPending && "opacity-50")}>
@@ -385,7 +384,7 @@ export default function RekapPage() {
                     </CardContent>
                 </Card>
             )}
-             <div className="flex justify-start md:justify-end mt-8">
+             <div className="flex justify-end mt-8">
                 <PasswordDialog
                     title="Akses Terbatas"
                     description="Silakan masukkan kata sandi untuk mengunduh rekap."
