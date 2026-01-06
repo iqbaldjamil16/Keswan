@@ -28,20 +28,20 @@ export function Header() {
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-14 items-center">
-        {/* Mobile-first Menu (now for all screens) */}
-        {isClient ? (
-          <div className="flex items-center">
+        <div className="flex items-center">
+          {/* Sheet trigger is now client-side only to prevent hydration mismatch */}
+          {isClient && (
             <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
               <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="bg-accent text-accent-foreground hover:bg-accent/90">
+                <Button variant="ghost" size="icon" className="mr-4 bg-accent text-accent-foreground hover:bg-accent/90">
                   <PanelLeft className="h-6 w-6" />
                   <span className="sr-only">Buka Menu</span>
                 </Button>
               </SheetTrigger>
               <SheetContent side="left" className="w-[200px]">
-                  <div className="px-2 pt-6">
-                      <Logo />
-                  </div>
+                <div className="px-2 pt-6">
+                  <Logo />
+                </div>
                 <div className="flex flex-col space-y-2 mt-6">
                   {navItems.map((item) => (
                     <Link
@@ -49,8 +49,8 @@ export function Header() {
                       href={item.href}
                       onClick={() => setIsSheetOpen(false)}
                       className={cn(
-                      "text-base font-medium p-3 rounded-md transition-colors",
-                      pathname === item.href ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-accent/50'
+                        "text-base font-medium p-3 rounded-md transition-colors",
+                        pathname === item.href ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-accent/50'
                       )}
                     >
                       {item.label}
@@ -59,36 +59,9 @@ export function Header() {
                 </div>
               </SheetContent>
             </Sheet>
-            {/* Logo next to the menu button */}
-            <div className="ml-4">
-              <Logo />
-            </div>
-          </div>
-        ) : (
-          // Placeholder for server render to avoid layout shift
-          <div className="flex items-center">
-            <div className="ml-4">
-              <Logo />
-            </div>
-          </div>
-        )}
-        
-        {/* Desktop Logo & Nav - Hidden to use sidebar everywhere */}
-        <div className="hidden items-center flex-1">
-          <nav className="flex items-center space-x-6 text-sm font-medium">
-            {navItems.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={cn(
-                  'transition-colors hover:text-primary',
-                  pathname === item.href ? 'text-primary' : 'text-foreground'
-                )}
-              >
-                {item.label}
-              </Link>
-            ))}
-          </nav>
+          )}
+          {/* Logo is always rendered */}
+          <Logo />
         </div>
       </div>
     </header>
