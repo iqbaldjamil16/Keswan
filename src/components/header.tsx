@@ -8,7 +8,7 @@ import { Logo } from './logo';
 import { cn } from '@/lib/utils';
 import { Button } from './ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from './ui/sheet';
-import { PanelLeft } from 'lucide-react';
+import { PanelLeft, ScrollText } from 'lucide-react';
 
 const navItems = [
   { href: '/', label: 'Input Data' },
@@ -69,11 +69,12 @@ export function Header() {
              <Link
                 href="/laporan"
                 className={cn(
-                    "text-sm font-medium transition-colors",
+                    "text-sm font-medium transition-colors flex items-center gap-2",
                     pathname === "/laporan" ? 'text-primary' : 'text-muted-foreground hover:text-primary'
                 )}
                 >
-                Data Laporan
+                <ScrollText className="h-4 w-4" />
+                Data Lap.
             </Link>
         </nav>
       </div>
