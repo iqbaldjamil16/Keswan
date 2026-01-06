@@ -12,7 +12,6 @@ import { PanelLeft } from 'lucide-react';
 
 const navItems = [
   { href: '/', label: 'Input Data' },
-  { href: '/laporan', label: 'Data Laporan' },
   { href: '/rekap', label: 'Rekap Obat & Kasus' },
 ];
 
@@ -27,8 +26,8 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-14 items-center">
-        <div className="flex items-center">
+      <div className="container flex h-14 items-center justify-between">
+        <div className="flex items-center gap-4">
           {/* Sheet trigger is now client-side only to prevent hydration mismatch */}
           {isClient && (
             <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
@@ -66,6 +65,17 @@ export function Header() {
           {/* Logo is always rendered */}
           <Logo />
         </div>
+        <nav className="flex items-center">
+             <Link
+                href="/laporan"
+                className={cn(
+                    "text-sm font-medium transition-colors",
+                    pathname === "/laporan" ? 'text-primary' : 'text-muted-foreground hover:text-primary'
+                )}
+                >
+                Data Laporan
+            </Link>
+        </nav>
       </div>
     </header>
   );
