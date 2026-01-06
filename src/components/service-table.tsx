@@ -46,6 +46,7 @@ import { cn } from "@/lib/utils";
 import { useFirebase } from "@/firebase";
 import { PasswordDialog } from "./password-dialog";
 import Link from "next/link";
+import { puskeswanList } from "@/lib/definitions";
 
   
   interface ServiceTableProps {}
@@ -264,7 +265,7 @@ export function ServiceTable({}: ServiceTableProps) {
     const [loading, setLoading] = useState(true);
     const [isPending, startTransition] = useTransition();
     const [selectedMonth, setSelectedMonth] = useState<string>('');
-    const [selectedYear, setSelectedYear] = useState<string>(getYear(new Date()).toString());
+    const [selectedYear, setSelectedYear] = useState<string>('');
     const [searchTerm, setSearchTerm] = useState("");
     const { firestore } = useFirebase();
   
@@ -307,7 +308,7 @@ export function ServiceTable({}: ServiceTableProps) {
         startTransition(() => {
             let servicesToFilter = allServices;
 
-            const year = selectedYear === 'all-years' ? null : parseInt(selectedYear, 10);
+            const year = selectedYear === 'all-years' || selectedYear === '' ? null : parseInt(selectedYear, 10);
             const month = selectedMonth === 'all-months' || selectedMonth === '' ? null : parseInt(selectedMonth, 10);
 
             if (year) {
@@ -360,35 +361,41 @@ export function ServiceTable({}: ServiceTableProps) {
     };
 
     const handleDownload = () => {
-        const sortedServices = [...filteredServices].sort((a, b) => {
-          if (a.puskeswan < b.puskeswan) return -1;
-          if (a.puskeswan > b.puskeswan) return 1;
-          if (a.officerName < b.officerName) return -1;
-          if (a.officerName > b.officerName) return 1;
-          return new Date(b.date).getTime() - new Date(a.date).getTime();
+        const wb = XLSX.utils.book_new();
+
+        puskeswanList.forEach(puskeswan => {
+            const servicesByPuskeswan = filteredServices.filter(s => s.puskeswan === puskeswan);
+            
+            if (servicesByPuskeswan.length === 0) return;
+
+            const sortedServices = servicesByPuskeswan.sort((a, b) => {
+                if (a.officerName < b.officerName) return -1;
+                if (a.officerName > b.officerName) return 1;
+                return new Date(b.date).getTime() - new Date(a.date).getTime();
+            });
+
+            const dataForSheet = sortedServices.map(service => ({
+                'Tanggal': format(new Date(service.date), 'dd-MM-yyyy'),
+                'Nama Petugas': service.officerName,
+                'Nama Pemilik': service.ownerName,
+                'Alamat Pemilik': service.ownerAddress,
+                'Jenis Ternak': service.livestockType,
+                'Gejala Klinis': service.clinicalSymptoms,
+                'Diagnosa': service.diagnosis,
+                'Jenis Penanganan': service.treatmentType,
+                'Obat yang Digunakan': service.treatments.map(t => `${t.medicineName} (${t.dosageValue} ${t.dosageUnit})`).join(', '),
+                'Jumlah Ternak': service.livestockCount,
+            }));
+            
+            const sheetName = puskeswan.replace('Puskeswan ', '').replace(/[/\\?*:[\]]/g, ""); // Sanitize sheet name
+            const ws = XLSX.utils.json_to_sheet(dataForSheet);
+            XLSX.utils.book_append_sheet(wb, ws, sheetName.substring(0, 31));
         });
 
-        const dataForSheet = sortedServices.map(service => ({
-          'Puskeswan': service.puskeswan,
-          'Nama Petugas': service.officerName,
-          'Tanggal Pelayanan': format(new Date(service.date), 'dd-MM-yyyy'),
-          'Nama Pemilik': service.ownerName,
-          'Alamat Pemilik': service.ownerAddress,
-          'ID Kasus iSIKHNAS': service.caseId,
-          'Jenis Ternak': service.livestockType,
-          'Jumlah': service.livestockCount,
-          'Gejala Klinis': service.clinicalSymptoms,
-          'Diagnosa': service.diagnosis,
-          'Jenis Penanganan': service.treatmentType,
-          'Obat yang Digunakan': service.treatments.map(t => `${t.medicineName} (${t.dosageValue} ${t.dosageUnit})`).join(', '),
-        }));
 
-        const ws = XLSX.utils.json_to_sheet(dataForSheet);
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "Data Pelayanan");
+        const monthLabel = selectedMonth === 'all-months' ? 'SemuaBulan' : months.find(m => m.value === selectedMonth)?.label || 'SemuaBulan';
+        const yearLabel = selectedYear === 'all-years' ? 'SemuaTahun' : selectedYear === '' ? getYear(new Date()).toString() : selectedYear;
 
-        const monthLabel = selectedMonth === 'all-months' ? 'SemuaBulan' : months.find(m => m.value === selectedMonth)?.label || 'Semua';
-        const yearLabel = selectedYear === 'all-years' ? 'SemuaTahun' : selectedYear;
         XLSX.writeFile(wb, `laporan_pelayanan_${monthLabel}_${yearLabel}.xlsx`);
     };
 
@@ -447,7 +454,7 @@ export function ServiceTable({}: ServiceTableProps) {
                     <div className="flex flex-col items-center justify-center gap-2 py-12">
                         <PawPrint className="h-8 w-8 text-muted-foreground" />
                         <p className="text-muted-foreground text-center">
-                        {searchTerm ? "Tidak ada hasil ditemukan." : "Belum ada data pelayanan."}
+                        {searchTerm ? "Tidak ada hasil ditemukan." : "Belum ada data untuk periode ini."}
                         </p>
                     </div>
                 )}
@@ -519,7 +526,7 @@ export function ServiceTable({}: ServiceTableProps) {
                     <div className="flex flex-col items-center justify-center gap-2">
                       <PawPrint className="h-8 w-8 text-muted-foreground" />
                       <p className="text-muted-foreground">
-                        {searchTerm ? "Tidak ada hasil ditemukan." : "Pilih bulan untuk menampilkan data."}
+                        {searchTerm ? "Tidak ada hasil ditemukan." : "Pilih bulan dan tahun untuk menampilkan data."}
                       </p>
                     </div>
                   </TableCell>
@@ -530,7 +537,7 @@ export function ServiceTable({}: ServiceTableProps) {
         </div>
       </CardContent>
     </Card>
-    <div className="mt-6 flex justify-start md:justify-end">
+    <div className="mt-6 flex justify-end">
         <PasswordDialog
             title="Akses Terbatas"
             description="Silakan masukkan kata sandi untuk mengunduh laporan."
