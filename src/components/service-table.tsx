@@ -272,13 +272,19 @@ export function ServiceTable({}: ServiceTableProps) {
     const [services, setServices] = useState<HealthcareService[]>([]);
     const [loading, setLoading] = useState(true);
     const [isPending, startTransition] = useTransition();
-    const [selectedMonth, setSelectedMonth] = useState(getMonth(new Date()).toString());
+    const [selectedMonth, setSelectedMonth] = useState('');
     const [selectedYear, setSelectedYear] = useState(getYear(new Date()).toString());
     const [searchTerm, setSearchTerm] = useState("");
     const { firestore } = useFirebase();
   
     const loadServices = useCallback(async (yearStr: string, monthStr: string) => {
         if (!firestore) return;
+        setServices([]);
+        if (!monthStr || !yearStr) {
+            if (loading) setLoading(false);
+            return;
+        }
+
         const year = parseInt(yearStr, 10);
         const month = parseInt(monthStr, 10);
 
@@ -392,7 +398,7 @@ export function ServiceTable({}: ServiceTableProps) {
         XLSX.writeFile(wb, `laporan_pelayanan_${monthLabel}_${selectedYear}.xlsx`);
     };
 
-    if (loading && services.length === 0) {
+    if (loading && services.length === 0 && selectedMonth === '') {
         return <ReportSkeleton />;
     }
 
@@ -444,7 +450,7 @@ export function ServiceTable({}: ServiceTableProps) {
                     <div className="flex flex-col items-center justify-center gap-2 py-12">
                         <PawPrint className="h-8 w-8 text-muted-foreground" />
                         <p className="text-muted-foreground text-center">
-                        {searchTerm ? "Tidak ada hasil ditemukan." : "Belum ada data untuk periode ini."}
+                        {searchTerm ? "Tidak ada hasil ditemukan." : "Pilih bulan untuk menampilkan data."}
                         </p>
                     </div>
                 )}
@@ -516,7 +522,7 @@ export function ServiceTable({}: ServiceTableProps) {
                     <div className="flex flex-col items-center justify-center gap-2">
                       <PawPrint className="h-8 w-8 text-muted-foreground" />
                       <p className="text-muted-foreground">
-                        {searchTerm ? "Tidak ada hasil ditemukan." : "Belum ada data untuk periode ini."}
+                        {searchTerm ? "Tidak ada hasil ditemukan." : "Pilih bulan untuk menampilkan data."}
                       </p>
                     </div>
                   </TableCell>

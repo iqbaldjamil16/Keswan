@@ -118,12 +118,17 @@ export default function RekapPage() {
     const [services, setServices] = useState<HealthcareService[]>([]);
     const [loading, setLoading] = useState(true);
     const [isPending, startTransition] = useTransition();
-    const [selectedMonth, setSelectedMonth] = useState(getMonth(new Date()).toString());
+    const [selectedMonth, setSelectedMonth] = useState('');
     const [selectedYear, setSelectedYear] = useState(getYear(new Date()).toString());
     const { firestore } = useFirebase();
 
     const loadServices = useCallback(async (yearStr: string, monthStr: string) => {
         if (!firestore) return;
+        setServices([]);
+        if (!monthStr || !yearStr) {
+            if (loading) setLoading(false);
+            return;
+        }
         const year = parseInt(yearStr, 10);
         const month = parseInt(monthStr, 10);
         try {
@@ -250,7 +255,7 @@ export default function RekapPage() {
                     </SelectContent>
                 </Select>
             </div>
-            {(loading && services.length === 0) ? (
+            {(loading && services.length === 0 && selectedMonth === '') ? (
               <RecapSkeleton />
             ) : puskeswanList.length > 0 ? (
                  <Accordion type="multiple" className={cn("w-full space-y-4 transition-opacity duration-300", isPending && "opacity-50")}>
@@ -342,7 +347,7 @@ export default function RekapPage() {
                         <CardTitle>Data Kosong</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <p>Belum ada data pelayanan pada periode yang dipilih untuk ditampilkan rekapitulasinya.</p>
+                        <p>Pilih bulan untuk menampilkan data rekapitulasi.</p>
                     </CardContent>
                 </Card>
             )}
