@@ -118,29 +118,36 @@ export default function RekapPage() {
     const [services, setServices] = useState<HealthcareService[]>([]);
     const [loading, setLoading] = useState(true);
     const [isPending, startTransition] = useTransition();
-    const [selectedMonth, setSelectedMonth] = useState('');
-    const [selectedYear, setSelectedYear] = useState('');
+    const [selectedMonth, setSelectedMonth] = useState<string>(getMonth(new Date()).toString());
+    const [selectedYear, setSelectedYear] = useState<string>(getYear(new Date()).toString());
     const { firestore } = useFirebase();
 
     const loadServices = useCallback(async (yearStr: string, monthStr: string) => {
         if (!firestore) return;
         setServices([]);
-        if (!monthStr || !yearStr) {
+        if (!monthStr && !yearStr) {
             if (loading) setLoading(false);
             return;
         }
-        const year = parseInt(yearStr, 10);
-        const month = parseInt(monthStr, 10);
-        try {
-          const startDate = startOfMonth(new Date(year, month));
-          const endDate = endOfMonth(new Date(year, month));
-          const servicesCollection = collection(firestore, 'healthcareServices');
-          const q = query(
-              servicesCollection, 
-              where('date', '>=', startDate),
-              where('date', '<=', endDate),
-          );
 
+        let q;
+        const servicesCollection = collection(firestore, 'healthcareServices');
+
+        if (monthStr && yearStr) {
+            const year = parseInt(yearStr, 10);
+            const month = parseInt(monthStr, 10);
+            const startDate = startOfMonth(new Date(year, month));
+            const endDate = endOfMonth(new Date(year, month));
+            q = query(
+                servicesCollection, 
+                where('date', '>=', startDate),
+                where('date', '<=', endDate),
+            );
+        } else {
+             q = query(servicesCollection);
+        }
+
+        try {
           const querySnapshot = await getDocs(q);
           const fetchedServices: HealthcareService[] = [];
           querySnapshot.forEach((doc) => {
@@ -239,6 +246,7 @@ export default function RekapPage() {
                         <SelectValue placeholder="Pilih Bulan" />
                     </SelectTrigger>
                     <SelectContent>
+                        <SelectItem value="">Semua Bulan</SelectItem>
                         {months.map(month => (
                         <SelectItem key={month.value} value={month.value}>{month.label}</SelectItem>
                         ))}
@@ -249,13 +257,14 @@ export default function RekapPage() {
                         <SelectValue placeholder="Pilih Tahun" />
                     </SelectTrigger>
                     <SelectContent>
+                         <SelectItem value="">Semua Tahun</SelectItem>
                         {years.map(year => (
                         <SelectItem key={year} value={year}>{year}</SelectItem>
                         ))}
                     </SelectContent>
                 </Select>
             </div>
-            {(loading && services.length === 0 && selectedMonth === '') ? (
+            {(loading) ? (
               <RecapSkeleton />
             ) : puskeswanList.length > 0 ? (
                  <Accordion type="multiple" className={cn("w-full space-y-4 transition-opacity duration-300", isPending && "opacity-50")}>
@@ -347,7 +356,7 @@ export default function RekapPage() {
                         <CardTitle>Data Kosong</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <p>Pilih bulan untuk menampilkan data rekapitulasi.</p>
+                        <p>Tidak ada data untuk periode yang dipilih atau belum ada data sama sekali.</p>
                     </CardContent>
                 </Card>
             )}

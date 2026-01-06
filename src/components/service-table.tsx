@@ -269,35 +269,21 @@ const months = Array.from({ length: 12 }, (_, i) => ({
 
 
 export function ServiceTable({}: ServiceTableProps) {
-    const [services, setServices] = useState<HealthcareService[]>([]);
+    const [allServices, setAllServices] = useState<HealthcareService[]>([]);
+    const [filteredServices, setFilteredServices] = useState<HealthcareService[]>([]);
     const [loading, setLoading] = useState(true);
     const [isPending, startTransition] = useTransition();
-    const [selectedMonth, setSelectedMonth] = useState('');
-    const [selectedYear, setSelectedYear] = useState('');
+    const [selectedMonth, setSelectedMonth] = useState<string>('');
+    const [selectedYear, setSelectedYear] = useState<string>('');
     const [searchTerm, setSearchTerm] = useState("");
     const { firestore } = useFirebase();
   
-    const loadServices = useCallback(async (yearStr: string, monthStr: string) => {
+    const loadAllServices = useCallback(async () => {
         if (!firestore) return;
-        setServices([]);
-        if (!monthStr || !yearStr) {
-            if (loading) setLoading(false);
-            return;
-        }
-
-        const year = parseInt(yearStr, 10);
-        const month = parseInt(monthStr, 10);
-
+        setLoading(true);
         try {
-            const startDate = startOfMonth(new Date(year, month));
-            const endDate = endOfMonth(new Date(year, month));
             const servicesCollection = collection(firestore, 'healthcareServices');
-            const q = query(
-                servicesCollection, 
-                where('date', '>=', startDate),
-                where('date', '<=', endDate),
-                orderBy('date', 'desc')
-            );
+            const q = query(servicesCollection, orderBy('date', 'desc'));
 
             const querySnapshot = await getDocs(q);
             const fetchedServices: HealthcareService[] = [];
@@ -314,22 +300,59 @@ export function ServiceTable({}: ServiceTableProps) {
                     console.error("Validation error parsing service data:", e);
                 }
             });
-            setServices(fetchedServices);
+            setAllServices(fetchedServices);
+            setFilteredServices(fetchedServices);
         } catch (error) {
           console.error("Failed to fetch services:", error);
-          setServices([]);
+          setAllServices([]);
+          setFilteredServices([]);
         } finally {
-            if (loading) {
-                setLoading(false);
-            }
+            setLoading(false);
         }
-    }, [firestore, loading]);
+    }, [firestore]);
     
     useEffect(() => {
+        loadAllServices();
+    }, [loadAllServices]);
+
+    useEffect(() => {
         startTransition(() => {
-            loadServices(selectedYear, selectedMonth);
+            let servicesToFilter = allServices;
+
+            if (selectedMonth && selectedYear) {
+                const month = parseInt(selectedMonth, 10);
+                const year = parseInt(selectedYear, 10);
+                servicesToFilter = servicesToFilter.filter(service => {
+                    const serviceDate = new Date(service.date);
+                    return getMonth(serviceDate) === month && getYear(serviceDate) === year;
+                });
+            } else if (selectedYear) {
+                const year = parseInt(selectedYear, 10);
+                servicesToFilter = servicesToFilter.filter(service => getYear(new Date(service.date)) === year);
+            }
+
+            const lowercasedFilter = searchTerm.toLowerCase();
+            if (lowercasedFilter) {
+                 servicesToFilter = servicesToFilter.filter((service) => {
+                    const ownerName = service.ownerName.toLowerCase();
+                    const officerName = service.officerName.toLowerCase();
+                    const puskeswan = service.puskeswan.toLowerCase();
+                    const diagnosis = service.diagnosis.toLowerCase();
+                    const livestockType = service.livestockType.toLowerCase();
+                    const formattedDate = format(new Date(service.date), "dd MMM yyyy", { locale: id }).toLowerCase();
+                    
+                    return ownerName.includes(lowercasedFilter) || 
+                           officerName.includes(lowercasedFilter) ||
+                           puskeswan.includes(lowercasedFilter) ||
+                           diagnosis.includes(lowercasedFilter) ||
+                           livestockType.includes(lowercasedFilter) ||
+                           formattedDate.includes(lowercasedFilter);
+                });
+            }
+            
+            setFilteredServices(servicesToFilter);
         });
-    }, [selectedYear, selectedMonth, loadServices]);
+    }, [selectedMonth, selectedYear, searchTerm, allServices]);
 
 
     const handleMonthChange = (month: string) => {
@@ -338,36 +361,18 @@ export function ServiceTable({}: ServiceTableProps) {
     
     const handleYearChange = (year: string) => {
         setSelectedYear(year);
+        // If year is cleared, also clear month
+        if (!year) {
+            setSelectedMonth('');
+        }
     };
 
     const handleLocalDelete = (serviceId: string) => {
-        setServices(currentServices => currentServices.filter(s => s.id !== serviceId));
+        setAllServices(currentServices => currentServices.filter(s => s.id !== serviceId));
     };
 
-
-    const searchedServices = useMemo(() => {
-        const lowercasedFilter = searchTerm.toLowerCase();
-        
-        return services.filter((service) => {
-            if (!searchTerm) return true;
-            const ownerName = service.ownerName.toLowerCase();
-            const officerName = service.officerName.toLowerCase();
-            const puskeswan = service.puskeswan.toLowerCase();
-            const diagnosis = service.diagnosis.toLowerCase();
-            const livestockType = service.livestockType.toLowerCase();
-            const formattedDate = format(new Date(service.date), "dd MMM yyyy", { locale: id }).toLowerCase();
-            
-            return ownerName.includes(lowercasedFilter) || 
-                   officerName.includes(lowercasedFilter) ||
-                   puskeswan.includes(lowercasedFilter) ||
-                   diagnosis.includes(lowercasedFilter) ||
-                   livestockType.includes(lowercasedFilter) ||
-                   formattedDate.includes(lowercasedFilter);
-        });
-    }, [searchTerm, services]);
-
     const handleDownload = () => {
-        const sortedServices = [...searchedServices].sort((a, b) => {
+        const sortedServices = [...filteredServices].sort((a, b) => {
           if (a.puskeswan < b.puskeswan) return -1;
           if (a.puskeswan > b.puskeswan) return 1;
           if (a.officerName < b.officerName) return -1;
@@ -394,11 +399,12 @@ export function ServiceTable({}: ServiceTableProps) {
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, "Data Pelayanan");
 
-        const monthLabel = months.find(m => m.value === selectedMonth)?.label || '';
-        XLSX.writeFile(wb, `laporan_pelayanan_${monthLabel}_${selectedYear}.xlsx`);
+        const monthLabel = months.find(m => m.value === selectedMonth)?.label || 'Semua';
+        const yearLabel = selectedYear || 'SemuaTahun';
+        XLSX.writeFile(wb, `laporan_pelayanan_${monthLabel}_${yearLabel}.xlsx`);
     };
 
-    if (loading && services.length === 0 && selectedMonth === '') {
+    if (loading) {
         return <ReportSkeleton />;
     }
 
@@ -410,11 +416,12 @@ export function ServiceTable({}: ServiceTableProps) {
           <CardTitle>Data Pelayanan</CardTitle>
           <div className="flex flex-col sm:flex-row w-full md:w-auto md:justify-end gap-2">
             <div className="flex gap-2">
-                <Select value={selectedMonth} onValueChange={handleMonthChange}>
+                <Select value={selectedMonth} onValueChange={handleMonthChange} disabled={!selectedYear}>
                     <SelectTrigger className="w-full sm:w-[180px]">
                         <SelectValue placeholder="Pilih Bulan" />
                     </SelectTrigger>
                     <SelectContent>
+                        <SelectItem value="">Semua Bulan</SelectItem>
                         {months.map(month => (
                         <SelectItem key={month.value} value={month.value}>{month.label}</SelectItem>
                         ))}
@@ -425,6 +432,7 @@ export function ServiceTable({}: ServiceTableProps) {
                         <SelectValue placeholder="Pilih Tahun" />
                     </SelectTrigger>
                     <SelectContent>
+                        <SelectItem value="">Semua Tahun</SelectItem>
                         {years.map(year => (
                         <SelectItem key={year} value={year}>{year}</SelectItem>
                         ))}
@@ -444,13 +452,13 @@ export function ServiceTable({}: ServiceTableProps) {
         {/* Mobile View */}
         <div className="md:hidden p-4">
             <div className="space-y-4 max-h-[70vh] overflow-y-auto">
-                {searchedServices.length > 0 ? (
-                    searchedServices.map(service => <ServiceCard key={service.id} service={service} onDelete={handleLocalDelete} />)
+                {filteredServices.length > 0 ? (
+                    filteredServices.map(service => <ServiceCard key={service.id} service={service} onDelete={handleLocalDelete} />)
                 ) : (
                     <div className="flex flex-col items-center justify-center gap-2 py-12">
                         <PawPrint className="h-8 w-8 text-muted-foreground" />
                         <p className="text-muted-foreground text-center">
-                        {searchTerm ? "Tidak ada hasil ditemukan." : "Pilih bulan untuk menampilkan data."}
+                        {searchTerm || selectedYear ? "Tidak ada hasil ditemukan." : "Belum ada data pelayanan."}
                         </p>
                     </div>
                 )}
@@ -473,8 +481,8 @@ export function ServiceTable({}: ServiceTableProps) {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {searchedServices.length > 0 ? (
-                searchedServices.map((service) => (
+              {filteredServices.length > 0 ? (
+                filteredServices.map((service) => (
                   <TableRow key={service.id}>
                     <TableCell className="font-medium align-top">
                       {format(new Date(service.date), "dd MMM yyyy", { locale: id })}
@@ -522,7 +530,7 @@ export function ServiceTable({}: ServiceTableProps) {
                     <div className="flex flex-col items-center justify-center gap-2">
                       <PawPrint className="h-8 w-8 text-muted-foreground" />
                       <p className="text-muted-foreground">
-                        {searchTerm ? "Tidak ada hasil ditemukan." : "Pilih bulan untuk menampilkan data."}
+                        {searchTerm || selectedYear ? "Tidak ada hasil ditemukan." : "Belum ada data pelayanan."}
                       </p>
                     </div>
                   </TableCell>
@@ -538,7 +546,7 @@ export function ServiceTable({}: ServiceTableProps) {
             description="Silakan masukkan kata sandi untuk mengunduh laporan."
             onSuccess={handleDownload}
             trigger={
-                <Button disabled={searchedServices.length === 0 || isPending}>
+                <Button disabled={filteredServices.length === 0 || isPending}>
                     <Download className="mr-2 h-4 w-4" />
                     Unduh Laporan
                 </Button>
