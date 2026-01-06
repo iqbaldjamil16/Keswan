@@ -85,7 +85,7 @@ export function Header() {
           <Link
               href="/laporan"
               className={cn(
-                  buttonVariants({ variant: "ghost", size: "default" }),
+                  buttonVariants({ variant: "outline", size: "default" }),
                   "text-sm font-medium transition-colors flex items-center gap-2"
               )}
               >
@@ -134,7 +134,7 @@ export function Header() {
          <Link
             href="/laporan"
             className={cn(
-                buttonVariants({ variant: "ghost", size: "default" }),
+                buttonVariants({ variant: "outline", size: "default" }),
                 "text-sm font-medium transition-colors flex items-center gap-2"
             )}
             >
