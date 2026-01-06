@@ -286,9 +286,9 @@ export default function RekapPage() {
                                 </AccordionTrigger>
                                 <AccordionContent className="px-6 pb-6">
                                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                                        <div>
+                                        <div className="overflow-x-auto">
                                             <h3 className="font-semibold mb-2">Rekap Kasus/Diagnosa</h3>
-                                            <div className="rounded-md border overflow-x-auto">
+                                            <div className="rounded-md border">
                                                 <Table>
                                                     <TableHeader>
                                                         <TableRow>
@@ -329,9 +329,9 @@ export default function RekapPage() {
                                                 </Table>
                                             </div>
                                         </div>
-                                        <div>
+                                        <div className="overflow-x-auto">
                                             <h3 className="font-semibold mb-2">Rekap Penggunaan Obat</h3>
-                                             <div className="rounded-md border overflow-x-auto">
+                                             <div className="rounded-md border">
                                                 <Table>
                                                     <TableHeader>
                                                         <TableRow>
