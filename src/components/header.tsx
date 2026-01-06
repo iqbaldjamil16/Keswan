@@ -14,9 +14,34 @@ const navItems = [
   { href: '/rekap', label: 'Rekap Obat & Kasus' },
 ];
 
+function NavContent({ onLinkClick }: { onLinkClick: () => void }) {
+    const pathname = usePathname();
+    return (
+      <>
+        <div className="px-2 pt-6">
+          <Logo />
+        </div>
+        <div className="flex flex-col space-y-2 mt-6">
+          {navItems.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              onClick={onLinkClick}
+              className={cn(
+                "text-base font-medium p-3 rounded-md transition-colors",
+                pathname === item.href ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-accent/50'
+              )}
+            >
+              {item.label}
+            </Link>
+          ))}
+        </div>
+      </>
+    );
+  }
+
 export function Header() {
   const [isSheetOpen, setIsSheetOpen] = useState(false);
-  const pathname = usePathname();
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -30,24 +55,7 @@ export function Header() {
               </Button>
             </SheetTrigger>
             <SheetContent side="left" className="w-[200px]">
-              <div className="px-2 pt-6">
-                <Logo />
-              </div>
-              <div className="flex flex-col space-y-2 mt-6">
-                {navItems.map((item) => (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    onClick={() => setIsSheetOpen(false)}
-                    className={cn(
-                      "text-base font-medium p-3 rounded-md transition-colors",
-                      pathname === item.href ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-accent/50'
-                    )}
-                  >
-                    {item.label}
-                  </Link>
-                ))}
-              </div>
+              <NavContent onLinkClick={() => setIsSheetOpen(false)} />
             </SheetContent>
           </Sheet>
           <Logo />
@@ -57,8 +65,7 @@ export function Header() {
             href="/laporan"
             className={cn(
                 buttonVariants({ variant: "ghost", size: "default" }),
-                "text-sm font-medium transition-colors flex items-center gap-2",
-                pathname === "/laporan" ? 'text-primary' : ''
+                "text-sm font-medium transition-colors flex items-center gap-2"
             )}
             >
             <ClipboardList className="h-4 w-4" />
