@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useTransition, useEffect, useCallback } from "react";
@@ -385,8 +386,8 @@ export function ServiceTable({}: ServiceTableProps) {
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, "Data Pelayanan");
 
-        const monthLabel = months.find(m => m.value === selectedMonth)?.label || 'Semua';
-        const yearLabel = selectedYear || 'SemuaTahun';
+        const monthLabel = selectedMonth === 'all-months' ? 'SemuaBulan' : months.find(m => m.value === selectedMonth)?.label || 'Semua';
+        const yearLabel = selectedYear === 'all-years' ? 'SemuaTahun' : selectedYear;
         XLSX.writeFile(wb, `laporan_pelayanan_${monthLabel}_${yearLabel}.xlsx`);
     };
 
@@ -544,3 +545,5 @@ export function ServiceTable({}: ServiceTableProps) {
     </>
   );
 }
+
+    

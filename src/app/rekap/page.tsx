@@ -233,8 +233,9 @@ export default function RekapPage() {
         const wsDiagnoses = XLSX.utils.json_to_sheet(diagnosisDataForSheet);
         XLSX.utils.book_append_sheet(wb, wsDiagnoses, "Rekap Kasus");
         
-        const monthLabel = months.find(m => m.value === selectedMonth)?.label || '';
-        XLSX.writeFile(wb, `rekap_obat_kasus_${monthLabel}_${selectedYear}.xlsx`);
+        const monthLabel = selectedMonth === 'all-months' ? 'SemuaBulan' : months.find(m => m.value === selectedMonth)?.label || '';
+        const yearLabel = selectedYear === 'all-years' ? 'SemuaTahun' : selectedYear;
+        XLSX.writeFile(wb, `rekap_obat_kasus_${monthLabel}_${yearLabel}.xlsx`);
     };
 
   return (
@@ -384,3 +385,5 @@ export default function RekapPage() {
     </div>
   );
 }
+
+    
