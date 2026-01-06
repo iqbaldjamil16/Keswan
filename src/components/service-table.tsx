@@ -529,7 +529,7 @@ export function ServiceTable() {
   }
 
   return (
-    <div className='md:h-auto h-[calc(100vh-210px)] overflow-hidden'>
+    <div className='md:h-auto h-full'>
       <Card
         className={cn('h-full flex flex-col', isPending && 'opacity-50 transition-opacity duration-300')}
       >
@@ -743,3 +743,5 @@ export function ServiceTable() {
     </div>
   );
 }
+
+    
