@@ -28,33 +28,12 @@ export function Header() {
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-14 items-center">
-        {/* Desktop Logo & Nav */}
-        <div className="hidden md:flex items-center flex-1">
-          <div className="mr-6">
-            <Logo />
-          </div>
-          <nav className="flex items-center space-x-6 text-sm font-medium">
-            {navItems.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={cn(
-                  'transition-colors hover:text-primary',
-                  pathname === item.href ? 'text-primary' : 'text-foreground'
-                )}
-              >
-                {item.label}
-              </Link>
-            ))}
-          </nav>
-        </div>
-
-        {/* Mobile Menu & Logo */}
-        <div className="flex items-center md:hidden">
+        {/* Mobile-first Menu (now for all screens) */}
+        <div className="flex items-center">
            {isClient && (
             <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
               <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="bg-accent text-accent-foreground hover:bg-accent/90 ml-2">
+                <Button variant="ghost" size="icon" className="bg-accent text-accent-foreground hover:bg-accent/90">
                   <PanelLeft className="h-6 w-6" />
                   <span className="sr-only">Buka Menu</span>
                 </Button>
@@ -81,9 +60,29 @@ export function Header() {
               </SheetContent>
             </Sheet>
            )}
-          <div className="ml-2">
-            <Logo />
-          </div>
+        </div>
+        
+        {/* Logo next to the menu button */}
+        <div className="ml-4">
+          <Logo />
+        </div>
+
+        {/* Desktop Logo & Nav - Hidden to use sidebar everywhere */}
+        <div className="hidden items-center flex-1">
+          <nav className="flex items-center space-x-6 text-sm font-medium">
+            {navItems.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={cn(
+                  'transition-colors hover:text-primary',
+                  pathname === item.href ? 'text-primary' : 'text-foreground'
+                )}
+              >
+                {item.label}
+              </Link>
+            ))}
+          </nav>
         </div>
       </div>
     </header>
