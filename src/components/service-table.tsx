@@ -5,7 +5,6 @@ import { useState, useTransition, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { format, getMonth, getYear, subYears } from 'date-fns';
 import { id } from 'date-fns/locale';
-import * as XLSX from 'xlsx';
 import {
   doc,
   deleteDoc,
@@ -32,17 +31,14 @@ import {
   CardContent,
   CardFooter,
   CardHeader,
-  CardTitle,
 } from './ui/card';
 import {
   PawPrint,
   PlusCircle,
   ChevronDown,
-  Download,
   Pencil,
   Trash2,
   Loader2,
-  CornerUpLeft,
 } from 'lucide-react';
 import {
   Accordion,
@@ -68,10 +64,15 @@ import { Skeleton } from './ui/skeleton';
 import { cn } from '@/lib/utils';
 import { useFirebase } from '@/firebase';
 import { PasswordDialog } from './password-dialog';
-import Link from 'next/link';
-import { puskeswanList } from '@/lib/definitions';
 
-interface ServiceTableProps {}
+interface ServiceTableProps {
+  onFilteredDataChange: (services: HealthcareService[]) => void;
+  onPendingStateChange: (isPending: boolean) => void;
+  onDateSelectionChange: {
+    month: (month: string) => void;
+    year: (year: string) => void;
+  };
+}
 
 function ReportSkeleton() {
   return (
@@ -372,7 +373,11 @@ const months = Array.from({ length: 12 }, (_, i) => ({
   label: new Date(0, i).toLocaleString(id, { month: 'long' }),
 }));
 
-export function ServiceTable({}: ServiceTableProps) {
+export function ServiceTable({
+  onFilteredDataChange,
+  onPendingStateChange,
+  onDateSelectionChange,
+}: ServiceTableProps) {
   const [allServices, setAllServices] = useState<HealthcareService[]>([]);
   const [filteredServices, setFilteredServices] = useState<HealthcareService[]>(
     []
@@ -407,11 +412,9 @@ export function ServiceTable({}: ServiceTableProps) {
         }
       });
       setAllServices(fetchedServices);
-      setFilteredServices(fetchedServices);
     } catch (error) {
       console.error('Failed to fetch services:', error);
       setAllServices([]);
-      setFilteredServices([]);
     } finally {
       setLoading(false);
     }
@@ -420,6 +423,14 @@ export function ServiceTable({}: ServiceTableProps) {
   useEffect(() => {
     loadAllServices();
   }, [loadAllServices]);
+
+  useEffect(() => {
+    onPendingStateChange(isPending);
+  }, [isPending, onPendingStateChange]);
+
+  useEffect(() => {
+    onFilteredDataChange(filteredServices);
+  }, [filteredServices, onFilteredDataChange]);
 
   useEffect(() => {
     startTransition(() => {
@@ -473,14 +484,20 @@ export function ServiceTable({}: ServiceTableProps) {
 
   const handleMonthChange = (month: string) => {
     setSelectedMonth(month);
+    onDateSelectionChange.month(month);
   };
 
   const handleYearChange = (year: string) => {
     setSelectedYear(year);
+    onDateSelectionChange.year(year);
     if (year === 'all-years' && selectedMonth !== 'all-months') {
-      setSelectedMonth('all-months');
+      const newMonth = 'all-months';
+      setSelectedMonth(newMonth);
+      onDateSelectionChange.month(newMonth);
     } else if (selectedMonth === '') {
-      setSelectedMonth('all-months');
+      const newMonth = 'all-months';
+      setSelectedMonth(newMonth);
+      onDateSelectionChange.month(newMonth);
     }
   };
 
@@ -490,66 +507,12 @@ export function ServiceTable({}: ServiceTableProps) {
     );
   };
 
-  const handleDownload = () => {
-    const wb = XLSX.utils.book_new();
-
-    puskeswanList.forEach((puskeswan) => {
-      const servicesByPuskeswan = filteredServices.filter(
-        (s) => s.puskeswan === puskeswan
-      );
-
-      if (servicesByPuskeswan.length === 0) return;
-
-      const sortedServices = servicesByPuskeswan.sort((a, b) => {
-        const nameA = a.officerName.toLowerCase();
-        const nameB = b.officerName.toLowerCase();
-        if (nameA < nameB) return -1;
-        if (nameA > nameB) return 1;
-        return new Date(b.date).getTime() - new Date(a.date).getTime();
-      });
-
-      const dataForSheet = sortedServices.map((service) => ({
-        Tanggal: format(new Date(service.date), 'dd-MM-yyyy'),
-        'Nama Petugas': service.officerName,
-        'Nama Pemilik': service.ownerName,
-        'Alamat Pemilik': service.ownerAddress,
-        'Jenis Ternak': service.livestockType,
-        'Gejala Klinis': service.clinicalSymptoms,
-        Diagnosa: service.diagnosis,
-        'Jenis Penanganan': service.treatmentType,
-        'Obat yang Digunakan': service.treatments
-          .map((t) => `${t.medicineName} (${t.dosageValue} ${t.dosageUnit})`)
-          .join(', '),
-        'Jumlah Ternak': service.livestockCount,
-      }));
-
-      const sheetName = puskeswan
-        .replace('Puskeswan ', '')
-        .replace(/[/\\?*:[\]]/g, ''); // Sanitize sheet name
-      const ws = XLSX.utils.json_to_sheet(dataForSheet);
-      XLSX.utils.book_append_sheet(wb, ws, sheetName.substring(0, 31));
-    });
-
-    const monthLabel =
-      selectedMonth === 'all-months'
-        ? 'SemuaBulan'
-        : months.find((m) => m.value === selectedMonth)?.label || 'SemuaBulan';
-    const yearLabel =
-      selectedYear === 'all-years'
-        ? 'SemuaTahun'
-        : selectedYear === ''
-        ? getYear(new Date()).toString()
-        : selectedYear;
-
-    XLSX.writeFile(wb, `laporan_pelayanan_${monthLabel}_${yearLabel}.xlsx`);
-  };
-
   if (loading && allServices.length === 0) {
     return <ReportSkeleton />;
   }
 
   return (
-    <div className="pb-24 md:pb-0">
+    <div className="pb-24">
       <Card
         className={cn(isPending && 'opacity-50 transition-opacity duration-300')}
       >
@@ -603,7 +566,7 @@ export function ServiceTable({}: ServiceTableProps) {
                 <Skeleton className="h-24 w-full" />
               </div>
             ) : (
-              <div className="space-y-4 p-4 max-h-[60vh] overflow-y-auto">
+              <div className="space-y-4 p-4 max-h-[calc(100vh-320px)] overflow-y-auto">
                 {filteredServices.length > 0 ? (
                   filteredServices.map((service) => (
                     <ServiceCard
@@ -745,19 +708,6 @@ export function ServiceTable({}: ServiceTableProps) {
           </div>
         </CardContent>
       </Card>
-      <div className="mt-6 flex justify-end">
-        <PasswordDialog
-          title="Akses Terbatas"
-          description="Silakan masukkan kata sandi untuk mengunduh laporan."
-          onSuccess={handleDownload}
-          trigger={
-            <Button disabled={filteredServices.length === 0 || isPending}>
-              <Download className="mr-2 h-4 w-4" />
-              Unduh Laporan
-            </Button>
-          }
-        />
-      </div>
     </div>
   );
 }
