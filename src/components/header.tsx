@@ -7,7 +7,7 @@ import { useState, useEffect } from 'react';
 import { Logo } from './logo';
 import { cn } from '@/lib/utils';
 import { Button } from './ui/button';
-import { Sheet, SheetContent, SheetTrigger } from './ui/sheet';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from './ui/sheet';
 import { PanelLeft } from 'lucide-react';
 
 const navItems = [
@@ -39,6 +39,9 @@ export function Header() {
                 </Button>
               </SheetTrigger>
               <SheetContent side="left" className="w-[200px]">
+                <SheetHeader>
+                  <SheetTitle className="sr-only">Menu Navigasi</SheetTitle>
+                </SheetHeader>
                 <div className="px-2 pt-6">
                   <Logo />
                 </div>
