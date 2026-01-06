@@ -29,8 +29,8 @@ export function Header() {
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-14 items-center">
         {/* Mobile-first Menu (now for all screens) */}
-        <div className="flex items-center">
-           {isClient && (
+        {isClient ? (
+          <div className="flex items-center">
             <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
               <SheetTrigger asChild>
                 <Button variant="ghost" size="icon" className="bg-accent text-accent-foreground hover:bg-accent/90">
@@ -59,14 +59,20 @@ export function Header() {
                 </div>
               </SheetContent>
             </Sheet>
-           )}
-        </div>
+            {/* Logo next to the menu button */}
+            <div className="ml-4">
+              <Logo />
+            </div>
+          </div>
+        ) : (
+          // Placeholder for server render to avoid layout shift
+          <div className="flex items-center">
+            <div className="ml-4">
+              <Logo />
+            </div>
+          </div>
+        )}
         
-        {/* Logo next to the menu button */}
-        <div className="ml-4">
-          <Logo />
-        </div>
-
         {/* Desktop Logo & Nav - Hidden to use sidebar everywhere */}
         <div className="hidden items-center flex-1">
           <nav className="flex items-center space-x-6 text-sm font-medium">
