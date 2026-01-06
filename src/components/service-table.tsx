@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useTransition, useEffect, useCallback } from "react";
@@ -415,7 +414,6 @@ export function ServiceTable({}: ServiceTableProps) {
     <Card className={cn(isPending && "opacity-50 transition-opacity duration-300")}>
       <CardHeader className="p-4 md:p-6">
         <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-          <CardTitle>Data Pelayanan</CardTitle>
           <div className="flex flex-col sm:flex-row w-full md:w-auto md:justify-end gap-2">
             <div className="flex gap-2">
                 <Select value={selectedMonth} onValueChange={handleMonthChange}>
@@ -573,4 +571,3 @@ export function ServiceTable({}: ServiceTableProps) {
     </>
   );
 }
-
