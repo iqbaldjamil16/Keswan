@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useTransition, useEffect, useCallback } from 'react';
@@ -548,7 +549,7 @@ export function ServiceTable({}: ServiceTableProps) {
   }
 
   return (
-    <div className="pb-16">
+    <div className="pb-24 md:pb-0">
       <Card
         className={cn(isPending && 'opacity-50 transition-opacity duration-300')}
       >
