@@ -55,8 +55,7 @@ function ReportSkeleton() {
       <Card>
         <CardHeader className="p-4 md:p-6">
             <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-                <Skeleton className="h-8 w-1/3" />
-                 <div className="flex flex-col sm:flex-row w-full md:w-auto md:justify-end gap-2">
+                <div className="flex flex-col sm:flex-row w-full md:w-auto md:justify-end gap-2">
                     <div className="flex gap-2">
                        <Skeleton className="h-10 w-full sm:w-[180px]" />
                        <Skeleton className="h-10 w-full sm:w-[120px]" />
@@ -458,7 +457,7 @@ export function ServiceTable({}: ServiceTableProps) {
                     <Skeleton className="h-24 w-full" />
                 </div>
             ) : (
-                <div className="space-y-4 p-4 max-h-[70vh] overflow-y-auto">
+                <div className="space-y-4 p-4 max-h-[65vh] overflow-y-auto">
                     {filteredServices.length > 0 ? (
                         filteredServices.map(service => <ServiceCard key={service.id} service={service} onDelete={handleLocalDelete} />)
                     ) : (
