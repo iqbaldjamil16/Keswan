@@ -79,6 +79,13 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
   const watchedPuskeswan = form.watch("puskeswan");
   const watchedTreatments = form.watch("treatments");
 
+  const isDesaSelection = watchedPuskeswan === 'Puskeswan Karossa' || watchedPuskeswan === 'Puskeswan Budong-Budong';
+  const desaList = watchedPuskeswan === 'Puskeswan Karossa' ? karossaDesaList : watchedPuskeswan === 'Puskeswan Budong-Budong' ? budongBudongDesaList : [];
+  const watchedOwnerAddress = form.watch('ownerAddress');
+  const [showManualOwnerAddress, setShowManualOwnerAddress] = useState(
+    initialData ? isDesaSelection && !desaList.includes(initialData.ownerAddress) : false
+  );
+
   async function onSubmit(values: HealthcareService) {
     if (!firestore) {
         toast({
@@ -190,7 +197,8 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
                       <Select
                         onValueChange={(value) => {
                           field.onChange(value);
-                          form.setValue('ownerAddress', ''); // Reset address on change
+                          form.setValue('ownerAddress', ''); 
+                          setShowManualOwnerAddress(false);
                         }}
                         defaultValue={field.value}
                         value={field.value}
@@ -237,35 +245,36 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Alamat Pemilik</FormLabel>
-                      {watchedPuskeswan === 'Puskeswan Karossa' ? (
-                        <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}>
+                      {(isDesaSelection && !showManualOwnerAddress) ? (
+                        <Select 
+                            onValueChange={(value) => {
+                                if (value === 'Lainnya') {
+                                    setShowManualOwnerAddress(true);
+                                    field.onChange('');
+                                } else {
+                                    field.onChange(value);
+                                }
+                            }}
+                            value={field.value}
+                        >
                             <FormControl>
                                 <SelectTrigger>
                                     <SelectValue placeholder="Pilih Desa" />
                                 </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                                {karossaDesaList.map((desa) => (
-                                    <SelectItem key={desa} value={desa}>{desa}</SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                      ) : watchedPuskeswan === 'Puskeswan Budong-Budong' ? (
-                        <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}>
-                            <FormControl>
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Pilih Desa" />
-                                </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                                {budongBudongDesaList.map((desa) => (
+                                {desaList.map((desa) => (
                                     <SelectItem key={desa} value={desa}>{desa}</SelectItem>
                                 ))}
                             </SelectContent>
                         </Select>
                       ) : (
                         <FormControl>
-                            <Input placeholder="Alamat Desa, Contoh : Salopangkang" {...field} />
+                            <Input 
+                                placeholder="Alamat Desa, Contoh : Salopangkang" 
+                                {...field}
+                                value={(showManualOwnerAddress && field.value === 'Lainnya') ? '' : field.value}
+                             />
                         </FormControl>
                       )}
                       <FormMessage />

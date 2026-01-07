@@ -8,32 +8,46 @@ export const puskeswanList = [
 ];
 
 export const karossaDesaList = [
-    'Babana',
-    'Barakkang',
-    'Bojo',
-    'Kire',
-    'Lembah Hada',
-    'Lumu',
-    'Pasapa',
-    'Potantanakayyang',
-    'Salogatta',
-    'Salumanurung',
-    'Tinali',
-].sort();
+    "Desa Benggaulu",
+    "Desa Kadaila",
+    "Desa Kambunong",
+    "Desa Karossa",
+    "Desa Kayucalla",
+    "Desa Lara",
+    "Desa Lembah Hopo",
+    "Desa Salubiro",
+    "Desa Sanjango",
+    "Desa Sukamaju",
+    "Desa Tasoskko",
+    "Mora IV",
+    "UPT Lara III",
+    "Lainnya",
+].sort((a, b) => {
+    if (a === "Lainnya") return 1;
+    if (b === "Lainnya") return -1;
+    return a.localeCompare(b);
+});
 
 export const budongBudongDesaList = [
-    'Babana',
-    'Barakkang',
-    'Bojo',
-    'Kire',
-    'Lembah Hada',
-    'Lumu',
-    'Pasapa',
-    'Potantanakayyang',
-    'Salogatta',
-    'Salumanurung',
-    'Tinali',
-].sort();
+    "Desa Benggaulu",
+    "Desa Kadaila",
+    "Desa Kambunong",
+    "Desa Karossa",
+    "Desa Kayucalla",
+    "Desa Lara",
+    "Desa Lembah Hopo",
+    "Desa Salubiro",
+    "Desa Sanjango",
+    "Desa Sukamaju",
+    "Desa Tasoskko",
+    "Mora IV",
+    "UPT Lara III",
+    "Lainnya",
+].sort((a, b) => {
+    if (a === "Lainnya") return 1;
+    if (b === "Lainnya") return -1;
+    return a.localeCompare(b);
+});
 
 export const livestockTypes = [
   'Anjing',
