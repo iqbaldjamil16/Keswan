@@ -147,7 +147,7 @@ export const pangaleOfficerList = [
 export const tobadakOfficerList = [
     "Endang",
     "Jupry",
-    "drh. Ishak",
+    "drh. M Ishak",
     "Lainnya",
 ].sort((a, b) => {
     if (a === "Lainnya") return 1;
