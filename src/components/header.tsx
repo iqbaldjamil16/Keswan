@@ -47,6 +47,7 @@ export function Header() {
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [isActivationDialog, setIsActivationDialog] = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const pathname = usePathname();
 
   useEffect(() => {
     setIsClient(true);
@@ -134,8 +135,11 @@ export function Header() {
          <Link
             href="/laporan"
             className={cn(
-                buttonVariants({ variant: "outline", size: "default" }),
-                "bg-white text-primary border-primary hover:bg-primary/10 text-sm font-semibold transition-colors flex items-center gap-2"
+                buttonVariants({ variant: 'outline', size: 'default' }),
+                'text-sm font-semibold transition-colors flex items-center gap-2 border-2',
+                pathname === '/laporan'
+                ? 'bg-accent border-accent text-accent-foreground'
+                : 'bg-white text-primary border-accent hover:bg-accent/10'
             )}
             >
             <ClipboardList className="h-4 w-4" />
