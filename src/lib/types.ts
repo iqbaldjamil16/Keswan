@@ -4,8 +4,8 @@ import { z } from 'zod';
 export const treatmentSchema = z.object({
   medicineType: z.string().min(1, "Jenis obat harus dipilih."),
   medicineName: z.string().min(1, "Nama obat harus diisi."),
-  dosageValue: z.coerce.number().min(0, "Jumlah dosis harus diisi.").default(0),
-  dosageUnit: z.string().default(''), // Remove min(1) to allow old data
+  dosageValue: z.coerce.number().min(0.1, "Dosis harus lebih dari 0."),
+  dosageUnit: z.string().min(1, "Satuan harus dipilih."),
 });
 
 export const serviceSchema = z.object({
@@ -30,5 +30,3 @@ export type HealthcareService = z.infer<typeof serviceSchema>;
 export type Treatment = z.infer<typeof treatmentSchema>;
 
     
-
-
