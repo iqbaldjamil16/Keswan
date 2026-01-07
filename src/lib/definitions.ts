@@ -7,6 +7,20 @@ export const puskeswanList = [
   'Puskeswan Topoyo',
 ];
 
+export const karossaDesaList = [
+    'Babana',
+    'Bamba Manurung',
+    'Barakkang',
+    'Kire',
+    'Lumu',
+    'Pasapa',
+    'Salu Lekbo',
+    'Salumanurung',
+    'Tabolang',
+    'Tangkao',
+    'Tinali',
+];
+
 export const livestockTypes = [
   'Anjing',
   'Anjing Ras',

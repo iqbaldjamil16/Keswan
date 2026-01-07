@@ -11,7 +11,7 @@ import { doc, updateDoc, addDoc, collection, Timestamp, Firestore } from 'fireba
 
 import { cn } from "@/lib/utils";
 import { serviceSchema, type HealthcareService } from "@/lib/types";
-import { medicineData, medicineTypes, type MedicineType, livestockTypes, puskeswanList, treatmentTypes, dosageUnits } from "@/lib/definitions";
+import { medicineData, medicineTypes, type MedicineType, livestockTypes, puskeswanList, treatmentTypes, dosageUnits, karossaDesaList } from "@/lib/definitions";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -76,6 +76,7 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
     name: "treatments",
   });
 
+  const watchedPuskeswan = form.watch("puskeswan");
   const watchedTreatments = form.watch("treatments");
 
   async function onSubmit(values: HealthcareService) {
@@ -186,7 +187,14 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Puskeswan</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}>
+                      <Select
+                        onValueChange={(value) => {
+                          field.onChange(value);
+                          form.setValue('ownerAddress', ''); // Reset address on change
+                        }}
+                        defaultValue={field.value}
+                        value={field.value}
+                      >
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Pilih Puskeswan" />
@@ -229,9 +237,24 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Alamat Pemilik</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Alamat Desa, Contoh : Salopangkang" {...field} />
-                      </FormControl>
+                      {watchedPuskeswan === 'Puskeswan Karossa' ? (
+                        <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}>
+                            <FormControl>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Pilih Desa" />
+                                </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                                {karossaDesaList.map((desa) => (
+                                    <SelectItem key={desa} value={desa}>{desa}</SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                      ) : (
+                        <FormControl>
+                            <Input placeholder="Alamat Desa, Contoh : Salopangkang" {...field} />
+                        </FormControl>
+                      )}
                       <FormMessage />
                     </FormItem>
                   )}
