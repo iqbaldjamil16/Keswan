@@ -186,23 +186,6 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
               <CardContent className="p-4">
                 <FormField
                   control={form.control}
-                  name="officerName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Nama Petugas</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Nama Petugas" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-4">
-                <FormField
-                  control={form.control}
                   name="puskeswan"
                   render={({ field }) => (
                     <FormItem>
@@ -227,6 +210,23 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
                           ))}
                         </SelectContent>
                       </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-4">
+                <FormField
+                  control={form.control}
+                  name="officerName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Nama Petugas</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Nama Petugas" {...field} />
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
