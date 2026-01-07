@@ -64,6 +64,22 @@ export const pangaleDesaList = [
     return a.localeCompare(b);
 });
 
+export const tobadakDesaList = [
+    "Desa Bambadaru",
+    "Desa Batu Parigi",
+    "Desa Mahahe",
+    "Desa Polongaan",
+    "Desa Saluadak",
+    "Desa Sejati",
+    "Desa Sulobaja",
+    "Desa Tobadak",
+    "Lainnya",
+].sort((a, b) => {
+    if (a === "Lainnya") return 1;
+    if (b === "Lainnya") return -1;
+    return a.localeCompare(b);
+});
+
 
 export const livestockTypes = [
   'Anjing',

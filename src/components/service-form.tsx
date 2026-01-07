@@ -11,7 +11,7 @@ import { doc, updateDoc, addDoc, collection, Timestamp, Firestore } from 'fireba
 
 import { cn } from "@/lib/utils";
 import { serviceSchema, type HealthcareService } from "@/lib/types";
-import { medicineData, medicineTypes, type MedicineType, livestockTypes, puskeswanList, treatmentTypes, dosageUnits, karossaDesaList, budongBudongDesaList, pangaleDesaList } from "@/lib/definitions";
+import { medicineData, medicineTypes, type MedicineType, livestockTypes, puskeswanList, treatmentTypes, dosageUnits, karossaDesaList, budongBudongDesaList, pangaleDesaList, tobadakDesaList } from "@/lib/definitions";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -79,7 +79,7 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
   const watchedPuskeswan = form.watch("puskeswan");
   const watchedTreatments = form.watch("treatments");
 
-  const isDesaSelection = ['Puskeswan Karossa', 'Puskeswan Budong-Budong', 'Puskeswan Pangale'].includes(watchedPuskeswan);
+  const isDesaSelection = ['Puskeswan Karossa', 'Puskeswan Budong-Budong', 'Puskeswan Pangale', 'Puskeswan Tobadak'].includes(watchedPuskeswan);
   
   let desaList: string[] = [];
   if (watchedPuskeswan === 'Puskeswan Karossa') {
@@ -88,6 +88,8 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
     desaList = budongBudongDesaList;
   } else if (watchedPuskeswan === 'Puskeswan Pangale') {
     desaList = pangaleDesaList;
+  } else if (watchedPuskeswan === 'Puskeswan Tobadak') {
+    desaList = tobadakDesaList;
   }
 
   const watchedOwnerAddress = form.watch('ownerAddress');
