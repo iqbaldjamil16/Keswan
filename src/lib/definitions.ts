@@ -80,6 +80,29 @@ export const tobadakDesaList = [
     return a.localeCompare(b);
 });
 
+export const topoyoDesaList = [
+    "Desa Bambamanurug",
+    "Desa Budong-Budong",
+    "Desa Kabubu",
+    "Desa Pangalloang",
+    "Desa Paraili",
+    "Desa Salule'bo",
+    "Desa Salupangkang",
+    "Desa Salupangkang IV",
+    "Desa Sinabatta",
+    "Desa Tabolang",
+    "Desa Tangkau",
+    "Desa Tappilina",
+    "Desa Topoyo",
+    "Desa Tumbu",
+    "Desa Waeputeh",
+    "Lainnya",
+].sort((a, b) => {
+    if (a === "Lainnya") return 1;
+    if (b === "Lainnya") return -1;
+    return a.localeCompare(b);
+});
+
 
 export const livestockTypes = [
   'Anjing',
@@ -205,3 +228,5 @@ export const medicineData = {
 export type MedicineType = keyof typeof medicineData;
 
 export const medicineTypes = Object.keys(medicineData) as MedicineType[];
+
+    
