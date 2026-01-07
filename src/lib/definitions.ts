@@ -130,6 +130,20 @@ export const karossaOfficerList = [
     return a.localeCompare(b);
 });
 
+export const pangaleOfficerList = [
+    "Kamarudin",
+    "Kamaruddin",
+    "drh. Ketut Elok",
+    "Mansyur",
+    "Jawaril",
+    "Sugeng",
+    "Lainnya",
+].sort((a, b) => {
+    if (a === "Lainnya") return 1;
+    if (b === "Lainnya") return -1;
+    return a.localeCompare(b);
+});
+
 
 export const livestockTypes = [
   'Anjing',
