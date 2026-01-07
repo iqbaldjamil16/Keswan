@@ -8,17 +8,17 @@ export const puskeswanList = [
 ];
 
 export const karossaDesaList = [
-    "Desa Benggaulu",
-    "Desa Kadaila",
-    "Desa Karossa",
-    "Desa Kayucalla",
-    "Desa Kambunong",
-    "Desa Lara",
-    "Desa Lembah Hopo",
-    "Desa Salubiro",
-    "Desa Sanjango",
-    "Desa Sukamaju",
-    "Desa Tasoskko",
+    "Benggaulu",
+    "Kadaila",
+    "Karossa",
+    "Kayucalla",
+    "Kambunong",
+    "Lara",
+    "Lembah Hopo",
+    "Salubiro",
+    "Sanjango",
+    "Sukamaju",
+    "Tasoskko",
     "Mora IV",
     "UPT Lara III",
     "Lainnya",
@@ -29,17 +29,17 @@ export const karossaDesaList = [
 });
 
 export const budongBudongDesaList = [
-    "Desa Babana",
-    "Desa Barakkang",
-    "Desa Kire",
-    "Desa Lumu",
-    "Desa Pasapa",
-    "Desa Salumanurung",
-    "Desa Tinali",
-    "Desa Bojo",
-    "Desa Lembah Hada",
-    "Desa Salogatta",
-    "Desa Potantanakayyang",
+    "Babana",
+    "Barakkang",
+    "Kire",
+    "Lumu",
+    "Pasapa",
+    "Salumanurung",
+    "Tinali",
+    "Bojo",
+    "Lembah Hada",
+    "Salogatta",
+    "Potantanakayyang",
     "Lainnya",
 ].sort((a, b) => {
     if (a === "Lainnya") return 1;
@@ -48,15 +48,15 @@ export const budongBudongDesaList = [
 });
 
 export const pangaleDesaList = [
-    "Desa Kombiling",
-    "Desa Kuo",
-    "Desa Lamba-lamba",
-    "Desa Lemo-Lemo",
-    "Desa Pangale",
-    "Desa Polo Camba",
-    "Desa Polo Lereng",
-    "Desa Polo Pangale",
-    "Desa Sartanamaju",
+    "Kombiling",
+    "Kuo",
+    "Lamba-lamba",
+    "Lemo-Lemo",
+    "Pangale",
+    "Polo Camba",
+    "Polo Lereng",
+    "Polo Pangale",
+    "Sartanamaju",
     "Lainnya",
 ].sort((a, b) => {
     if (a === "Lainnya") return 1;
@@ -65,14 +65,14 @@ export const pangaleDesaList = [
 });
 
 export const tobadakDesaList = [
-    "Desa Bambadaru",
-    "Desa Batu Parigi",
-    "Desa Mahahe",
-    "Desa Polongaan",
-    "Desa Saluadak",
-    "Desa Sejati",
-    "Desa Sulobaja",
-    "Desa Tobadak",
+    "Bambadaru",
+    "Batu Parigi",
+    "Mahahe",
+    "Polongaan",
+    "Saluadak",
+    "Sejati",
+    "Sulobaja",
+    "Tobadak",
     "Lainnya",
 ].sort((a, b) => {
     if (a === "Lainnya") return 1;
@@ -81,21 +81,21 @@ export const tobadakDesaList = [
 });
 
 export const topoyoDesaList = [
-    "Desa Bambamanurug",
-    "Desa Budong-Budong",
-    "Desa Kabubu",
-    "Desa Pangalloang",
-    "Desa Paraili",
-    "Desa Salule'bo",
-    "Desa Salupangkang",
-    "Desa Salupangkang IV",
-    "Desa Sinabatta",
-    "Desa Tabolang",
-    "Desa Tangkau",
-    "Desa Tappilina",
-    "Desa Topoyo",
-    "Desa Tumbu",
-    "Desa Waeputeh",
+    "Bambamanurug",
+    "Budong-Budong",
+    "Kabubu",
+    "Pangalloang",
+    "Paraili",
+    "Salule'bo",
+    "Salupangkang",
+    "Salupangkang IV",
+    "Sinabatta",
+    "Tabolang",
+    "Tangkau",
+    "Tappilina",
+    "Topoyo",
+    "Tumbu",
+    "Waeputeh",
     "Lainnya",
 ].sort((a, b) => {
     if (a === "Lainnya") return 1;
