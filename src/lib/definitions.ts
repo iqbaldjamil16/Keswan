@@ -9,15 +9,11 @@ export const puskeswanList = [
 
 export const karossaDesaList = [
     'Babana',
-    'Bamba Manurung',
     'Barakkang',
     'Kire',
     'Lumu',
     'Pasapa',
-    'Salu Lekbo',
     'Salumanurung',
-    'Tabolang',
-    'Tangkao',
     'Tinali',
 ];
 
