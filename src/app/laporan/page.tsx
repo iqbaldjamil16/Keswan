@@ -2,6 +2,7 @@
 'use client';
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import * as XLSX from 'xlsx';
 import { getYear, getMonth, format, subYears } from "date-fns";
 import { id } from 'date-fns/locale';
@@ -10,7 +11,6 @@ import { ServiceTable } from "@/components/service-table";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CornerUpLeft, Download } from "lucide-react";
-import Link from "next/link";
 import { type HealthcareService } from "@/lib/types";
 import { PasswordDialog } from "@/components/password-dialog";
 import { puskeswanList } from "@/lib/definitions";
@@ -28,6 +28,7 @@ export default function ReportPage() {
   const [filteredServices, setFilteredServices] = useState<HealthcareService[]>([]);
   const [selectedMonth, setSelectedMonth] = useState<string>('');
   const [selectedYear, setSelectedYear] = useState<string>('');
+  const router = useRouter();
 
   const handleDownload = () => {
     const wb = XLSX.utils.book_new();
@@ -113,15 +114,14 @@ export default function ReportPage() {
         onYearChange={setSelectedYear}
       />
 
-      <Link href="/" passHref>
-        <Button
+      <Button
           variant="default"
           className="fixed bottom-6 left-6 h-14 w-14 rounded-full shadow-lg"
           aria-label="Kembali ke halaman utama"
+          onClick={() => router.push('/')}
         >
           <CornerUpLeft className="h-7 w-7" />
         </Button>
-      </Link>
     </div>
   );
 }
