@@ -5,8 +5,9 @@ import { useTransition, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2, PlusCircle, Trash2 } from "lucide-react";
+import { CalendarIcon, Loader2, PlusCircle, Trash2 } from "lucide-react";
 import { format } from "date-fns";
+import { id } from 'date-fns/locale';
 import { doc, updateDoc, addDoc, collection, Timestamp, Firestore } from 'firebase/firestore';
 
 import { cn } from "@/lib/utils";
@@ -14,6 +15,8 @@ import { serviceSchema, type HealthcareService } from "@/lib/types";
 import { medicineData, medicineTypes, type MedicineType, livestockTypes, puskeswanList, treatmentTypes, dosageUnits, karossaDesaList, budongBudongDesaList, pangaleDesaList, tobadakDesaList, topoyoDesaList, budongBudongOfficerList, karossaOfficerList, pangaleOfficerList, tobadakOfficerList, topoyoOfficerList } from "@/lib/definitions";
 
 import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Form,
@@ -168,27 +171,47 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
           <div className="space-y-4 md:space-y-6">
             <Card>
               <CardContent className="p-4">
-                <FormField
-                  control={form.control}
-                  name="date"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Tanggal Pelayanan</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="date"
-                          value={format(new Date(field.value), 'yyyy-MM-dd')}
-                          onChange={(e) => {
-                            const date = new Date(e.target.value);
-                            const userTimezoneOffset = date.getTimezoneOffset() * 60000;
-                            field.onChange(new Date(date.getTime() + userTimezoneOffset));
-                          }}
+              <FormField
+                control={form.control}
+                name="date"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col">
+                    <FormLabel>Tanggal Pelayanan</FormLabel>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant={"outline"}
+                            className={cn(
+                              "w-full pl-3 text-left font-normal",
+                              !field.value && "text-muted-foreground"
+                            )}
+                          >
+                            {field.value ? (
+                              format(field.value, "PPP", { locale: id })
+                            ) : (
+                              <span>Pilih tanggal</span>
+                            )}
+                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={field.value}
+                          onSelect={field.onChange}
+                          disabled={(date) =>
+                            date > new Date() || date < new Date("1900-01-01")
+                          }
+                          initialFocus
                         />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                      </PopoverContent>
+                    </Popover>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
               </CardContent>
             </Card>
             <Card>
@@ -691,3 +714,5 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
     </Form>
   );
 }
+
+    
