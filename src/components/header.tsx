@@ -136,7 +136,7 @@ export function Header() {
             href="/laporan"
             className={cn(
                 buttonVariants({ variant: 'outline', size: 'default' }),
-                'text-sm font-semibold transition-colors flex items-center gap-2 border-2',
+                'text-sm font-semibold transition-colors flex items-center gap-2',
                 pathname === '/laporan'
                 ? 'bg-accent border-accent text-accent-foreground'
                 : 'bg-white text-primary border-foreground hover:bg-primary/10'
