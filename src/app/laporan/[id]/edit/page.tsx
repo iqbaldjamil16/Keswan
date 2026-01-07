@@ -2,13 +2,15 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { notFound, useParams } from 'next/navigation';
+import { notFound, useParams, useRouter } from 'next/navigation';
 import { doc, getDoc, Timestamp } from 'firebase/firestore';
 import { useFirebase } from '@/firebase';
 
 import { ServiceForm } from '@/components/service-form';
 import { type HealthcareService, serviceSchema } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Button } from '@/components/ui/button';
+import { CornerUpLeft } from 'lucide-react';
 
 function EditSkeleton() {
     return (
@@ -28,6 +30,7 @@ function EditSkeleton() {
 
 export default function EditServicePage() {
   const params = useParams();
+  const router = useRouter();
   const id = Array.isArray(params.id) ? params.id[0] : params.id;
   const { firestore } = useFirebase();
   const [service, setService] = useState<HealthcareService | null>(null);
@@ -83,6 +86,14 @@ export default function EditServicePage() {
           </>
         ) : null}
       </div>
+       <Button
+          variant="default"
+          className="fixed bottom-6 left-6 h-14 w-14 rounded-full shadow-lg"
+          aria-label="Kembali ke halaman laporan"
+          onClick={() => router.push('/laporan')}
+        >
+          <CornerUpLeft className="h-7 w-7" />
+        </Button>
     </div>
   );
 }
