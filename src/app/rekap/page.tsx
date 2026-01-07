@@ -2,6 +2,7 @@
 'use client';
 
 import { useEffect, useState, useMemo, useCallback, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import {
   Card,
   CardContent,
@@ -34,7 +35,7 @@ import {
 import { getMonth, getYear, subYears, format, startOfMonth, endOfMonth } from "date-fns";
 import { id } from 'date-fns/locale';
 import { Button } from "@/components/ui/button";
-import { Download } from "lucide-react";
+import { Download, CornerUpLeft } from "lucide-react";
 import * as XLSX from 'xlsx';
 import { cn } from "@/lib/utils";
 import { collection, query, where, getDocs, orderBy, Timestamp } from 'firebase/firestore';
@@ -121,6 +122,7 @@ export default function RekapPage() {
     const [selectedMonth, setSelectedMonth] = useState<string>(getMonth(new Date()).toString());
     const [selectedYear, setSelectedYear] = useState<string>(getYear(new Date()).toString());
     const { firestore } = useFirebase();
+    const router = useRouter();
 
     const loadServices = useCallback(async (yearStr: string, monthStr: string) => {
         if (!firestore) return;
@@ -399,6 +401,14 @@ export default function RekapPage() {
             </div>
         </div>
       </div>
+       <Button
+          variant="default"
+          className="fixed bottom-6 left-6 h-14 w-14 rounded-full shadow-lg"
+          aria-label="Kembali ke halaman utama"
+          onClick={() => router.push('/')}
+        >
+          <CornerUpLeft className="h-7 w-7" />
+        </Button>
     </div>
   );
 }
