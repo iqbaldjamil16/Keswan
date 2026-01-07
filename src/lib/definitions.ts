@@ -12,13 +12,13 @@ export const karossaDesaList = [
     "Desa Kadaila",
     "Desa Karossa",
     "Desa Kayucalla",
+    "Desa Kambunong",
     "Desa Lara",
     "Desa Lembah Hopo",
     "Desa Salubiro",
     "Desa Sanjango",
     "Desa Sukamaju",
     "Desa Tasoskko",
-    "Desa Kambunong",
     "Mora IV",
     "UPT Lara III",
     "Lainnya",
@@ -31,21 +31,39 @@ export const karossaDesaList = [
 export const budongBudongDesaList = [
     "Desa Babana",
     "Desa Barakkang",
+    "Desa Bojo",
     "Desa Kire",
+    "Desa Lembah Hada",
     "Desa Lumu",
     "Desa Pasapa",
+    "Desa Potantanakayyang",
+    "Desa Salogatta",
     "Desa Salumanurung",
     "Desa Tinali",
-    "Desa Bojo",
-    "Desa Lembah Hada",
-    "Desa Salogatta",
-    "Desa Potantanakayyang",
     "Lainnya",
 ].sort((a, b) => {
     if (a === "Lainnya") return 1;
     if (b === "Lainnya") return -1;
     return a.localeCompare(b);
 });
+
+export const pangaleDesaList = [
+    "Desa Kombiling",
+    "Desa Kuo",
+    "Desa Lamba-lamba",
+    "Desa Lemo-Lemo",
+    "Desa Pangale",
+    "Desa Polo Camba",
+    "Desa Polo Lereng",
+    "Desa Polo Pangale",
+    "Desa Sartanamaju",
+    "Lainnya",
+].sort((a, b) => {
+    if (a === "Lainnya") return 1;
+    if (b === "Lainnya") return -1;
+    return a.localeCompare(b);
+});
+
 
 export const livestockTypes = [
   'Anjing',
