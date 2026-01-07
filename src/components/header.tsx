@@ -139,7 +139,7 @@ export function Header() {
                 'text-sm font-semibold transition-colors flex items-center gap-2 border-2',
                 pathname === '/laporan'
                 ? 'bg-accent border-accent text-accent-foreground'
-                : 'bg-white text-primary border-primary hover:bg-primary/10'
+                : 'bg-white text-primary border-foreground hover:bg-primary/10'
             )}
             >
             <ClipboardList className="h-4 w-4" />
