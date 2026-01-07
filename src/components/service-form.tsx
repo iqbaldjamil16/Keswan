@@ -16,6 +16,11 @@ import { medicineData, medicineTypes, type MedicineType, livestockTypes, puskesw
 
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Form,
@@ -26,11 +31,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 import {
   Select,
   SelectContent,
@@ -210,6 +210,7 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
                           }
                           initialFocus
                           locale={id}
+                          showOutsideDays={false}
                         />
                       </PopoverContent>
                     </Popover>
