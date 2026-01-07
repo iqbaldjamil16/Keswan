@@ -107,11 +107,17 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
         } else {
             const servicesCollection = collection(firestore, 'healthcareServices');
             const newDocRef = await addDoc(servicesCollection, serviceData);
+            
+            // Store new ID in localStorage
+            const newEntries = JSON.parse(localStorage.getItem('newEntries') || '[]');
+            newEntries.push({ id: newDocRef.id, timestamp: Date.now() });
+            localStorage.setItem('newEntries', JSON.stringify(newEntries));
+
             toast({
                 title: "Sukses",
                 description: "Data pelayanan berhasil disimpan!",
             });
-            router.push(`/laporan?new=${newDocRef.id}`);
+            router.push(`/laporan`);
             router.refresh();
         }
       } catch (error: any) {

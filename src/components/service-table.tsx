@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useTransition, useEffect, useCallback, Suspense } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { format, getMonth, getYear, subYears } from 'date-fns';
 import { id } from 'date-fns/locale';
 import {
@@ -378,26 +378,36 @@ function ServiceTableInternal({ onServicesFiltered, onMonthChange, onYearChange 
   const [selectedMonth, setSelectedMonth] = useState<string>('');
   const [selectedYear, setSelectedYear] = useState<string>('');
   const [searchTerm, setSearchTerm] = useState('');
-  const [highlightedId, setHighlightedId] = useState<string | null>(null);
+  const [highlightedIds, setHighlightedIds] = useState<string[]>([]);
 
   const { firestore } = useFirebase();
-  const searchParams = useSearchParams();
 
   useEffect(() => {
     onServicesFiltered(filteredServices);
   }, [filteredServices, onServicesFiltered]);
 
   useEffect(() => {
-    const newId = searchParams.get('new');
-    if (newId) {
-      setHighlightedId(newId);
-      const timer = setTimeout(() => {
-        setHighlightedId(null);
-      }, 3600000); // 1 hour
+    const updateHighlighted = () => {
+      const storedEntries = JSON.parse(localStorage.getItem('newEntries') || '[]');
+      const now = Date.now();
+      const oneHour = 3600 * 1000;
+      
+      const validEntries = storedEntries.filter(
+        (entry: { id: string, timestamp: number }) => (now - entry.timestamp) < oneHour
+      );
 
-      return () => clearTimeout(timer);
-    }
-  }, [searchParams]);
+      if (validEntries.length !== storedEntries.length) {
+        localStorage.setItem('newEntries', JSON.stringify(validEntries));
+      }
+      
+      setHighlightedIds(validEntries.map((entry: { id: string }) => entry.id));
+    };
+
+    updateHighlighted(); // Initial check
+    const interval = setInterval(updateHighlighted, 60000); // Check every minute
+
+    return () => clearInterval(interval);
+  }, []);
 
   const loadAllServices = useCallback(async () => {
     if (!firestore) return;
@@ -480,23 +490,28 @@ function ServiceTableInternal({ onServicesFiltered, onMonthChange, onYearChange 
         });
       }
       
-      if (highlightedId) {
-        const highlightedItem = servicesToFilter.find(s => s.id === highlightedId);
-        if (highlightedItem) {
-          const restItems = servicesToFilter.filter(s => s.id !== highlightedId);
-          servicesToFilter = [highlightedItem, ...restItems];
-        }
+      if (highlightedIds.length > 0) {
+        const highlightedItems = servicesToFilter.filter(s => highlightedIds.includes(s.id!));
+        const restItems = servicesToFilter.filter(s => !highlightedIds.includes(s.id!));
+        servicesToFilter = [...highlightedItems, ...restItems];
       }
 
       setFilteredServices(servicesToFilter);
     });
-  }, [selectedMonth, selectedYear, searchTerm, allServices, highlightedId]);
+  }, [selectedMonth, selectedYear, searchTerm, allServices, highlightedIds]);
 
 
   const handleLocalDelete = (serviceId: string) => {
     setAllServices((currentServices) =>
       currentServices.filter((s) => s.id !== serviceId)
     );
+     // Also remove from localStorage if it exists there
+     const newEntries = JSON.parse(localStorage.getItem('newEntries') || '[]');
+     const updatedEntries = newEntries.filter((entry: {id: string}) => entry.id !== serviceId);
+     if(newEntries.length !== updatedEntries.length) {
+       localStorage.setItem('newEntries', JSON.stringify(updatedEntries));
+       setHighlightedIds(updatedEntries.map((e: {id: string}) => e.id));
+     }
   };
   
   const handleMonthChange = (month: string) => {
@@ -576,7 +591,7 @@ function ServiceTableInternal({ onServicesFiltered, onMonthChange, onYearChange 
                       key={service.id}
                       service={service}
                       onDelete={handleLocalDelete}
-                      isHighlighted={highlightedId === service.id}
+                      isHighlighted={highlightedIds.includes(service.id!)}
                     />
                   ))
                 ) : (
@@ -628,7 +643,7 @@ function ServiceTableInternal({ onServicesFiltered, onMonthChange, onYearChange 
                   </>
                 ) : filteredServices.length > 0 ? (
                   filteredServices.map((service) => (
-                    <TableRow key={service.id} className={cn(highlightedId === service.id && "highlight-new")}>
+                    <TableRow key={service.id} className={cn(highlightedIds.includes(service.id!) && "highlight-new")}>
                       <TableCell className="font-medium align-top">
                         {format(new Date(service.date), 'dd MMM yyyy', {
                           locale: id,
@@ -730,4 +745,5 @@ export function ServiceTable(props: ServiceTableProps) {
   )
 }
 
+    
     
