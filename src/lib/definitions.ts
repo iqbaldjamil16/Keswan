@@ -155,6 +155,17 @@ export const tobadakOfficerList = [
     return a.localeCompare(b);
 });
 
+export const topoyoOfficerList = [
+    "drh. Iqbal Djamil",
+    "Alfons B",
+    "Haslim",
+    "Lainnya",
+].sort((a, b) => {
+    if (a === "Lainnya") return 1;
+    if (b === "Lainnya") return -1;
+    return a.localeCompare(b);
+});
+
 
 export const livestockTypes = [
   'Anjing',

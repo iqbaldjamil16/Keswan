@@ -11,7 +11,7 @@ import { doc, updateDoc, addDoc, collection, Timestamp, Firestore } from 'fireba
 
 import { cn } from "@/lib/utils";
 import { serviceSchema, type HealthcareService } from "@/lib/types";
-import { medicineData, medicineTypes, type MedicineType, livestockTypes, puskeswanList, treatmentTypes, dosageUnits, karossaDesaList, budongBudongDesaList, pangaleDesaList, tobadakDesaList, topoyoDesaList, budongBudongOfficerList, karossaOfficerList, pangaleOfficerList, tobadakOfficerList } from "@/lib/definitions";
+import { medicineData, medicineTypes, type MedicineType, livestockTypes, puskeswanList, treatmentTypes, dosageUnits, karossaDesaList, budongBudongDesaList, pangaleDesaList, tobadakDesaList, topoyoDesaList, budongBudongOfficerList, karossaOfficerList, pangaleOfficerList, tobadakOfficerList, topoyoOfficerList } from "@/lib/definitions";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -84,6 +84,7 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
     'Puskeswan Karossa': karossaOfficerList,
     'Puskeswan Pangale': pangaleOfficerList,
     'Puskeswan Tobadak': tobadakOfficerList,
+    'Puskeswan Topoyo': topoyoOfficerList,
   };
   const officerList = officerListMap[watchedPuskeswan] || [];
   const isOfficerSelection = officerList.length > 0;
