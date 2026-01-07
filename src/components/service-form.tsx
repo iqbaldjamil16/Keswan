@@ -11,7 +11,7 @@ import { doc, updateDoc, addDoc, collection, Timestamp, Firestore } from 'fireba
 
 import { cn } from "@/lib/utils";
 import { serviceSchema, type HealthcareService } from "@/lib/types";
-import { medicineData, medicineTypes, type MedicineType, livestockTypes, puskeswanList, treatmentTypes, dosageUnits, karossaDesaList, budongBudongDesaList, pangaleDesaList, tobadakDesaList, topoyoDesaList } from "@/lib/definitions";
+import { medicineData, medicineTypes, type MedicineType, livestockTypes, puskeswanList, treatmentTypes, dosageUnits, karossaDesaList, budongBudongDesaList, pangaleDesaList, tobadakDesaList, topoyoDesaList, budongBudongOfficerList } from "@/lib/definitions";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -78,6 +78,10 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
 
   const watchedPuskeswan = form.watch("puskeswan");
   const watchedTreatments = form.watch("treatments");
+
+  const [showManualOfficerName, setShowManualOfficerName] = useState(
+    initialData ? watchedPuskeswan === 'Puskeswan Budong-Budong' && !budongBudongOfficerList.includes(initialData.officerName) : false
+  );
 
   const isDesaSelection = ['Puskeswan Karossa', 'Puskeswan Budong-Budong', 'Puskeswan Pangale', 'Puskeswan Tobadak', 'Puskeswan Topoyo'].includes(watchedPuskeswan);
   
@@ -195,6 +199,8 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
                           field.onChange(value);
                           form.setValue('ownerAddress', ''); 
                           setShowManualOwnerAddress(false);
+                          form.setValue('officerName', '');
+                          setShowManualOfficerName(false);
                         }}
                         defaultValue={field.value}
                         value={field.value}
@@ -224,9 +230,38 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Nama Petugas</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Nama Petugas" {...field} />
-                      </FormControl>
+                      {watchedPuskeswan === 'Puskeswan Budong-Budong' && !showManualOfficerName ? (
+                        <Select
+                          onValueChange={(value) => {
+                            if (value === 'Lainnya') {
+                              setShowManualOfficerName(true);
+                              field.onChange('');
+                            } else {
+                              field.onChange(value);
+                            }
+                          }}
+                          value={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Pilih Nama Petugas" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {budongBudongOfficerList.map((officer) => (
+                              <SelectItem key={officer} value={officer}>{officer}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      ) : (
+                        <FormControl>
+                          <Input 
+                            placeholder="Nama Petugas" 
+                            {...field} 
+                            value={(showManualOfficerName && field.value === 'Lainnya') ? '' : field.value}
+                          />
+                        </FormControl>
+                      )}
                       <FormMessage />
                     </FormItem>
                   )}
@@ -651,5 +686,3 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
     </Form>
   );
 }
-
-    

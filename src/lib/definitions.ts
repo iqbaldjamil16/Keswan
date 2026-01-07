@@ -31,15 +31,15 @@ export const karossaDesaList = [
 export const budongBudongDesaList = [
     "Desa Babana",
     "Desa Barakkang",
-    "Desa Bojo",
     "Desa Kire",
-    "Desa Lembah Hada",
     "Desa Lumu",
     "Desa Pasapa",
-    "Desa Potantanakayyang",
-    "Desa Salogatta",
     "Desa Salumanurung",
     "Desa Tinali",
+    "Desa Bojo",
+    "Desa Lembah Hada",
+    "Desa Salogatta",
+    "Desa Potantanakayyang",
     "Lainnya",
 ].sort((a, b) => {
     if (a === "Lainnya") return 1;
@@ -96,6 +96,20 @@ export const topoyoDesaList = [
     "Desa Topoyo",
     "Desa Tumbu",
     "Desa Waeputeh",
+    "Lainnya",
+].sort((a, b) => {
+    if (a === "Lainnya") return 1;
+    if (b === "Lainnya") return -1;
+    return a.localeCompare(b);
+});
+
+export const budongBudongOfficerList = [
+    "Anshari Saleh",
+    "Suprapto",
+    "Nur Fauzi",
+    "Hadi",
+    "Rahman",
+    "Tadi Sole",
     "Lainnya",
 ].sort((a, b) => {
     if (a === "Lainnya") return 1;
@@ -228,5 +242,3 @@ export const medicineData = {
 export type MedicineType = keyof typeof medicineData;
 
 export const medicineTypes = Object.keys(medicineData) as MedicineType[];
-
-    
