@@ -209,6 +209,7 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
                             date > new Date() || date < new Date("1900-01-01")
                           }
                           initialFocus
+                          locale={id}
                         />
                       </PopoverContent>
                     </Popover>
@@ -719,4 +720,3 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
   );
 }
 
-    
