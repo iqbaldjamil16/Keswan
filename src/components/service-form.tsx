@@ -11,7 +11,7 @@ import { doc, updateDoc, addDoc, collection, Timestamp, Firestore } from 'fireba
 
 import { cn } from "@/lib/utils";
 import { serviceSchema, type HealthcareService } from "@/lib/types";
-import { medicineData, medicineTypes, type MedicineType, livestockTypes, puskeswanList, treatmentTypes, dosageUnits, karossaDesaList, budongBudongDesaList, pangaleDesaList, tobadakDesaList, topoyoDesaList, budongBudongOfficerList } from "@/lib/definitions";
+import { medicineData, medicineTypes, type MedicineType, livestockTypes, puskeswanList, treatmentTypes, dosageUnits, karossaDesaList, budongBudongDesaList, pangaleDesaList, tobadakDesaList, topoyoDesaList, budongBudongOfficerList, karossaOfficerList } from "@/lib/definitions";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -79,25 +79,27 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
   const watchedPuskeswan = form.watch("puskeswan");
   const watchedTreatments = form.watch("treatments");
 
+  const officerListMap: Record<string, string[]> = {
+    'Puskeswan Budong-Budong': budongBudongOfficerList,
+    'Puskeswan Karossa': karossaOfficerList,
+  };
+  const officerList = officerListMap[watchedPuskeswan] || [];
+  const isOfficerSelection = officerList.length > 0;
+
   const [showManualOfficerName, setShowManualOfficerName] = useState(
-    initialData ? watchedPuskeswan === 'Puskeswan Budong-Budong' && !budongBudongOfficerList.includes(initialData.officerName) : false
+    initialData ? isOfficerSelection && !officerList.includes(initialData.officerName) : false
   );
 
-  const isDesaSelection = ['Puskeswan Karossa', 'Puskeswan Budong-Budong', 'Puskeswan Pangale', 'Puskeswan Tobadak', 'Puskeswan Topoyo'].includes(watchedPuskeswan);
+  const desaListMap: Record<string, string[]> = {
+    'Puskeswan Karossa': karossaDesaList,
+    'Puskeswan Budong-Budong': budongBudongDesaList,
+    'Puskeswan Pangale': pangaleDesaList,
+    'Puskeswan Tobadak': tobadakDesaList,
+    'Puskeswan Topoyo': topoyoDesaList,
+  };
+  const desaList = desaListMap[watchedPuskeswan] || [];
+  const isDesaSelection = desaList.length > 0;
   
-  let desaList: string[] = [];
-  if (watchedPuskeswan === 'Puskeswan Karossa') {
-    desaList = karossaDesaList;
-  } else if (watchedPuskeswan === 'Puskeswan Budong-Budong') {
-    desaList = budongBudongDesaList;
-  } else if (watchedPuskeswan === 'Puskeswan Pangale') {
-    desaList = pangaleDesaList;
-  } else if (watchedPuskeswan === 'Puskeswan Tobadak') {
-    desaList = tobadakDesaList;
-  } else if (watchedPuskeswan === 'Puskeswan Topoyo') {
-    desaList = topoyoDesaList;
-  }
-
   const watchedOwnerAddress = form.watch('ownerAddress');
   const [showManualOwnerAddress, setShowManualOwnerAddress] = useState(
     initialData ? isDesaSelection && !desaList.includes(initialData.ownerAddress) : false
@@ -230,7 +232,7 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Nama Petugas</FormLabel>
-                      {watchedPuskeswan === 'Puskeswan Budong-Budong' && !showManualOfficerName ? (
+                      {isOfficerSelection && !showManualOfficerName ? (
                         <Select
                           onValueChange={(value) => {
                             if (value === 'Lainnya') {
@@ -248,7 +250,7 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            {budongBudongOfficerList.map((officer) => (
+                            {officerList.map((officer) => (
                               <SelectItem key={officer} value={officer}>{officer}</SelectItem>
                             ))}
                           </SelectContent>

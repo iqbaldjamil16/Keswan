@@ -117,6 +117,19 @@ export const budongBudongOfficerList = [
     return a.localeCompare(b);
 });
 
+export const karossaOfficerList = [
+    "Asari Rasyid",
+    "drh. Stephani",
+    "Basuki",
+    "Hasaruddin",
+    "Nasaruddin",
+    "Lainnya",
+].sort((a, b) => {
+    if (a === "Lainnya") return 1;
+    if (b === "Lainnya") return -1;
+    return a.localeCompare(b);
+});
+
 
 export const livestockTypes = [
   'Anjing',
