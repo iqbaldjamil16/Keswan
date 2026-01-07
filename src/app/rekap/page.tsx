@@ -301,10 +301,10 @@ export default function RekapPage() {
 
                         return (
                             <AccordionItem value={puskeswan} key={puskeswan} className="border rounded-lg bg-card">
-                                <AccordionTrigger className="px-6 py-4 text-lg font-bold hover:no-underline">
+                                <AccordionTrigger className="px-4 sm:px-6 py-4 text-lg font-bold hover:no-underline">
                                     {puskeswan}
                                 </AccordionTrigger>
-                                <AccordionContent className="px-6 pb-6">
+                                <AccordionContent className="px-4 sm:px-6 pb-6">
                                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                                         <div className="overflow-x-auto">
                                             <h3 className="font-semibold mb-2">Rekap Kasus/Diagnosa</h3>

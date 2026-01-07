@@ -91,7 +91,7 @@ export default function ReportPage() {
           <CardTitle>Data Laporan Pelayanan</CardTitle>
           <CardDescription>Cari dan lihat semua data pelayanan yang telah diinput.</CardDescription>
         </CardHeader>
-         <CardFooter className="p-4 md:p-6 flex justify-end">
+         <CardFooter className="p-4 flex justify-end">
             <PasswordDialog
               title="Akses Terbatas"
               description="Silakan masukkan kata sandi untuk mengunduh laporan."
