@@ -10,9 +10,13 @@ export const puskeswanList = [
 export const karossaDesaList = [
     'Babana',
     'Barakkang',
+    'Bojo',
     'Kire',
+    'Lembah Hada',
     'Lumu',
     'Pasapa',
+    'Potantanakayyang',
+    'Salogatta',
     'Salumanurung',
     'Tinali',
 ];
