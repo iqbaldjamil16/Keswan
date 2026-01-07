@@ -19,7 +19,21 @@ export const karossaDesaList = [
     'Salogatta',
     'Salumanurung',
     'Tinali',
-];
+].sort();
+
+export const budongBudongDesaList = [
+    'Babana',
+    'Barakkang',
+    'Bojo',
+    'Kire',
+    'Lembah Hada',
+    'Lumu',
+    'Pasapa',
+    'Potantanakayyang',
+    'Salogatta',
+    'Salumanurung',
+    'Tinali',
+].sort();
 
 export const livestockTypes = [
   'Anjing',
@@ -145,5 +159,3 @@ export const medicineData = {
 export type MedicineType = keyof typeof medicineData;
 
 export const medicineTypes = Object.keys(medicineData) as MedicineType[];
-
-    

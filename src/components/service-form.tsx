@@ -11,7 +11,7 @@ import { doc, updateDoc, addDoc, collection, Timestamp, Firestore } from 'fireba
 
 import { cn } from "@/lib/utils";
 import { serviceSchema, type HealthcareService } from "@/lib/types";
-import { medicineData, medicineTypes, type MedicineType, livestockTypes, puskeswanList, treatmentTypes, dosageUnits, karossaDesaList } from "@/lib/definitions";
+import { medicineData, medicineTypes, type MedicineType, livestockTypes, puskeswanList, treatmentTypes, dosageUnits, karossaDesaList, budongBudongDesaList } from "@/lib/definitions";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -246,6 +246,19 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
                             </FormControl>
                             <SelectContent>
                                 {karossaDesaList.map((desa) => (
+                                    <SelectItem key={desa} value={desa}>{desa}</SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                      ) : watchedPuskeswan === 'Puskeswan Budong-Budong' ? (
+                        <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}>
+                            <FormControl>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Pilih Desa" />
+                                </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                                {budongBudongDesaList.map((desa) => (
                                     <SelectItem key={desa} value={desa}>{desa}</SelectItem>
                                 ))}
                             </SelectContent>
@@ -616,5 +629,3 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
     </Form>
   );
 }
-
-    
