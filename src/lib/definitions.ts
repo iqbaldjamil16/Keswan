@@ -144,6 +144,17 @@ export const pangaleOfficerList = [
     return a.localeCompare(b);
 });
 
+export const tobadakOfficerList = [
+    "Endang",
+    "Jupry",
+    "drh. Ishak",
+    "Lainnya",
+].sort((a, b) => {
+    if (a === "Lainnya") return 1;
+    if (b === "Lainnya") return -1;
+    return a.localeCompare(b);
+});
+
 
 export const livestockTypes = [
   'Anjing',
