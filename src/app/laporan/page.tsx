@@ -32,14 +32,14 @@ export default function ReportPage() {
 
   const handleDownload = () => {
     const wb = XLSX.utils.book_new();
-
+  
     puskeswanList.forEach((puskeswan) => {
       const servicesByPuskeswan = filteredServices.filter(
         (s) => s.puskeswan === puskeswan
       );
-
+  
       if (servicesByPuskeswan.length === 0) return;
-
+  
       const sortedServices = servicesByPuskeswan.sort((a, b) => {
         const officerComparison = a.officerName.localeCompare(b.officerName);
         if (officerComparison !== 0) {
@@ -47,32 +47,67 @@ export default function ReportPage() {
         }
         return new Date(a.date).getTime() - new Date(b.date).getTime();
       });
+  
+      // Group services by officer
+      const servicesByOfficer: { [key: string]: HealthcareService[] } = {};
+      sortedServices.forEach(service => {
+        if (!servicesByOfficer[service.officerName]) {
+          servicesByOfficer[service.officerName] = [];
+        }
+        servicesByOfficer[service.officerName].push(service);
+      });
+  
+      const allDataForSheet: any[] = [];
+      const headers = ['Tanggal', 'Nama Pemilik', 'Alamat Pemilik', 'Jenis Ternak', 'Jumlah Ternak', 'Gejala Klinis', 'Diagnosa', 'Jenis Penanganan', 'Obat yang Digunakan', 'Dosis'];
+      
+      const officerNames = Object.keys(servicesByOfficer).sort();
 
-      const dataForSheet = sortedServices.map((service) => ({
-        Tanggal: format(new Date(service.date), 'dd-MM-yyyy'),
-        'Nama Petugas': service.officerName,
-        'Nama Pemilik': service.ownerName,
-        'Alamat Pemilik': service.ownerAddress,
-        'Jenis Ternak': service.livestockType,
-        'Jumlah Ternak': service.livestockCount,
-        'Gejala Klinis': service.clinicalSymptoms,
-        Diagnosa: service.diagnosis,
-        'Jenis Penanganan': service.treatmentType,
-        'Obat yang Digunakan': service.treatments
-          .map((t) => t.medicineName)
-          .join(', '),
-        'Dosis': service.treatments
-          .map((t) => `${t.dosageValue} ${t.dosageUnit}`)
-          .join(', '),
-      }));
+      officerNames.forEach(officerName => {
+        allDataForSheet.push({ 'Nama Petugas': officerName }); // Add officer name header
+        allDataForSheet.push(Object.fromEntries(headers.map(h => [h, h]))); // Add column headers
+
+        const officerServices = servicesByOfficer[officerName];
+        const data = officerServices.map((service) => ({
+            'Tanggal': format(new Date(service.date), 'dd-MM-yyyy'),
+            'Nama Pemilik': service.ownerName,
+            'Alamat Pemilik': service.ownerAddress,
+            'Jenis Ternak': service.livestockType,
+            'Jumlah Ternak': service.livestockCount,
+            'Gejala Klinis': service.clinicalSymptoms,
+            'Diagnosa': service.diagnosis,
+            'Jenis Penanganan': service.treatmentType,
+            'Obat yang Digunakan': service.treatments.map((t) => t.medicineName).join(', '),
+            'Dosis': service.treatments.map((t) => `${t.dosageValue} ${t.dosageUnit}`).join(', '),
+        }));
+        allDataForSheet.push(...data);
+        allDataForSheet.push({}); // Add a blank row for spacing
+      });
 
       const sheetName = puskeswan
         .replace('Puskeswan ', '')
         .replace(/[/\\?*:[\]]/g, ''); // Sanitize sheet name
-      const ws = XLSX.utils.json_to_sheet(dataForSheet);
+
+      // Create worksheet from the unified data array, but skip the auto-generated header
+      const ws = XLSX.utils.json_to_sheet(allDataForSheet, { skipHeader: true });
+
+      // Adjust column widths
+      const colWidths = [
+        { wch: 12 }, // Tanggal
+        { wch: 25 }, // Nama Pemilik
+        { wch: 30 }, // Alamat Pemilik
+        { wch: 15 }, // Jenis Ternak
+        { wch: 10 }, // Jumlah Ternak
+        { wch: 30 }, // Gejala Klinis
+        { wch: 30 }, // Diagnosa
+        { wch: 20 }, // Jenis Penanganan
+        { wch: 30 }, // Obat
+        { wch: 20 }, // Dosis
+      ];
+      ws['!cols'] = colWidths;
+      
       XLSX.utils.book_append_sheet(wb, ws, sheetName.substring(0, 31));
     });
-
+  
     const monthLabel =
       selectedMonth === 'all-months'
         ? 'SemuaBulan'
@@ -83,7 +118,7 @@ export default function ReportPage() {
         : selectedYear === ''
         ? getYear(new Date()).toString()
         : selectedYear;
-
+  
     XLSX.writeFile(wb, `laporan_pelayanan_${monthLabel}_${yearLabel}.xlsx`);
   };
 
