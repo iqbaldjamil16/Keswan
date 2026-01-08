@@ -58,7 +58,7 @@ export default function ReportPage() {
       });
   
       const allDataForSheet: any[] = [];
-      const headers = ['Tanggal', 'Nama Pemilik', 'Alamat Pemilik', 'Jumlah Ternak', 'Gejala Klinis', 'Diagnosa', 'Jenis Penanganan', 'Obat yang Digunakan', 'Dosis', 'Jenis Ternak'];
+      const headers = ['Tanggal', 'Nama Pemilik', 'Alamat Pemilik', 'Jenis Ternak', 'Gejala Klinis', 'Diagnosa', 'Jenis Penanganan', 'Obat yang Digunakan', 'Dosis', 'Jumlah Ternak'];
       
       const officerNames = Object.keys(servicesByOfficer).sort();
 
@@ -71,13 +71,13 @@ export default function ReportPage() {
             'Tanggal': format(new Date(service.date), 'dd-MM-yyyy'),
             'Nama Pemilik': service.ownerName,
             'Alamat Pemilik': service.ownerAddress,
-            'Jumlah Ternak': service.livestockCount,
+            'Jenis Ternak': service.livestockType,
             'Gejala Klinis': service.clinicalSymptoms,
             'Diagnosa': service.diagnosis,
             'Jenis Penanganan': service.treatmentType,
             'Obat yang Digunakan': service.treatments.map((t) => t.medicineName).join(', '),
             'Dosis': service.treatments.map((t) => `${t.dosageValue} ${t.dosageUnit}`).join(', '),
-            'Jenis Ternak': service.livestockType,
+            'Jumlah Ternak': service.livestockCount,
         }));
         allDataForSheet.push(...data);
         allDataForSheet.push({}); // Add a blank row for spacing
