@@ -179,7 +179,7 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
                         <Input
                           type="date"
                           className="w-full"
-                          value={field.value instanceof Date ? format(field.value, 'yyyy-MM-dd', { locale: id }) : ''}
+                          value={field.value instanceof Date ? format(field.value, 'yyyy-MM-dd') : ''}
                           onChange={(e) => {
                             const dateValue = e.target.value;
                             if (dateValue) {
@@ -618,7 +618,7 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
                             )}
                           />
                           <div className="space-y-2">
-                            <FormLabel>Dosis <span className="italic font-normal text-muted-foreground text-xs">(Total Dosis Jika Lebih dari 1 Ekor)</span></FormLabel>
+                            <FormLabel>Dosis <span className="italic font-normal text-muted-foreground text-xs">(Isi Total Dosis Jika Lebih Dari 1 Ekor)</span></FormLabel>
                             <div className="grid grid-cols-2 gap-2">
                               <FormField
                                   control={form.control}
@@ -696,6 +696,8 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
     </Form>
   );
 }
+    
+
     
 
     
