@@ -81,6 +81,7 @@ export default function ReportPage() {
         }));
         allDataForSheet.push(...data);
         allDataForSheet.push({}); // Add a blank row for spacing
+        allDataForSheet.push({}); // Add a second blank row for spacing
       });
 
       const sheetName = puskeswan
@@ -90,9 +91,9 @@ export default function ReportPage() {
       const ws = XLSX.utils.json_to_sheet(allDataForSheet, { skipHeader: true });
 
       // Auto-fit column widths
-      const columnWidths = headers.map((header, i) => {
-        const maxLength = allDataForSheet.reduce((max, row) => {
-          const cellValue = row[header];
+      const columnWidths = headers.map((header) => {
+        const allValues = allDataForSheet.map(row => row[header]).filter(Boolean);
+        const maxLength = allValues.reduce((max, cellValue) => {
           const cellLength = cellValue ? String(cellValue).length : 0;
           return Math.max(max, cellLength);
         }, header.length);
