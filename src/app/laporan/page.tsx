@@ -41,6 +41,10 @@ export default function ReportPage() {
       if (servicesByPuskeswan.length === 0) return;
 
       const sortedServices = servicesByPuskeswan.sort((a, b) => {
+        const officerComparison = a.officerName.localeCompare(b.officerName);
+        if (officerComparison !== 0) {
+          return officerComparison;
+        }
         return new Date(a.date).getTime() - new Date(b.date).getTime();
       });
 
