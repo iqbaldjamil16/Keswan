@@ -58,26 +58,26 @@ export default function ReportPage() {
       });
   
       const allDataForSheet: any[] = [];
-      const headers = ['Tanggal', 'Nama Pemilik', 'Alamat Pemilik', 'Jenis Ternak', 'Jumlah Ternak', 'Gejala Klinis', 'Diagnosa', 'Jenis Penanganan', 'Obat yang Digunakan', 'Dosis'];
+      const headers = ['Tanggal', 'Nama Pemilik', 'Alamat Pemilik', 'Jumlah Ternak', 'Gejala Klinis', 'Diagnosa', 'Jenis Penanganan', 'Obat yang Digunakan', 'Dosis', 'Jenis Ternak'];
       
       const officerNames = Object.keys(servicesByOfficer).sort();
 
       officerNames.forEach(officerName => {
-        allDataForSheet.push({ 'Nama Petugas': officerName }); // Add officer name header
-        allDataForSheet.push(Object.fromEntries(headers.map(h => [h, h]))); // Add column headers
+        allDataForSheet.push({ 'Nama Petugas': officerName }); 
+        allDataForSheet.push(Object.fromEntries(headers.map(h => [h, h])));
 
         const officerServices = servicesByOfficer[officerName];
         const data = officerServices.map((service) => ({
             'Tanggal': format(new Date(service.date), 'dd-MM-yyyy'),
             'Nama Pemilik': service.ownerName,
             'Alamat Pemilik': service.ownerAddress,
-            'Jenis Ternak': service.livestockType,
             'Jumlah Ternak': service.livestockCount,
             'Gejala Klinis': service.clinicalSymptoms,
             'Diagnosa': service.diagnosis,
             'Jenis Penanganan': service.treatmentType,
             'Obat yang Digunakan': service.treatments.map((t) => t.medicineName).join(', '),
             'Dosis': service.treatments.map((t) => `${t.dosageValue} ${t.dosageUnit}`).join(', '),
+            'Jenis Ternak': service.livestockType,
         }));
         allDataForSheet.push(...data);
         allDataForSheet.push({}); // Add a blank row for spacing
@@ -85,25 +85,20 @@ export default function ReportPage() {
 
       const sheetName = puskeswan
         .replace('Puskeswan ', '')
-        .replace(/[/\\?*:[\]]/g, ''); // Sanitize sheet name
+        .replace(/[/\\?*:[\]]/g, ''); 
 
-      // Create worksheet from the unified data array, but skip the auto-generated header
       const ws = XLSX.utils.json_to_sheet(allDataForSheet, { skipHeader: true });
 
-      // Adjust column widths
-      const colWidths = [
-        { wch: 12 }, // Tanggal
-        { wch: 25 }, // Nama Pemilik
-        { wch: 30 }, // Alamat Pemilik
-        { wch: 15 }, // Jenis Ternak
-        { wch: 10 }, // Jumlah Ternak
-        { wch: 30 }, // Gejala Klinis
-        { wch: 30 }, // Diagnosa
-        { wch: 20 }, // Jenis Penanganan
-        { wch: 30 }, // Obat
-        { wch: 20 }, // Dosis
-      ];
-      ws['!cols'] = colWidths;
+      // Auto-fit column widths
+      const columnWidths = headers.map((header, i) => {
+        const maxLength = allDataForSheet.reduce((max, row) => {
+          const cellValue = row[header];
+          const cellLength = cellValue ? String(cellValue).length : 0;
+          return Math.max(max, cellLength);
+        }, header.length);
+        return { wch: maxLength + 2 }; // Add a little padding
+      });
+      ws['!cols'] = columnWidths;
       
       XLSX.utils.book_append_sheet(wb, ws, sheetName.substring(0, 31));
     });
