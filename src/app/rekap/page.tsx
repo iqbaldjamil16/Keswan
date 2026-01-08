@@ -75,7 +75,7 @@ function processRecapData(services: HealthcareService[]): RecapData {
             recap[service.puskeswan].cases[desa][livestockType] = {};
         }
         
-        recap[service.puskeswan].cases[desa][livestockType][diagnosis] = (recap[service.puskeswan].cases[desa][livestockType][diagnosis] || 0) + 1;
+        recap[service.puskeswan].cases[desa][livestockType][diagnosis] = (recap[service.puskeswan].cases[desa][livestockType][diagnosis] || 0) + service.livestockCount;
         
 
         service.treatments.forEach(treatment => {
@@ -412,3 +412,4 @@ export default function RekapPage() {
     </div>
   );
 }
+
