@@ -50,6 +50,7 @@ export default function ReportPage() {
         'Nama Pemilik': service.ownerName,
         'Alamat Pemilik': service.ownerAddress,
         'Jenis Ternak': service.livestockType,
+        'Jumlah Ternak': service.livestockCount,
         'Gejala Klinis': service.clinicalSymptoms,
         Diagnosa: service.diagnosis,
         'Jenis Penanganan': service.treatmentType,
@@ -59,7 +60,6 @@ export default function ReportPage() {
         'Dosis': service.treatments
           .map((t) => `${t.dosageValue} ${t.dosageUnit}`)
           .join(', '),
-        'Jumlah Ternak': service.livestockCount,
       }));
 
       const sheetName = puskeswan
