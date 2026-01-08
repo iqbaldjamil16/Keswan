@@ -41,11 +41,7 @@ export default function ReportPage() {
       if (servicesByPuskeswan.length === 0) return;
 
       const sortedServices = servicesByPuskeswan.sort((a, b) => {
-        const nameA = a.officerName.toLowerCase();
-        const nameB = b.officerName.toLowerCase();
-        if (nameA < nameB) return -1;
-        if (nameA > nameB) return 1;
-        return new Date(b.date).getTime() - new Date(a.date).getTime();
+        return new Date(a.date).getTime() - new Date(b.date).getTime();
       });
 
       const dataForSheet = sortedServices.map((service) => ({
