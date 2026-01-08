@@ -179,7 +179,7 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
                         <Input
                           type="date"
                           className="w-full"
-                          value={field.value instanceof Date ? format(field.value, 'yyyy-MM-dd') : ''}
+                          value={field.value instanceof Date ? format(field.value, 'yyyy-MM-dd', { locale: id }) : ''}
                           onChange={(e) => {
                             const dateValue = e.target.value;
                             if (dateValue) {
@@ -512,7 +512,7 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
                       variant="default"
                       size="sm"
                       className="bg-accent text-accent-foreground hover:bg-accent/90"
-                      onClick={() => append({ medicineType: "", medicineName: "", dosageValue: 0, dosageUnit: "ml" }, { shouldFocus: false })}
+                      onClick={() => append({ medicineType: "", medicineName: "", dosageValue: 0, dosageUnit: "ml" })}
                     >
                       <PlusCircle className="mr-2 h-4 w-4" />
                       Tambah
@@ -618,7 +618,7 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
                             )}
                           />
                           <div className="space-y-2">
-                            <FormLabel>Dosis</FormLabel>
+                            <FormLabel>Dosis <span className="italic font-normal text-muted-foreground text-xs">(Total Dosis Jika Lebih dari 1 Ekor)</span></FormLabel>
                             <div className="grid grid-cols-2 gap-2">
                               <FormField
                                   control={form.control}
@@ -696,5 +696,6 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
     </Form>
   );
 }
+    
 
     
