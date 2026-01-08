@@ -58,7 +58,10 @@ export default function ReportPage() {
         Diagnosa: service.diagnosis,
         'Jenis Penanganan': service.treatmentType,
         'Obat yang Digunakan': service.treatments
-          .map((t) => `${t.medicineName} (${t.dosageValue} ${t.dosageUnit})`)
+          .map((t) => t.medicineName)
+          .join(', '),
+        'Dosis': service.treatments
+          .map((t) => `${t.dosageValue} ${t.dosageUnit}`)
           .join(', '),
         'Jumlah Ternak': service.livestockCount,
       }));
