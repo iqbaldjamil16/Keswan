@@ -626,7 +626,7 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
                                   render={({ field }) => (
                                   <FormItem>
                                       <FormControl>
-                                        <Input type="number" placeholder="Jumlah" {...field} onChange={e => field.onChange(e.target.value === '' ? '' : Number(e.target.value))} />
+                                        <Input type="number" step="0.001" placeholder="Jumlah" {...field} onChange={e => field.onChange(e.target.value === '' ? '' : Number(e.target.value))} />
                                       </FormControl>
                                       <FormMessage />
                                   </FormItem>
