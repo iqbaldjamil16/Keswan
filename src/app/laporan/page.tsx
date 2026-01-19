@@ -101,7 +101,6 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
   const defaultColor = '#808080';
 
   const StatChart = ({ title, data }: { title: string; data: StatItem[] }) => {
-    const [showLabels, setShowLabels] = useState(false);
     const chartData = data;
     const yAxisWidth = isMobile ? 100 : 140;
     const rightMargin = isMobile ? 70 : 90;
@@ -118,7 +117,6 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
               data={chartData}
               layout="vertical"
               margin={{ top: 5, right: rightMargin, left: 10, bottom: 5 }}
-              onAnimationEnd={() => setShowLabels(true)}
             >
               <XAxis type="number" hide />
               <YAxis
@@ -159,7 +157,7 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
                 radius={[0, 4, 4, 0]}
                 animationDuration={3000}
               >
-                {showLabels && <LabelList
+                <LabelList
                     dataKey={(d: StatItem) => `${d.count} (${d.percentage.toFixed(0)}%)`}
                     position="right"
                     offset={8}
@@ -167,7 +165,7 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
                     className="font-semibold"
                     fill="hsl(var(--foreground))"
                     fontSize={12}
-                />}
+                />
                 {chartData.map((entry, index) => {
                     let color = defaultColor;
                     if (title === 'Statistik per Bulan') {
