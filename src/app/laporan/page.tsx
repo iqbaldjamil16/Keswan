@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useTransition, useEffect, useCallback } from "react";
@@ -56,6 +55,16 @@ function calculateStats(services: HealthcareService[], groupBy: 'month' | 'offic
 
 function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
   const isMobile = useIsMobile();
+  const [animationKey, setAnimationKey] = useState(0);
+
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      setAnimationKey(prevKey => prevKey + 1);
+    }, 6000); // 3-second animation + 3-second pause
+
+    return () => clearInterval(intervalId);
+  }, []);
+
   if (services.length === 0) {
       return (
         <Card>
@@ -126,7 +135,7 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
           <CardTitle className="text-lg">{title}</CardTitle>
         </CardHeader>
         <CardContent>
-          <ResponsiveContainer width="100%" height={Math.max(150, chartData.length * 26)}>
+          <ResponsiveContainer key={animationKey} width="100%" height={Math.max(150, chartData.length * 26)}>
             <BarChart
               data={chartData}
               layout="vertical"
@@ -169,7 +178,7 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
                 dataKey="count"
                 name="Jumlah"
                 radius={[0, 4, 4, 0]}
-                animationDuration={10000}
+                animationDuration={3000}
               >
                 <LabelList content={<CustomLabel />} />
                 {chartData.map((entry, index) => {
@@ -220,7 +229,7 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
           <CardTitle className="text-lg">{title}</CardTitle>
         </CardHeader>
         <CardContent>
-          <ResponsiveContainer width="100%" height={isMobile ? 450 : 350}>
+          <ResponsiveContainer key={animationKey} width="100%" height={isMobile ? 450 : 350}>
             <PieChart>
               <Pie
                 data={data}
@@ -231,7 +240,7 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
                 outerRadius={isMobile ? 100 : 120}
                 labelLine={false}
                 label={renderCustomizedLabel}
-                animationDuration={10000}
+                animationDuration={3000}
               >
                 {data.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={colorMap[entry.name] || defaultColor} />
@@ -623,5 +632,3 @@ export default function ReportPage() {
     </div>
   );
 }
-
-    
