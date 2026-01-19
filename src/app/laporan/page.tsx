@@ -106,30 +106,6 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
     const rightMargin = isMobile ? 70 : 90;
     const labelTruncateLength = isMobile ? 12 : 20;
 
-    const CustomLabel = (props: any) => {
-        const { x, y, width, index } = props;
-        const item = chartData[index];
-    
-        if (!item) {
-          return null;
-        }
-    
-        const labelText = `${item.count} (${item.percentage.toFixed(0)}%)`;
-    
-        return (
-          <text
-            x={x + width + 8}
-            y={y + 13}
-            dominantBaseline="middle"
-            fill="hsl(var(--foreground))"
-            fontSize={12}
-            className="font-semibold"
-          >
-            {labelText}
-          </text>
-        );
-      };
-
     return (
       <Card>
         <CardHeader>
@@ -181,7 +157,15 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
                 radius={[0, 4, 4, 0]}
                 animationDuration={3000}
               >
-                <LabelList content={<CustomLabel />} isAnimationActive={false} />
+                <LabelList
+                    dataKey={(d: StatItem) => `${d.count} (${d.percentage.toFixed(0)}%)`}
+                    position="right"
+                    offset={8}
+                    isAnimationActive={false}
+                    className="font-semibold"
+                    fill="hsl(var(--foreground))"
+                    fontSize={12}
+                />
                 {chartData.map((entry, index) => {
                     let color = defaultColor;
                     if (title === 'Statistik per Bulan') {
