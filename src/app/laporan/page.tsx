@@ -310,6 +310,7 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
           officerToPuskeswanMap={officerToPuskeswanMap}
           puskeswanColors={puskeswanColors}
           defaultColor={defaultColor}
+          showAll={true}
         />
         <StatPieChart 
           title="Statistik per Puskeswan" 
