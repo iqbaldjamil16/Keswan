@@ -268,7 +268,7 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
   return (
     <div className="space-y-6">
         <StatChart title="Statistik per Bulan" data={statsByMonth} />
-        <StatChart title="Statistik per Petugas" data={statsByOfficer} />
+        <StatChart title="Statistik per Petugas" data={statsByOfficer.sort((a, b) => b.count - a.count)} />
         <StatPieChart title="Statistik per Puskeswan" data={statsByPuskeswan} colorMap={puskeswanColors} />
         <StatChart title="Statistik per Kasus/Penyakit" data={statsByDiagnosis} />
     </div>
@@ -505,58 +505,6 @@ export default function ReportPage() {
     XLSX.writeFile(wb, `laporan_pelayanan_${monthLabel}_${yearLabel}.xlsx`);
   };
 
-  const filterControls = (
-    <div className="flex flex-col sm:flex-row w-full md:w-auto md:justify-end gap-2">
-      <div className="flex gap-2">
-        <Select value={selectedMonth} onValueChange={setSelectedMonth}>
-          <SelectTrigger className="w-full sm:w-[180px]">
-            <SelectValue placeholder="Pilih Bulan" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all-months">Semua Bulan</SelectItem>
-            {months.map((month) => (
-              <SelectItem key={month.value} value={month.value}>
-                {month.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Select value={selectedYear} onValueChange={setSelectedYear}>
-          <SelectTrigger className="w-full sm:w-[120px]">
-            <SelectValue placeholder="Pilih Tahun" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all-years">Semua Tahun</SelectItem>
-            {years.map((year) => (
-              <SelectItem key={year} value={year}>
-                {year}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-      <Input
-        placeholder="Cari data..."
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-        className="w-full md:w-64"
-      />
-    </div>
-  );
-
-  const tabsList = (
-    <TabsList className="grid w-full grid-cols-2">
-      <TabsTrigger value="tabel">
-        <LayoutGrid className="mr-2 h-4 w-4" />
-        Tabel
-      </TabsTrigger>
-      <TabsTrigger value="statistik">
-        <BarChart2 className="mr-2 h-4 w-4" />
-        Statistik
-      </TabsTrigger>
-    </TabsList>
-  );
-
   return (
     <div className="container px-4 sm:px-8 py-4 md:py-8 space-y-6">
       <Tabs defaultValue="tabel" className="w-full">
@@ -588,13 +536,102 @@ export default function ReportPage() {
             </div>
           </CardHeader>
           <CardContent className="flex flex-col gap-4">
+            {/* Desktop Layout */}
             <div className="hidden md:flex items-center justify-between">
-              {tabsList}
-              {filterControls}
+              <TabsList>
+                <TabsTrigger value="tabel">
+                  <LayoutGrid className="mr-2 h-4 w-4" />
+                  Tabel
+                </TabsTrigger>
+                <TabsTrigger value="statistik">
+                  <BarChart2 className="mr-2 h-4 w-4" />
+                  Statistik
+                </TabsTrigger>
+              </TabsList>
+              <div className="flex w-full md:w-auto md:justify-end gap-2">
+                <Select value={selectedMonth} onValueChange={setSelectedMonth}>
+                  <SelectTrigger className="w-full sm:w-[180px]">
+                    <SelectValue placeholder="Pilih Bulan" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all-months">Semua Bulan</SelectItem>
+                    {months.map((month) => (
+                      <SelectItem key={month.value} value={month.value}>
+                        {month.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Select value={selectedYear} onValueChange={setSelectedYear}>
+                  <SelectTrigger className="w-full sm:w-[120px]">
+                    <SelectValue placeholder="Pilih Tahun" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all-years">Semua Tahun</SelectItem>
+                    {years.map((year) => (
+                      <SelectItem key={year} value={year}>
+                        {year}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Input
+                  placeholder="Cari data..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full md:w-64"
+                />
+              </div>
             </div>
+            
+            {/* Mobile Layout */}
             <div className="md:hidden flex flex-col gap-4">
-              {filterControls}
-              {tabsList}
+              <div className="flex flex-col w-full gap-2">
+                  <div className="flex gap-2">
+                      <Select value={selectedMonth} onValueChange={setSelectedMonth}>
+                          <SelectTrigger className="w-full">
+                              <SelectValue placeholder="Pilih Bulan" />
+                          </SelectTrigger>
+                          <SelectContent>
+                              <SelectItem value="all-months">Semua Bulan</SelectItem>
+                              {months.map((month) => (
+                              <SelectItem key={month.value} value={month.value}>
+                                  {month.label}
+                              </SelectItem>
+                              ))}
+                          </SelectContent>
+                      </Select>
+                      <Select value={selectedYear} onValueChange={setSelectedYear}>
+                          <SelectTrigger className="w-full">
+                              <SelectValue placeholder="Pilih Tahun" />
+                          </SelectTrigger>
+                          <SelectContent>
+                              <SelectItem value="all-years">Semua Tahun</SelectItem>
+                              {years.map((year) => (
+                              <SelectItem key={year} value={year}>
+                                  {year}
+                              </SelectItem>
+                              ))}
+                          </SelectContent>
+                      </Select>
+                  </div>
+                  <Input
+                      placeholder="Cari data..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="w-full"
+                  />
+              </div>
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="tabel">
+                  <LayoutGrid className="mr-2 h-4 w-4" />
+                  Tabel
+                </TabsTrigger>
+                <TabsTrigger value="statistik">
+                  <BarChart2 className="mr-2 h-4 w-4" />
+                  Statistik
+                </TabsTrigger>
+              </TabsList>
             </div>
           </CardContent>
         </Card>
