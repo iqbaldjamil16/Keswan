@@ -71,24 +71,29 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
     const chartData = [...data].reverse();
 
     const CustomLabel = (props: any) => {
-        const { x, y, width, height, value, percentage } = props;
+      const { x, y, width, height, payload } = props;
+      
+      const count = payload?.count;
+      const percentage = payload?.percentage;
 
-        if (value == null || percentage === undefined) {
-            return null;
-        }
-        const labelText = `${value} (${percentage.toFixed(0)}%)`;
-        return (
-            <text
-                x={x + width + 8}
-                y={y + height / 2}
-                dominantBaseline="middle"
-                fill="hsl(var(--foreground))"
-                fontSize={12}
-                className="font-semibold"
-            >
-                {labelText}
-            </text>
-        );
+      if (count === undefined || percentage === undefined) {
+          return null;
+      }
+
+      const labelText = `${count} (${percentage.toFixed(0)}%)`;
+      
+      return (
+          <text
+              x={x + width + 8}
+              y={y + height / 2}
+              dominantBaseline="middle"
+              fill="hsl(var(--foreground))"
+              fontSize={12}
+              className="font-semibold"
+          >
+              {labelText}
+          </text>
+      );
     };
 
     return (
@@ -141,7 +146,7 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
                 fill="hsl(var(--primary))"
                 radius={[0, 4, 4, 0]}
               >
-                <LabelList dataKey="count" content={<CustomLabel />} />
+                <LabelList content={<CustomLabel />} />
               </Bar>
             </BarChart>
           </ResponsiveContainer>
