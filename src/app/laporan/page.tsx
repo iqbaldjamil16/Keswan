@@ -118,7 +118,10 @@ const StatChart = ({ title, data, officerToPuskeswanMap, puskeswanColors, defaul
                 content={({ active, payload, label }) => {
                   if (active && payload && payload.length) {
                     return (
-                      <div className="rounded-lg border bg-background p-2 shadow-sm text-sm whitespace-nowrap">
+                      <div 
+                        className="rounded-lg border bg-background p-2 shadow-sm text-sm"
+                        style={{ whiteSpace: 'nowrap' }}
+                      >
                         <span className="font-bold">{label}</span>
                         <span className="text-muted-foreground ml-2">
                           {`Jumlah: ${payload[0].value} (${(payload[0].payload as StatItem).percentage.toFixed(0)}%)`}
@@ -241,8 +244,11 @@ const StatPieChart = ({ title, data, colorMap, defaultColor }: {
                 if (active && payload && payload.length) {
                   const dataPayload = payload[0];
                   return (
-                    <div className="rounded-lg border bg-background p-2 shadow-sm text-sm whitespace-nowrap">
-                      <div className="w-2 h-2 rounded-full inline-block mr-2" style={{ backgroundColor: dataPayload.payload.fill }}></div>
+                    <div 
+                      className="rounded-lg border bg-background p-2 shadow-sm text-sm"
+                      style={{ whiteSpace: 'nowrap' }}
+                    >
+                      <div className="w-2 h-2 rounded-full inline-block mr-2" style={{ backgroundColor: dataPayload.payload.fill, verticalAlign: 'middle' }}></div>
                       <span className="font-bold">{dataPayload.name}</span>
                       <span className="text-muted-foreground ml-2">
                           {`Jumlah: ${dataPayload.value} (${(dataPayload.payload.percentage).toFixed(0)}%)`}
@@ -680,5 +686,7 @@ export default function ReportPage() {
     </div>
   );
 }
+
+    
 
     
