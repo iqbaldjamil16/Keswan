@@ -217,10 +217,7 @@ export default function ReportPage() {
                     />
                 </div>
             </CardHeader>
-        </Card>
-        
-        <Card>
-            <CardContent className="p-6">
+            <CardContent className="p-6 pt-0">
                 <Tabs defaultValue="tabel" className="w-full">
                     <TabsList>
                     <TabsTrigger value="tabel">
