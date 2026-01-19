@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useTransition, useEffect, useCallback } from "react";
@@ -551,41 +552,41 @@ export default function ReportPage() {
       </Card>
       
       <Card>
-        <CardContent className="p-6">
-        <div className="grid grid-cols-2 md:flex md:justify-end gap-2">
-              <Select value={selectedMonth} onValueChange={setSelectedMonth}>
-              <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Pilih Bulan" />
-              </SelectTrigger>
-              <SelectContent>
-                  <SelectItem value="all-months">Semua Bulan</SelectItem>
-                  {months.map((month) => (
-                  <SelectItem key={month.value} value={month.value}>
-                      {month.label}
-                  </SelectItem>
-                  ))}
-              </SelectContent>
-              </Select>
-              <Select value={selectedYear} onValueChange={setSelectedYear}>
-              <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Pilih Tahun" />
-              </SelectTrigger>
-              <SelectContent>
-                  <SelectItem value="all-years">Semua Tahun</SelectItem>
-                  {years.map((year) => (
-                  <SelectItem key={year} value={year}>
-                      {year}
-                  </SelectItem>
-                  ))}
-              </SelectContent>
-              </Select>
-              <Input
-              placeholder="Cari data..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full col-span-2 md:w-64"
-              />
-          </div>
+        <CardContent className="p-6 space-y-4">
+            <div className="grid grid-cols-2 md:flex md:justify-end gap-2">
+                <Select value={selectedMonth} onValueChange={setSelectedMonth}>
+                <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Pilih Bulan" />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="all-months">Semua Bulan</SelectItem>
+                    {months.map((month) => (
+                    <SelectItem key={month.value} value={month.value}>
+                        {month.label}
+                    </SelectItem>
+                    ))}
+                </SelectContent>
+                </Select>
+                <Select value={selectedYear} onValueChange={setSelectedYear}>
+                <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Pilih Tahun" />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="all-years">Semua Tahun</SelectItem>
+                    {years.map((year) => (
+                    <SelectItem key={year} value={year}>
+                        {year}
+                    </SelectItem>
+                    ))}
+                </SelectContent>
+                </Select>
+                <Input
+                placeholder="Cari data..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full col-span-2 md:w-64"
+                />
+            </div>
         </CardContent>
       </Card>
 
@@ -632,3 +633,5 @@ export default function ReportPage() {
     </div>
   );
 }
+
+    
