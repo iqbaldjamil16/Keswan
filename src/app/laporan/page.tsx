@@ -128,11 +128,13 @@ export default function ReportPage() {
       });
   
       const allDataForSheet: any[] = [];
-      const headers = ['Tanggal', 'Nama Pemilik', 'Alamat Pemilik', 'Gejala Klinis', 'Diagnosa', 'Jenis Penanganan', 'Obat yang Digunakan', 'Dosis', 'Jenis Ternak', 'Jumlah Ternak'];
+      const headers = ['Tanggal', 'Nama Pemilik', 'Alamat Pemilik', 'Jenis Ternak', 'Gejala Klinis', 'Diagnosa', 'Jenis Penanganan', 'Obat yang Digunakan', 'Dosis', 'Jumlah Ternak'];
       
       const officerNames = Object.keys(servicesByOfficer).sort();
 
       officerNames.forEach(officerName => {
+        allDataForSheet.push({});
+        allDataForSheet.push({});
         allDataForSheet.push({ 'Nama Petugas': officerName }); 
         allDataForSheet.push(Object.fromEntries(headers.map(h => [h, h])));
 
@@ -141,17 +143,15 @@ export default function ReportPage() {
             'Tanggal': format(new Date(service.date), 'dd-MM-yyyy'),
             'Nama Pemilik': service.ownerName,
             'Alamat Pemilik': service.ownerAddress,
+            'Jenis Ternak': service.livestockType,
             'Gejala Klinis': service.clinicalSymptoms,
             'Diagnosa': service.diagnosis,
             'Jenis Penanganan': service.treatmentType,
             'Obat yang Digunakan': service.treatments.map((t) => t.medicineName).join(', '),
             'Dosis': service.treatments.map((t) => `${t.dosageValue} ${t.dosageUnit}`).join(', '),
-            'Jenis Ternak': service.livestockType,
             'Jumlah Ternak': service.livestockCount,
         }));
         allDataForSheet.push(...data);
-        allDataForSheet.push({});
-        allDataForSheet.push({});
       });
 
       const sheetName = puskeswan
@@ -189,50 +189,53 @@ export default function ReportPage() {
 
   return (
     <div className="container px-4 sm:px-8 py-4 md:py-8 space-y-6">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div className="flex-1">
-          <h1 className="text-2xl md:text-3xl font-bold tracking-tight font-headline">Laporan Pelayanan</h1>
-          <p className="text-muted-foreground mt-1 text-sm md:text-base">
-            Cari, lihat, dan unduh semua data pelayanan yang telah diinput.
-          </p>
-        </div>
-        <PasswordDialog
-          title="Akses Terbatas"
-          description="Silakan masukkan kata sandi untuk mengunduh laporan."
-          onSuccess={handleDownload}
-          trigger={
-            <Button 
-              disabled={filteredServices.length === 0}
-            >
-              <Download className="mr-2 h-5 w-5" />
-              Unduh Laporan
-            </Button>
-          }
-        />
-      </div>
-
-      <Tabs defaultValue="tabel" className="w-full">
-        <TabsList>
-          <TabsTrigger value="tabel">
-            <LayoutGrid className="mr-2 h-4 w-4" />
-            Tabel
-          </TabsTrigger>
-          <TabsTrigger value="statistik">
-            <BarChart2 className="mr-2 h-4 w-4" />
-            Statistik
-          </TabsTrigger>
-        </TabsList>
-        <TabsContent value="tabel" className="mt-4">
-          <ServiceTable 
-            onServicesFiltered={setFilteredServices}
-            onMonthChange={setSelectedMonth}
-            onYearChange={setSelectedYear}
-          />
-        </TabsContent>
-        <TabsContent value="statistik" className="mt-4">
-           <StatisticsDisplay services={filteredServices} />
-        </TabsContent>
-      </Tabs>
+        <Card>
+            <CardHeader className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div className="flex-1">
+                    <CardTitle className="text-2xl md:text-3xl font-bold tracking-tight font-headline">Laporan Pelayanan</CardTitle>
+                    <CardDescription className="text-muted-foreground mt-1 text-sm md:text-base">
+                        Cari, lihat, dan unduh semua data pelayanan yang telah diinput.
+                    </CardDescription>
+                </div>
+                <PasswordDialog
+                    title="Akses Terbatas"
+                    description="Silakan masukkan kata sandi untuk mengunduh laporan."
+                    onSuccess={handleDownload}
+                    trigger={
+                        <Button 
+                            disabled={filteredServices.length === 0}
+                        >
+                            <Download className="mr-2 h-5 w-5" />
+                            Unduh Laporan
+                        </Button>
+                    }
+                />
+            </CardHeader>
+            <CardContent>
+                <Tabs defaultValue="tabel" className="w-full">
+                    <TabsList>
+                    <TabsTrigger value="tabel">
+                        <LayoutGrid className="mr-2 h-4 w-4" />
+                        Tabel
+                    </TabsTrigger>
+                    <TabsTrigger value="statistik">
+                        <BarChart2 className="mr-2 h-4 w-4" />
+                        Statistik
+                    </TabsTrigger>
+                    </TabsList>
+                    <TabsContent value="tabel" className="mt-4">
+                    <ServiceTable 
+                        onServicesFiltered={setFilteredServices}
+                        onMonthChange={setSelectedMonth}
+                        onYearChange={setSelectedYear}
+                    />
+                    </TabsContent>
+                    <TabsContent value="statistik" className="mt-4">
+                    <StatisticsDisplay services={filteredServices} />
+                    </TabsContent>
+                </Tabs>
+            </CardContent>
+        </Card>
       
       <Button
           variant="default"
