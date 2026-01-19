@@ -70,6 +70,26 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
   const StatChart = ({ title, data }: { title: string; data: StatItem[] }) => {
     const chartData = [...data].reverse();
 
+    const CustomLabel = (props: any) => {
+        const { x, y, width, height, value, payload } = props;
+        if (value == null) {
+            return null;
+        }
+        const labelText = `${value} (${payload.percentage.toFixed(0)}%)`;
+        return (
+            <text
+                x={x + width + 8}
+                y={y + height / 2}
+                dominantBaseline="middle"
+                fill="hsl(var(--foreground))"
+                fontSize={12}
+                className="font-semibold"
+            >
+                {labelText}
+            </text>
+        );
+    };
+
     return (
       <Card>
         <CardHeader>
@@ -80,9 +100,9 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
             <BarChart
               data={chartData}
               layout="vertical"
-              margin={{ top: 5, right: 40, left: 10, bottom: 5 }}
+              margin={{ top: 5, right: 90, left: 10, bottom: 5 }}
             >
-              <CartesianGrid strokeDasharray="3 3" horizontal={false} />
+              {/* <CartesianGrid strokeDasharray="3 3" horizontal={false} /> */}
               <XAxis type="number" hide />
               <YAxis
                 type="category"
@@ -107,7 +127,7 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
                         <p className="text-muted-foreground">
                           {`Jumlah: ${
                             payload[0].value
-                          } (${payload[0].payload.percentage.toFixed(1)}%)`}
+                          } (${payload[0].payload.percentage.toFixed(0)}%)`}
                         </p>
                       </div>
                     );
@@ -121,13 +141,7 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
                 fill="hsl(var(--primary))"
                 radius={[0, 4, 4, 0]}
               >
-                <LabelList
-                  dataKey="count"
-                  position="right"
-                  offset={8}
-                  fontSize={12}
-                  className="fill-foreground font-semibold"
-                />
+                <LabelList dataKey="count" content={CustomLabel} />
               </Bar>
             </BarChart>
           </ResponsiveContainer>
