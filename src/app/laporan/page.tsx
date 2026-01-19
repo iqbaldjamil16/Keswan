@@ -75,7 +75,7 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
   });
 
   const puskeswanColors: { [key: string]: string } = {
-    'Puskeswan Topoyo': '#4682B4',
+    'Puskeswan Topoyo': '#00008B',
     'Puskeswan Tobadak': '#008000',
     'Puskeswan Karossa': '#FF0000',
     'Puskeswan Budong-Budong': '#FFFF00',
@@ -100,7 +100,7 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
         return (
           <text
             x={x + width + 8}
-            y={y + 17}
+            y={y + 13}
             dominantBaseline="middle"
             fill="hsl(var(--foreground))"
             fontSize={12}
@@ -117,7 +117,7 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
           <CardTitle className="text-lg">{title}</CardTitle>
         </CardHeader>
         <CardContent>
-          <ResponsiveContainer width="100%" height={Math.max(150, chartData.length * 35)}>
+          <ResponsiveContainer width="100%" height={Math.max(150, chartData.length * 26)}>
             <BarChart
               data={chartData}
               layout="vertical"
