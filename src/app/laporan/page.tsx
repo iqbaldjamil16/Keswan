@@ -75,11 +75,11 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
   });
 
   const puskeswanColors: { [key: string]: string } = {
-    'Puskeswan Topoyo': '#4682B4', // Biru agak tua
-    'Puskeswan Tobadak': '#008000', // Hijau
-    'Puskeswan Karossa': '#FF0000', // Merah
-    'Puskeswan Budong-Budong': '#FFFF00', // Kuning
-    'Puskeswan Pangale': '#800080', // Ungu Tua
+    'Puskeswan Topoyo': '#4682B4',
+    'Puskeswan Tobadak': '#008000',
+    'Puskeswan Karossa': '#FF0000',
+    'Puskeswan Budong-Budong': '#FFFF00',
+    'Puskeswan Pangale': '#800080',
   };
   const defaultColor = 'hsl(var(--primary))';
 
@@ -183,7 +183,7 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
   
   const StatPieChart = ({ title, data, colorMap }: { title: string; data: StatItem[]; colorMap: { [key: string]: string } }) => {
     const RADIAN = Math.PI / 180;
-    const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent }: any) => {
+    const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent, value }: any) => {
       const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
       const x = cx + radius * Math.cos(-midAngle * RADIAN);
       const y = cy + radius * Math.sin(-midAngle * RADIAN);
@@ -192,7 +192,7 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
 
       return (
         <text x={x} y={y} fill="white" textAnchor="middle" dominantBaseline="central" className="font-bold text-sm drop-shadow-[0_1.2px_1.2px_rgba(0,0,0,0.8)]">
-          {`${(percent * 100).toFixed(0)}%`}
+          {`${value} (${(percent * 100).toFixed(0)}%)`}
         </text>
       );
     };
