@@ -20,6 +20,7 @@ import { Badge } from './ui/badge';
 import {
   Card,
   CardContent,
+  CardFooter,
   CardHeader,
 } from './ui/card';
 import {
@@ -232,7 +233,7 @@ function ServiceCard({
               </ul>
             </div>
           </CardContent>
-          <CardHeader className="p-4 pt-0 flex justify-end gap-2">
+          <CardFooter className="p-4 pt-0 justify-end gap-2">
             <PasswordDialog
               title="Akses Terbatas"
               description="Silakan masukkan kata sandi untuk mengedit data."
@@ -262,7 +263,7 @@ function ServiceCard({
                 </Button>
               }
             />
-          </CardHeader>
+          </CardFooter>
         </CollapsibleContent>
       </Card>
     </Collapsible>
@@ -488,3 +489,4 @@ export function ServiceTable({ services, loading, highlightedIds, searchTerm, on
     </div>
   );
 }
+
