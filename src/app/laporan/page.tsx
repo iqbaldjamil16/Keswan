@@ -16,6 +16,7 @@ import { PasswordDialog } from "@/components/password-dialog";
 import { puskeswanList } from "@/lib/definitions";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, LabelList, Cell, PieChart, Pie, Legend } from 'recharts';
+import { useIsMobile } from "@/hooks/use-mobile";
 
 
 interface StatItem {
@@ -50,6 +51,7 @@ function calculateStats(services: HealthcareService[], groupBy: 'month' | 'offic
 }
 
 function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
+  const isMobile = useIsMobile();
   if (services.length === 0) {
       return (
         <Card>
@@ -211,15 +213,15 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
           <CardTitle className="text-lg">{title}</CardTitle>
         </CardHeader>
         <CardContent>
-          <ResponsiveContainer width="100%" height={350}>
+          <ResponsiveContainer width="100%" height={isMobile ? 450 : 350}>
             <PieChart>
               <Pie
                 data={data}
                 dataKey="count"
                 nameKey="name"
-                cx="65%"
-                cy="50%"
-                outerRadius={120}
+                cx={isMobile ? '50%' : '65%'}
+                cy={isMobile ? '45%' : '50%'}
+                outerRadius={isMobile ? 100 : 120}
                 labelLine={false}
                 label={renderCustomizedLabel}
               >
@@ -247,10 +249,10 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
                 }}
               />
               <Legend 
-                layout="vertical"
-                align="left"
-                verticalAlign="middle"
-                wrapperStyle={{ paddingLeft: '20px' }}
+                layout={isMobile ? 'horizontal' : 'vertical'}
+                align={isMobile ? 'center' : 'left'}
+                verticalAlign={isMobile ? 'bottom' : 'middle'}
+                wrapperStyle={isMobile ? { paddingTop: '20px' } : { paddingLeft: '20px' }}
                 formatter={renderLegendText}
               />
             </PieChart>
@@ -262,8 +264,8 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
 
   return (
     <div className="space-y-6">
-        <StatChart title="Statistik per Bulan" data={statsByMonth.sort((a, b) => b.count - a.count)} />
-        <StatChart title="Statistik per Petugas" data={statsByOfficer} />
+        <StatChart title="Statistik per Bulan" data={statsByMonth} />
+        <StatChart title="Statistik per Petugas" data={statsByOfficer.sort((a,b) => b.count-a.count)} />
         <StatPieChart title="Statistik per Puskeswan" data={statsByPuskeswan} colorMap={puskeswanColors} />
         <StatChart title="Statistik per Kasus/Penyakit" data={statsByDiagnosis} />
     </div>
