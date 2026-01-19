@@ -385,17 +385,19 @@ export default function ReportPage() {
                   diinput.
                 </CardDescription>
               </div>
-              <PasswordDialog
-                title="Akses Terbatas"
-                description="Silakan masukkan kata sandi untuk mengunduh laporan."
-                onSuccess={handleDownload}
-                trigger={
-                  <Button disabled={filteredServices.length === 0}>
-                    <Download className="mr-2 h-5 w-5" />
-                    Unduh Laporan
-                  </Button>
-                }
-              />
+              <div className="w-full flex justify-end sm:w-auto">
+                <PasswordDialog
+                  title="Akses Terbatas"
+                  description="Silakan masukkan kata sandi untuk mengunduh laporan."
+                  onSuccess={handleDownload}
+                  trigger={
+                    <Button disabled={filteredServices.length === 0}>
+                      <Download className="mr-2 h-5 w-5" />
+                      Unduh Laporan
+                    </Button>
+                  }
+                />
+              </div>
             </div>
           </CardHeader>
           <CardContent>
