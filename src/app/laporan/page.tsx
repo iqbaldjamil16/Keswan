@@ -140,12 +140,12 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
                     return (
                       <div className="rounded-lg border bg-background p-2 shadow-sm text-sm">
                         <div className="flex items-center gap-2">
-                            <p className="font-bold">{label}</p>
-                            <p className="text-muted-foreground">
+                            <span className="font-bold">{label}</span>
+                            <span className="text-muted-foreground whitespace-nowrap">
                               {`Jumlah: ${
                                 payload[0].value
                               } (${(payload[0].payload as StatItem).percentage.toFixed(0)}%)`}
-                            </p>
+                            </span>
                         </div>
                       </div>
                     );
@@ -244,10 +244,10 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
                       <div className="rounded-lg border bg-background p-2 shadow-sm text-sm">
                         <div className="flex items-center gap-2">
                           <div className="w-2 h-2 rounded-full" style={{ backgroundColor: dataPayload.payload.fill }}></div>
-                          <p className="font-bold">{dataPayload.name}</p>
-                          <p className="text-muted-foreground">
+                          <span className="font-bold">{dataPayload.name}</span>
+                          <span className="text-muted-foreground whitespace-nowrap">
                             {`Jumlah: ${dataPayload.value} (${(dataPayload.payload.percentage).toFixed(0)}%)`}
-                          </p>
+                          </span>
                         </div>
                       </div>
                     );
