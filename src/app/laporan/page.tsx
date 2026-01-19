@@ -62,6 +62,14 @@ const StatChart = ({ title, data, officerToPuskeswanMap, puskeswanColors, defaul
   defaultColor: string;
 }) => {
   const isMobile = useIsMobile();
+  const [showLabel, setShowLabel] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowLabel(true);
+    }, 2000); // Match animation duration
+    return () => clearTimeout(timer);
+  }, [data]);
   
   const chartData = useMemo(() => data.slice(0, 10), [data]);
   const yAxisWidth = isMobile ? 100 : 140;
@@ -106,7 +114,7 @@ const StatChart = ({ title, data, officerToPuskeswanMap, puskeswanColors, defaul
                       >
                         <span className="font-bold">{label}</span>
                         <span className="text-muted-foreground ml-2">
-                          {`Jumlah: ${payload[0].value} (${(payload[0].payload as StatItem).percentage.toFixed(0)}%)`}
+                          {`Jumlah: ${payload[0].value}`}
                         </span>
                       </div>
                     );
@@ -120,15 +128,15 @@ const StatChart = ({ title, data, officerToPuskeswanMap, puskeswanColors, defaul
                 radius={[0, 4, 4, 0]}
                 animationDuration={2000}
               >
-                <LabelList
-                    dataKey={(d: StatItem) => `${d.count} (${d.percentage.toFixed(0)}%)`}
+                {showLabel && <LabelList
+                    dataKey="count"
                     position="right"
                     offset={8}
                     isAnimationActive={false}
                     className="font-semibold"
                     fill="hsl(var(--foreground))"
                     fontSize={12}
-                />
+                />}
                 {chartData.map((entry, index) => {
                     let color = defaultColor;
                     if (title === 'Statistik per Bulan') {
@@ -158,6 +166,14 @@ const StatPieChart = ({ title, data, colorMap, defaultColor }: {
   defaultColor: string 
 }) => {
   const isMobile = useIsMobile();
+  const [showLabel, setShowLabel] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowLabel(true);
+    }, 2000); // Match animation duration
+    return () => clearTimeout(timer);
+  }, [data]);
 
   const RADIAN = Math.PI / 180;
   const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent }: any) => {
@@ -165,7 +181,7 @@ const StatPieChart = ({ title, data, colorMap, defaultColor }: {
       const x = cx + radius * Math.cos(-midAngle * RADIAN);
       const y = cy + radius * Math.sin(-midAngle * RADIAN);
 
-      if (percent * 100 < 5) return null;
+      if (!showLabel || percent * 100 < 5) return null;
 
       return (
         <text x={x} y={y} fill="white" textAnchor="middle" dominantBaseline="central" className="font-bold text-xs drop-shadow-[0_1px_1px_rgba(0,0,0,0.5)]">
