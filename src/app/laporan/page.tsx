@@ -15,7 +15,7 @@ import { type HealthcareService } from "@/lib/types";
 import { PasswordDialog } from "@/components/password-dialog";
 import { puskeswanList } from "@/lib/definitions";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, LabelList } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, LabelList, Cell } from 'recharts';
 
 
 interface StatItem {
@@ -66,6 +66,23 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
   const statsByMonth = calculateStats(services, 'month');
   const statsByOfficer = calculateStats(services, 'officerName');
   const statsByPuskeswan = calculateStats(services, 'puskeswan');
+
+  const officerToPuskeswanMap: { [key: string]: string } = {};
+  services.forEach(service => {
+      if (service.officerName && service.puskeswan && !officerToPuskeswanMap[service.officerName]) {
+          officerToPuskeswanMap[service.officerName] = service.puskeswan;
+      }
+  });
+
+  const puskeswanColors: { [key: string]: string } = {
+    'Puskeswan Topoyo': '#87CEFA',       // Light Blue
+    'Puskeswan Tobadak': '#006400',      // Dark Green
+    'Puskeswan Karossa': '#FA8072',      // Salem Pink
+    'Puskeswan Budong-Budong': '#FFA500', // Orange
+    'Puskeswan Pangale': '#D2B48C',      // Light Brown
+  };
+  const defaultColor = 'hsl(var(--primary))';
+
 
   const StatChart = ({ title, data }: { title: string; data: StatItem[] }) => {
     const chartData = [...data].reverse();
@@ -141,10 +158,21 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
               <Bar
                 dataKey="count"
                 name="Jumlah"
-                fill="hsl(var(--primary))"
                 radius={[0, 4, 4, 0]}
               >
                 <LabelList content={<CustomLabel />} />
+                {chartData.map((entry, index) => {
+                    let color = defaultColor;
+                    if (title === 'Statistik per Puskeswan') {
+                      color = puskeswanColors[entry.name] || defaultColor;
+                    } else if (title === 'Statistik per Petugas') {
+                      const puskeswan = officerToPuskeswanMap[entry.name];
+                      if (puskeswan) {
+                        color = puskeswanColors[puskeswan] || defaultColor;
+                      }
+                    }
+                    return <Cell key={`cell-${index}`} fill={color} />;
+                  })}
               </Bar>
             </BarChart>
           </ResponsiveContainer>
