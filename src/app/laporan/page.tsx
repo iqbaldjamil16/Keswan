@@ -79,7 +79,7 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
     'Puskeswan Tobadak': '#008000',
     'Puskeswan Karossa': '#FF0000',
     'Puskeswan Budong-Budong': '#FFFF00',
-    'Puskeswan Pangale': '#800080',
+    'Puskeswan Pangale': '#8A2BE2',
   };
   const defaultColor = 'hsl(var(--primary))';
 
@@ -191,7 +191,7 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
       if (percent * 100 < 5) return null;
 
       return (
-        <text x={x} y={y} fill="white" textAnchor="middle" dominantBaseline="central" className="font-bold text-sm drop-shadow-[0_1.2px_1.2px_rgba(0,0,0,0.8)]">
+        <text x={x} y={y} fill="black" textAnchor="middle" dominantBaseline="central" className="font-bold text-sm">
           {`${value} (${(percent * 100).toFixed(0)}%)`}
         </text>
       );
