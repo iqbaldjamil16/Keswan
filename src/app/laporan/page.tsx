@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useTransition, useEffect, useCallback } from "react";
@@ -111,7 +112,7 @@ const StatChart = ({ title, data, animationKey, officerToPuskeswanMap, puskeswan
                 if (active && payload && payload.length) {
                   return (
                     <div className="rounded-lg border bg-background p-2 shadow-sm text-sm whitespace-nowrap">
-                      <div className='flex items-center flex-nowrap'>
+                      <div className='flex items-center'>
                           <span className="font-bold">{label}</span>
                           <span className="text-muted-foreground ml-2">
                             {`Jumlah: ${payload[0].value} (${(payload[0].payload as StatItem).percentage.toFixed(0)}%)`}
@@ -229,14 +230,12 @@ const StatPieChart = ({ title, data, colorMap, animationKey, defaultColor }: {
                   const dataPayload = payload[0];
                   return (
                       <div className="rounded-lg border bg-background p-2 shadow-sm text-sm whitespace-nowrap">
-                          <div className="flex items-center gap-2 flex-nowrap">
+                          <div className="flex items-center gap-2">
                             <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: dataPayload.payload.fill }}></div>
-                             <div>
-                                  <span className="font-bold">{dataPayload.name}</span>
-                                  <span className="text-muted-foreground ml-2">
-                                      {`Jumlah: ${dataPayload.value} (${(dataPayload.payload.percentage).toFixed(0)}%)`}
-                                  </span>
-                             </div>
+                             <span className="font-bold">{dataPayload.name}</span>
+                             <span className="text-muted-foreground ml-2">
+                                 {`Jumlah: ${dataPayload.value} (${(dataPayload.payload.percentage).toFixed(0)}%)`}
+                             </span>
                           </div>
                       </div>
                   );
