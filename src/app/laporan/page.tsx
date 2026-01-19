@@ -401,7 +401,7 @@ export default function ReportPage() {
             </div>
           </CardHeader>
           <CardContent>
-            <TabsList>
+            <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="tabel">
                 <LayoutGrid className="mr-2 h-4 w-4" />
                 Tabel
