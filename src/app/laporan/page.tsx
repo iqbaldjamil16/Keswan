@@ -215,7 +215,7 @@ const StatPieChart = ({ title, data, colorMap, defaultColor }: {
               dataKey="count"
               nameKey="name"
               cx="50%"
-              cy={isMobile ? '40%' : '50%'}
+              cy="50%"
               outerRadius={isMobile ? 90 : 110}
               labelLine={false}
               label={renderCustomizedLabel}
@@ -247,8 +247,11 @@ const StatPieChart = ({ title, data, colorMap, defaultColor }: {
             />
             <Legend
               layout={isMobile ? 'vertical' : 'horizontal'}
-              verticalAlign="bottom"
-              wrapperStyle={{ paddingTop: '20px' }}
+              verticalAlign={isMobile ? 'top' : 'bottom'}
+              wrapperStyle={{ 
+                paddingTop: isMobile ? 0 : '20px',
+                paddingBottom: isMobile ? '20px' : 0,
+              }}
               formatter={renderLegendText}
               iconSize={10}
               align={isMobile ? 'left' : 'center'}
