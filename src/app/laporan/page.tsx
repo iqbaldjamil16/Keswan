@@ -71,11 +71,11 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
     const chartData = [...data].reverse();
 
     const CustomLabel = (props: any) => {
-        const { x, y, width, height, value, payload } = props;
-        if (value == null) {
+        const { x, y, width, height, value, percentage } = props;
+        if (value == null || percentage === undefined) {
             return null;
         }
-        const labelText = `${value} (${payload.percentage.toFixed(0)}%)`;
+        const labelText = `${value} (${percentage.toFixed(0)}%)`;
         return (
             <text
                 x={x + width + 8}
@@ -102,7 +102,6 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
               layout="vertical"
               margin={{ top: 5, right: 90, left: 10, bottom: 5 }}
             >
-              {/* <CartesianGrid strokeDasharray="3 3" horizontal={false} /> */}
               <XAxis type="number" hide />
               <YAxis
                 type="category"
