@@ -24,7 +24,7 @@ interface StatItem {
   percentage: number;
 }
 
-function calculateStats(services: HealthcareService[], groupBy: 'month' | 'officerName' | 'puskeswan'): StatItem[] {
+function calculateStats(services: HealthcareService[], groupBy: 'month' | 'officerName' | 'puskeswan' | 'diagnosis'): StatItem[] {
   if (services.length === 0) return [];
 
   const total = services.length;
@@ -66,6 +66,7 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
   const statsByMonth = calculateStats(services, 'month');
   const statsByOfficer = calculateStats(services, 'officerName');
   const statsByPuskeswan = calculateStats(services, 'puskeswan');
+  const statsByDiagnosis = calculateStats(services, 'diagnosis');
 
   const officerToPuskeswanMap: { [key: string]: string } = {};
   services.forEach(service => {
@@ -79,7 +80,7 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
     'Puskeswan Tobadak': '#008000',
     'Puskeswan Karossa': '#FF0000',
     'Puskeswan Budong-Budong': '#FFFF00',
-    'Puskeswan Pangale': '#800080',
+    'Puskeswan Pangale': '#4B0082',
   };
   const defaultColor = '#808080';
 
@@ -261,6 +262,7 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
         <StatChart title="Statistik per Bulan" data={statsByMonth} />
         <StatChart title="Statistik per Petugas" data={statsByOfficer} />
         <StatPieChart title="Statistik per Puskeswan" data={statsByPuskeswan} colorMap={puskeswanColors} />
+        <StatChart title="Statistik per Kasus/Penyakit" data={statsByDiagnosis} />
     </div>
   );
 }
