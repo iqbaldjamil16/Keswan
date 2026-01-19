@@ -92,6 +92,9 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
 
   const StatChart = ({ title, data }: { title: string; data: StatItem[] }) => {
     const chartData = data;
+    const yAxisWidth = isMobile ? 100 : 140;
+    const rightMargin = isMobile ? 70 : 90;
+    const labelTruncateLength = isMobile ? 12 : 20;
 
     const CustomLabel = (props: any) => {
         const { x, y, width, index } = props;
@@ -127,7 +130,7 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
             <BarChart
               data={chartData}
               layout="vertical"
-              margin={{ top: 5, right: 90, left: 10, bottom: 5 }}
+              margin={{ top: 5, right: rightMargin, left: 10, bottom: 5 }}
             >
               <XAxis type="number" hide />
               <YAxis
@@ -138,10 +141,10 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
                 stroke="hsl(var(--muted-foreground))"
                 fontSize={12}
                 tickFormatter={(value) =>
-                  value.length > 20 ? `${value.substring(0, 20)}...` : value
+                  value.length > labelTruncateLength ? `${value.substring(0, labelTruncateLength)}...` : value
                 }
                 interval={0}
-                width={140}
+                width={yAxisWidth}
                 tick={{ fontWeight: 'bold' }}
               />
               <Tooltip
@@ -253,7 +256,7 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
               />
               <Legend 
                 layout={isMobile ? 'horizontal' : 'vertical'}
-                align={'left'}
+                align={isMobile ? 'center' : 'left'}
                 verticalAlign={isMobile ? 'bottom' : 'middle'}
                 wrapperStyle={isMobile ? { paddingTop: '20px' } : { paddingLeft: '20px' }}
                 formatter={renderLegendText}
@@ -540,7 +543,7 @@ export default function ReportPage() {
           <CardContent className="p-6">
             <div className="grid grid-cols-2 md:flex md:justify-end gap-2">
                 <Select value={selectedMonth} onValueChange={setSelectedMonth}>
-                <SelectTrigger className="w-full md:w-[180px]">
+                <SelectTrigger className="w-full">
                     <SelectValue placeholder="Pilih Bulan" />
                 </SelectTrigger>
                 <SelectContent>
@@ -553,7 +556,7 @@ export default function ReportPage() {
                 </SelectContent>
                 </Select>
                 <Select value={selectedYear} onValueChange={setSelectedYear}>
-                <SelectTrigger className="w-full md:w-[120px]">
+                <SelectTrigger className="w-full">
                     <SelectValue placeholder="Pilih Tahun" />
                 </SelectTrigger>
                 <SelectContent>
@@ -569,7 +572,7 @@ export default function ReportPage() {
                 placeholder="Cari data..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full col-span-2 md:w-64 md:col-span-1"
+                className="w-full col-span-2 md:w-64"
                 />
             </div>
           </CardContent>
