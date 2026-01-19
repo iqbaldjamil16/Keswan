@@ -66,11 +66,8 @@ const StatChart = ({ title, data, animationKey, officerToPuskeswanMap, puskeswan
   const [showLabels, setShowLabels] = useState(false);
 
   useEffect(() => {
-    setShowLabels(false); // Hide labels on new animation
-    const timer = setTimeout(() => {
-      setShowLabels(true); // Show labels after animation duration
-    }, 3000); // Corresponds to animationDuration={3000} on <Bar>
-
+    setShowLabels(false);
+    const timer = setTimeout(() => setShowLabels(true), 3000);
     return () => clearTimeout(timer);
   }, [animationKey]);
   
@@ -84,7 +81,7 @@ const StatChart = ({ title, data, animationKey, officerToPuskeswanMap, puskeswan
       <CardHeader>
         <CardTitle className="text-lg">{title}</CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className={cn(isMobile && 'px-0')}>
         <ResponsiveContainer key={animationKey} width="100%" height={Math.max(150, chartData.length * 26)}>
           <BarChart
             data={chartData}
@@ -112,9 +109,9 @@ const StatChart = ({ title, data, animationKey, officerToPuskeswanMap, puskeswan
                 if (active && payload && payload.length) {
                   return (
                     <div className="rounded-lg border bg-background p-2 shadow-sm text-sm whitespace-nowrap">
-                      <div className='flex items-center'>
+                       <div className="flex items-center gap-2">
                           <span className="font-bold">{label}</span>
-                          <span className="text-muted-foreground ml-2">
+                          <span className="text-muted-foreground">
                             {`Jumlah: ${payload[0].value} (${(payload[0].payload as StatItem).percentage.toFixed(0)}%)`}
                           </span>
                       </div>
@@ -172,11 +169,8 @@ const StatPieChart = ({ title, data, colorMap, animationKey, defaultColor }: {
   const [showLabels, setShowLabels] = useState(false);
 
   useEffect(() => {
-    setShowLabels(false); // Hide labels on new animation
-    const timer = setTimeout(() => {
-      setShowLabels(true); // Show labels after animation duration
-    }, 3000); // Corresponds to animationDuration={3000} on <Pie>
-
+    setShowLabels(false);
+    const timer = setTimeout(() => setShowLabels(true), 3000);
     return () => clearTimeout(timer);
   }, [animationKey]);
   
@@ -233,7 +227,7 @@ const StatPieChart = ({ title, data, colorMap, animationKey, defaultColor }: {
                           <div className="flex items-center gap-2">
                             <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: dataPayload.payload.fill }}></div>
                              <span className="font-bold">{dataPayload.name}</span>
-                             <span className="text-muted-foreground ml-2">
+                             <span className="text-muted-foreground">
                                  {`Jumlah: ${dataPayload.value} (${(dataPayload.payload.percentage).toFixed(0)}%)`}
                              </span>
                           </div>
@@ -262,15 +256,13 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
   const [animationKey, setAnimationKey] = useState(0);
 
   useEffect(() => {
-    // Reset the animation key whenever the services data changes to restart the animation cycle
     setAnimationKey(prevKey => prevKey + 1);
   }, [services]);
 
   useEffect(() => {
-    // This effect runs the interval for the animation cycle.
     const intervalId = setInterval(() => {
       setAnimationKey(prevKey => prevKey + 1);
-    }, 33000); // 3-second animation + 30-second pause
+    }, 33000); 
 
     return () => clearInterval(intervalId);
   }, []);
@@ -689,3 +681,5 @@ export default function ReportPage() {
     </div>
   );
 }
+
+    
