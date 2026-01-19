@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from "react";
@@ -93,6 +94,10 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
   );
 }
 
+const months = Array.from({ length: 12 }, (_, i) => ({
+  value: (i + 1).toString(),
+  label: new Date(0, i).toLocaleString('id-ID', { month: 'long' })
+}));
 
 export default function ReportPage() {
   const [filteredServices, setFilteredServices] = useState<HealthcareService[]>([]);
@@ -190,50 +195,51 @@ export default function ReportPage() {
   return (
     <div className="container px-4 sm:px-8 py-4 md:py-8 space-y-6">
         <Card>
-            <CardHeader className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                <div className="flex-1">
-                    <CardTitle className="text-2xl md:text-3xl font-bold tracking-tight font-headline">Laporan Pelayanan</CardTitle>
-                    <CardDescription className="text-muted-foreground mt-1 text-sm md:text-base">
-                        Cari, lihat, dan unduh semua data pelayanan yang telah diinput.
-                    </CardDescription>
-                </div>
-                <PasswordDialog
-                    title="Akses Terbatas"
-                    description="Silakan masukkan kata sandi untuk mengunduh laporan."
-                    onSuccess={handleDownload}
-                    trigger={
-                        <Button 
-                            disabled={filteredServices.length === 0}
-                        >
-                            <Download className="mr-2 h-5 w-5" />
-                            Unduh Laporan
-                        </Button>
-                    }
-                />
-            </CardHeader>
-            <CardContent>
-                <Tabs defaultValue="tabel" className="w-full">
-                    <TabsList>
-                    <TabsTrigger value="tabel">
-                        <LayoutGrid className="mr-2 h-4 w-4" />
-                        Tabel
-                    </TabsTrigger>
-                    <TabsTrigger value="statistik">
-                        <BarChart2 className="mr-2 h-4 w-4" />
-                        Statistik
-                    </TabsTrigger>
-                    </TabsList>
-                    <TabsContent value="tabel" className="mt-4">
-                    <ServiceTable 
-                        onServicesFiltered={setFilteredServices}
-                        onMonthChange={setSelectedMonth}
-                        onYearChange={setSelectedYear}
-                    />
-                    </TabsContent>
-                    <TabsContent value="statistik" className="mt-4">
-                    <StatisticsDisplay services={filteredServices} />
-                    </TabsContent>
-                </Tabs>
+            <CardContent className="p-6 space-y-6">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                  <div className="flex-1">
+                      <CardTitle className="text-2xl md:text-3xl font-bold tracking-tight font-headline">Laporan Pelayanan</CardTitle>
+                      <CardDescription className="text-muted-foreground mt-1 text-sm md:text-base">
+                          Cari, lihat, dan unduh semua data pelayanan yang telah diinput.
+                      </CardDescription>
+                  </div>
+                  <PasswordDialog
+                      title="Akses Terbatas"
+                      description="Silakan masukkan kata sandi untuk mengunduh laporan."
+                      onSuccess={handleDownload}
+                      trigger={
+                          <Button 
+                              disabled={filteredServices.length === 0}
+                          >
+                              <Download className="mr-2 h-5 w-5" />
+                              Unduh Laporan
+                          </Button>
+                      }
+                  />
+              </div>
+              
+              <Tabs defaultValue="tabel" className="w-full">
+                  <TabsList>
+                  <TabsTrigger value="tabel">
+                      <LayoutGrid className="mr-2 h-4 w-4" />
+                      Tabel
+                  </TabsTrigger>
+                  <TabsTrigger value="statistik">
+                      <BarChart2 className="mr-2 h-4 w-4" />
+                      Statistik
+                  </TabsTrigger>
+                  </TabsList>
+                  <TabsContent value="tabel" className="mt-4">
+                  <ServiceTable 
+                      onServicesFiltered={setFilteredServices}
+                      onMonthChange={setSelectedMonth}
+                      onYearChange={setSelectedYear}
+                  />
+                  </TabsContent>
+                  <TabsContent value="statistik" className="mt-4">
+                  <StatisticsDisplay services={filteredServices} />
+                  </TabsContent>
+              </Tabs>
             </CardContent>
         </Card>
       
