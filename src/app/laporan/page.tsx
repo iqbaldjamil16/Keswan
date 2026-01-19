@@ -75,11 +75,11 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
   });
 
   const puskeswanColors: { [key: string]: string } = {
-    'Puskeswan Topoyo': '#4682B4',
-    'Puskeswan Tobadak': '#008000',
-    'Puskeswan Karossa': '#FA8072',
-    'Puskeswan Budong-Budong': '#FFD700',
-    'Puskeswan Pangale': '#800080',
+    'Puskeswan Topoyo': '#4682B4', // Biru agak tua
+    'Puskeswan Tobadak': '#008000', // Hijau
+    'Puskeswan Karossa': '#FF0000', // Merah
+    'Puskeswan Budong-Budong': '#FFD700', // Kuning
+    'Puskeswan Pangale': '#800080', // Ungu Tua
   };
   const defaultColor = 'hsl(var(--primary))';
 
@@ -353,3 +353,5 @@ export default function ReportPage() {
     </div>
   );
 }
+
+    
