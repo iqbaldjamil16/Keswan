@@ -256,7 +256,7 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
               />
               <Legend 
                 layout={isMobile ? 'horizontal' : 'vertical'}
-                align={isMobile ? 'center' : 'left'}
+                align={'left'}
                 verticalAlign={isMobile ? 'bottom' : 'middle'}
                 wrapperStyle={isMobile ? { paddingTop: '20px' } : { paddingLeft: '20px' }}
                 formatter={renderLegendText}
