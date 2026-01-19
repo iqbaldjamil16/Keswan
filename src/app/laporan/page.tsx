@@ -536,43 +536,48 @@ export default function ReportPage() {
         </CardHeader>
       </Card>
       
+      <Card>
+          <CardContent className="p-6 flex flex-col gap-4">
+                <div className="flex flex-col md:flex-row md:justify-end gap-2">
+                  <Select value={selectedMonth} onValueChange={setSelectedMonth}>
+                  <SelectTrigger className="w-full sm:w-[180px]">
+                      <SelectValue placeholder="Pilih Bulan" />
+                  </SelectTrigger>
+                  <SelectContent>
+                      <SelectItem value="all-months">Semua Bulan</SelectItem>
+                      {months.map((month) => (
+                      <SelectItem key={month.value} value={month.value}>
+                          {month.label}
+                      </SelectItem>
+                      ))}
+                  </SelectContent>
+                  </Select>
+                  <Select value={selectedYear} onValueChange={setSelectedYear}>
+                  <SelectTrigger className="w-full sm:w-[120px]">
+                      <SelectValue placeholder="Pilih Tahun" />
+                  </SelectTrigger>
+                  <SelectContent>
+                      <SelectItem value="all-years">Semua Tahun</SelectItem>
+                      {years.map((year) => (
+                      <SelectItem key={year} value={year}>
+                          {year}
+                      </SelectItem>
+                      ))}
+                  </SelectContent>
+                  </Select>
+                  <Input
+                  placeholder="Cari data..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full md:w-64"
+                  />
+              </div>
+          </CardContent>
+      </Card>
+
       <Tabs defaultValue="tabel" className="w-full">
         <Card>
-            <CardContent className="p-6 flex flex-col gap-4">
-                 <div className="flex flex-col md:flex-row md:justify-end gap-2">
-                    <Select value={selectedMonth} onValueChange={setSelectedMonth}>
-                    <SelectTrigger className="w-full sm:w-[180px]">
-                        <SelectValue placeholder="Pilih Bulan" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="all-months">Semua Bulan</SelectItem>
-                        {months.map((month) => (
-                        <SelectItem key={month.value} value={month.value}>
-                            {month.label}
-                        </SelectItem>
-                        ))}
-                    </SelectContent>
-                    </Select>
-                    <Select value={selectedYear} onValueChange={setSelectedYear}>
-                    <SelectTrigger className="w-full sm:w-[120px]">
-                        <SelectValue placeholder="Pilih Tahun" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="all-years">Semua Tahun</SelectItem>
-                        {years.map((year) => (
-                        <SelectItem key={year} value={year}>
-                            {year}
-                        </SelectItem>
-                        ))}
-                    </SelectContent>
-                    </Select>
-                    <Input
-                    placeholder="Cari data..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full md:w-64"
-                    />
-                </div>
+            <CardContent className="p-6">
                 <TabsList className="grid w-full grid-cols-2">
                     <TabsTrigger value="tabel">
                     <LayoutGrid className="mr-2 h-4 w-4" />
@@ -583,24 +588,23 @@ export default function ReportPage() {
                     Statistik
                     </TabsTrigger>
                 </TabsList>
+                 <div className="mt-6">
+                    <TabsContent value="tabel">
+                        <ServiceTable
+                            services={filteredServices}
+                            loading={loading && allServices.length === 0}
+                            highlightedIds={highlightedIds}
+                            searchTerm={searchTerm}
+                            onDelete={handleLocalDelete}
+                            isPending={isPending}
+                        />
+                    </TabsContent>
+                    <TabsContent value="statistik">
+                        <StatisticsDisplay services={filteredServices} />
+                    </TabsContent>
+                </div>
             </CardContent>
         </Card>
-
-        <div className="mt-6">
-            <TabsContent value="tabel">
-                <ServiceTable
-                    services={filteredServices}
-                    loading={loading && allServices.length === 0}
-                    highlightedIds={highlightedIds}
-                    searchTerm={searchTerm}
-                    onDelete={handleLocalDelete}
-                    isPending={isPending}
-                />
-            </TabsContent>
-            <TabsContent value="statistik">
-                <StatisticsDisplay services={filteredServices} />
-            </TabsContent>
-        </div>
       </Tabs>
       
       <Button
@@ -614,3 +618,4 @@ export default function ReportPage() {
     </div>
   );
 }
+
