@@ -13,8 +13,9 @@ import { CornerUpLeft, Download, LayoutGrid, BarChart2 } from "lucide-react";
 import { type HealthcareService } from "@/lib/types";
 import { PasswordDialog } from "@/components/password-dialog";
 import { puskeswanList } from "@/lib/definitions";
-import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+
 
 interface StatItem {
   name: string;
@@ -65,30 +66,60 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
   const statsByOfficer = calculateStats(services, 'officerName');
   const statsByPuskeswan = calculateStats(services, 'puskeswan');
 
-  const StatCard = ({ title, data }: { title: string; data: StatItem[] }) => (
+  const StatChart = ({ title, data }: { title: string; data: StatItem[] }) => {
+    const chartData = [...data].reverse(); 
+    
+    return (
       <Card>
-          <CardHeader>
-              <CardTitle className="text-lg">{title}</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4 text-sm max-h-60 overflow-y-auto">
-              {data.map(item => (
-                  <div key={item.name}>
-                      <div className="flex justify-between mb-1">
-                          <span className="font-medium truncate pr-2" title={item.name}>{item.name}</span>
-                          <span className="text-muted-foreground whitespace-nowrap">{item.count} ({item.percentage.toFixed(1)}%)</span>
+        <CardHeader>
+          <CardTitle className="text-lg">{title}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ResponsiveContainer width="100%" height={Math.max(150, chartData.length * 35)}>
+            <BarChart 
+                data={chartData} 
+                layout="vertical" 
+                margin={{ top: 5, right: 20, left: 120, bottom: 5 }}
+            >
+              <CartesianGrid strokeDasharray="3 3" horizontal={false} />
+              <XAxis type="number" allowDecimals={false} stroke="hsl(var(--muted-foreground))" fontSize={12} />
+              <YAxis 
+                type="category" 
+                dataKey="name" 
+                tick={{ fontSize: 12, fill: 'hsl(var(--foreground))' }}
+                interval={0}
+                axisLine={false}
+                tickLine={false}
+              />
+              <Tooltip
+                cursor={{ fill: 'hsl(var(--muted))' }}
+                content={({ active, payload, label }) => {
+                  if (active && payload && payload.length) {
+                    return (
+                      <div className="rounded-lg border bg-background p-2 shadow-sm text-sm">
+                          <p className="font-bold">{label}</p>
+                          <p className="text-muted-foreground">
+                            {`Jumlah: ${payload[0].value} (${payload[0].payload.percentage.toFixed(1)}%)`}
+                          </p>
                       </div>
-                      <Progress value={item.percentage} className="h-2" />
-                  </div>
-              ))}
-          </CardContent>
+                    );
+                  }
+                  return null;
+                }}
+              />
+              <Bar dataKey="count" name="Jumlah" fill="hsl(var(--primary))" radius={[0, 4, 4, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </CardContent>
       </Card>
-  );
+    );
+  }
 
   return (
-    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        <StatCard title="Per Bulan" data={statsByMonth} />
-        <StatCard title="Per Petugas" data={statsByOfficer} />
-        <StatCard title="Per Puskeswan" data={statsByPuskeswan} />
+    <div className="space-y-6">
+        <StatChart title="Statistik per Bulan" data={statsByMonth} />
+        <StatChart title="Statistik per Petugas" data={statsByOfficer} />
+        <StatChart title="Statistik per Puskeswan" data={statsByPuskeswan} />
     </div>
   );
 }
