@@ -164,13 +164,13 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
                 <LabelList content={<CustomLabel />} />
                 {chartData.map((entry, index) => {
                     let color = defaultColor;
-                    if (title === 'Statistik per Puskeswan') {
-                      color = puskeswanColors[entry.name] || defaultColor;
-                    } else if (title === 'Statistik per Petugas') {
+                    if (title === 'Statistik per Petugas') {
                       const puskeswan = officerToPuskeswanMap[entry.name];
                       if (puskeswan) {
                         color = puskeswanColors[puskeswan] || defaultColor;
                       }
+                    } else if (title === 'Statistik per Kasus/Penyakit') {
+                      color = '#006400';
                     }
                     return <Cell key={`cell-${index}`} fill={color} />;
                   })}
