@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from "react";
@@ -14,7 +15,7 @@ import { type HealthcareService } from "@/lib/types";
 import { PasswordDialog } from "@/components/password-dialog";
 import { puskeswanList } from "@/lib/definitions";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LabelList } from 'recharts';
 
 
 interface StatItem {
@@ -67,8 +68,8 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
   const statsByPuskeswan = calculateStats(services, 'puskeswan');
 
   const StatChart = ({ title, data }: { title: string; data: StatItem[] }) => {
-    const chartData = [...data].reverse(); 
-    
+    const chartData = [...data].reverse();
+
     return (
       <Card>
         <CardHeader>
@@ -76,44 +77,64 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
         </CardHeader>
         <CardContent>
           <ResponsiveContainer width="100%" height={Math.max(150, chartData.length * 35)}>
-            <BarChart 
-                data={chartData} 
-                layout="vertical" 
-                margin={{ top: 5, right: 20, left: 120, bottom: 5 }}
+            <BarChart
+              data={chartData}
+              layout="vertical"
+              margin={{ top: 5, right: 40, left: 10, bottom: 5 }}
             >
               <CartesianGrid strokeDasharray="3 3" horizontal={false} />
-              <XAxis type="number" allowDecimals={false} stroke="hsl(var(--muted-foreground))" fontSize={12} />
-              <YAxis 
-                type="category" 
-                dataKey="name" 
-                tick={{ fontSize: 12, fill: 'hsl(var(--foreground))' }}
-                interval={0}
-                axisLine={false}
+              <XAxis type="number" hide />
+              <YAxis
+                type="category"
+                dataKey="name"
                 tickLine={false}
+                axisLine={false}
+                stroke="hsl(var(--muted-foreground))"
+                fontSize={12}
+                tickFormatter={(value) =>
+                  value.length > 20 ? `${value.substring(0, 20)}...` : value
+                }
+                interval={0}
+                width={140}
               />
               <Tooltip
-                cursor={{ fill: 'hsl(var(--muted))' }}
+                cursor={{ fill: "hsl(var(--muted))" }}
                 content={({ active, payload, label }) => {
                   if (active && payload && payload.length) {
                     return (
                       <div className="rounded-lg border bg-background p-2 shadow-sm text-sm">
-                          <p className="font-bold">{label}</p>
-                          <p className="text-muted-foreground">
-                            {`Jumlah: ${payload[0].value} (${payload[0].payload.percentage.toFixed(1)}%)`}
-                          </p>
+                        <p className="font-bold">{label}</p>
+                        <p className="text-muted-foreground">
+                          {`Jumlah: ${
+                            payload[0].value
+                          } (${payload[0].payload.percentage.toFixed(1)}%)`}
+                        </p>
                       </div>
                     );
                   }
                   return null;
                 }}
               />
-              <Bar dataKey="count" name="Jumlah" fill="hsl(var(--primary))" radius={[0, 4, 4, 0]} />
+              <Bar
+                dataKey="count"
+                name="Jumlah"
+                fill="hsl(var(--primary))"
+                radius={[0, 4, 4, 0]}
+              >
+                <LabelList
+                  dataKey="count"
+                  position="right"
+                  offset={8}
+                  fontSize={12}
+                  className="fill-foreground font-semibold"
+                />
+              </Bar>
             </BarChart>
           </ResponsiveContainer>
         </CardContent>
       </Card>
     );
-  }
+  };
 
   return (
     <div className="space-y-6">
