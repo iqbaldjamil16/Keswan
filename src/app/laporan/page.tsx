@@ -1,23 +1,27 @@
 
 'use client';
 
-import { useState } from "react";
+import { useState, useTransition, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import * as XLSX from 'xlsx';
 import { getYear, getMonth, format, subYears } from "date-fns";
 import { id } from 'date-fns/locale';
+import { collection, query, orderBy, getDocs, Timestamp } from 'firebase/firestore';
 
 import { ServiceTable } from "@/components/service-table";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CornerUpLeft, Download, LayoutGrid, BarChart2 } from "lucide-react";
-import { type HealthcareService } from "@/lib/types";
+import { type HealthcareService, serviceSchema } from "@/lib/types";
 import { PasswordDialog } from "@/components/password-dialog";
 import { puskeswanList } from "@/lib/definitions";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, LabelList, Cell, PieChart, Pie, Legend } from 'recharts';
 import { useIsMobile } from "@/hooks/use-mobile";
-
+import { useFirebase } from "@/firebase";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { cn } from "@/lib/utils";
 
 interface StatItem {
   name: string;
@@ -85,7 +89,6 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
     'Puskeswan Pangale': '#4B0082',
   };
   const defaultColor = '#808080';
-
 
   const StatChart = ({ title, data }: { title: string; data: StatItem[] }) => {
     const chartData = data;
@@ -189,19 +192,19 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
   
   const StatPieChart = ({ title, data, colorMap }: { title: string; data: StatItem[]; colorMap: { [key: string]: string } }) => {
     const RADIAN = Math.PI / 180;
-    const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent, value }: any) => {
-      const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
-      const x = cx + radius * Math.cos(-midAngle * RADIAN);
-      const y = cy + radius * Math.sin(-midAngle * RADIAN);
-
-      if (percent * 100 < 5) return null;
-
-      return (
-        <text x={x} y={y} fill="black" textAnchor="middle" dominantBaseline="central" className="font-bold text-sm">
-          {`${value} (${(percent * 100).toFixed(0)}%)`}
-        </text>
-      );
-    };
+    const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent, value, name }: any) => {
+        const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
+        const x = cx + radius * Math.cos(-midAngle * RADIAN);
+        const y = cy + radius * Math.sin(-midAngle * RADIAN);
+  
+        if (percent * 100 < 5) return null;
+  
+        return (
+          <text x={x} y={y} fill="black" textAnchor="middle" dominantBaseline="central" className="font-bold text-sm">
+            {`${value} (${(percent * 100).toFixed(0)}%)`}
+          </text>
+        );
+      };
 
     const renderLegendText = (value: string) => {
       return <span style={{ color: 'black' }}>{value}</span>;
@@ -265,23 +268,156 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
   return (
     <div className="space-y-6">
         <StatChart title="Statistik per Bulan" data={statsByMonth} />
-        <StatChart title="Statistik per Petugas" data={statsByOfficer.sort((a,b) => b.count-a.count)} />
+        <StatChart title="Statistik per Petugas" data={statsByOfficer} />
         <StatPieChart title="Statistik per Puskeswan" data={statsByPuskeswan} colorMap={puskeswanColors} />
         <StatChart title="Statistik per Kasus/Penyakit" data={statsByDiagnosis} />
     </div>
   );
 }
 
+const years = Array.from({ length: 5 }, (_, i) => getYear(subYears(new Date(), i)).toString());
 const months = Array.from({ length: 12 }, (_, i) => ({
-  value: (i + 1).toString(),
+  value: i.toString(),
   label: new Date(0, i).toLocaleString('id-ID', { month: 'long' })
 }));
 
 export default function ReportPage() {
+  const router = useRouter();
+  const { firestore } = useFirebase();
+  const [allServices, setAllServices] = useState<HealthcareService[]>([]);
   const [filteredServices, setFilteredServices] = useState<HealthcareService[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [isPending, startTransition] = useTransition();
   const [selectedMonth, setSelectedMonth] = useState<string>('');
   const [selectedYear, setSelectedYear] = useState<string>('');
-  const router = useRouter();
+  const [searchTerm, setSearchTerm] = useState('');
+  const [highlightedIds, setHighlightedIds] = useState<string[]>([]);
+
+  useEffect(() => {
+    const updateHighlighted = () => {
+      const storedEntries = JSON.parse(localStorage.getItem('newEntries') || '[]');
+      const now = Date.now();
+      const oneHour = 3600 * 1000;
+      
+      const validEntries = storedEntries.filter(
+        (entry: { id: string, timestamp: number }) => (now - entry.timestamp) < oneHour
+      );
+
+      if (validEntries.length !== storedEntries.length) {
+        localStorage.setItem('newEntries', JSON.stringify(validEntries));
+      }
+      
+      setHighlightedIds(validEntries.map((entry: { id: string }) => entry.id));
+    };
+
+    updateHighlighted();
+    const interval = setInterval(updateHighlighted, 60000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const loadAllServices = useCallback(async () => {
+    if (!firestore) return;
+    setLoading(true);
+    try {
+      const servicesCollection = collection(firestore, 'healthcareServices');
+      const q = query(servicesCollection, orderBy('date', 'desc'));
+
+      const querySnapshot = await getDocs(q);
+      const fetchedServices: HealthcareService[] = [];
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        try {
+          const service = serviceSchema.parse({
+            ...data,
+            id: doc.id,
+            date: (data.date as Timestamp).toDate(),
+          });
+          fetchedServices.push(service);
+        } catch (e) {
+          console.error('Validation error parsing service data:', e);
+        }
+      });
+      setAllServices(fetchedServices);
+    } catch (error) {
+      console.error('Failed to fetch services:', error);
+      setAllServices([]);
+    } finally {
+      setLoading(false);
+    }
+  }, [firestore]);
+
+  useEffect(() => {
+    loadAllServices();
+  }, [loadAllServices]);
+
+  useEffect(() => {
+    startTransition(() => {
+      let servicesToFilter = allServices;
+
+      const year =
+        selectedYear === 'all-years' || selectedYear === ''
+          ? null
+          : parseInt(selectedYear, 10);
+      const month =
+        selectedMonth === 'all-months' || selectedMonth === ''
+          ? null
+          : parseInt(selectedMonth, 10);
+
+      if (year || month !== null) {
+        servicesToFilter = allServices.filter((service) => {
+          const serviceDate = new Date(service.date);
+          const isYearMatch = year ? getYear(serviceDate) === year : true;
+          const isMonthMatch =
+            month !== null ? getMonth(serviceDate) === month : true;
+          return isYearMatch && isMonthMatch;
+        });
+      }
+
+      const lowercasedFilter = searchTerm.toLowerCase();
+      if (lowercasedFilter) {
+        servicesToFilter = servicesToFilter.filter((service) => {
+          const ownerName = service.ownerName.toLowerCase();
+          const officerName = service.officerName.toLowerCase();
+          const puskeswan = service.puskeswan.toLowerCase();
+          const diagnosis = service.diagnosis.toLowerCase();
+          const livestockType = service.livestockType.toLowerCase();
+          const formattedDate = format(new Date(service.date), 'dd MMM yyyy', {
+            locale: id,
+          }).toLowerCase();
+
+          return (
+            ownerName.includes(lowercasedFilter) ||
+            officerName.includes(lowercasedFilter) ||
+            puskeswan.includes(lowercasedFilter) ||
+            diagnosis.includes(lowercasedFilter) ||
+            livestockType.includes(lowercasedFilter) ||
+            formattedDate.includes(lowercasedFilter)
+          );
+        });
+      }
+      
+      if (highlightedIds.length > 0) {
+        const highlightedItems = servicesToFilter.filter(s => s.id! && highlightedIds.includes(s.id));
+        const restItems = servicesToFilter.filter(s => !s.id || !highlightedIds.includes(s.id));
+        servicesToFilter = [...highlightedItems, ...restItems];
+      }
+
+      setFilteredServices(servicesToFilter);
+    });
+  }, [selectedMonth, selectedYear, searchTerm, allServices, highlightedIds]);
+
+  const handleLocalDelete = (serviceId: string) => {
+    setAllServices((currentServices) =>
+      currentServices.filter((s) => s.id !== serviceId)
+    );
+     const newEntries = JSON.parse(localStorage.getItem('newEntries') || '[]');
+     const updatedEntries = newEntries.filter((entry: {id: string}) => entry.id !== serviceId);
+     if(newEntries.length !== updatedEntries.length) {
+       localStorage.setItem('newEntries', JSON.stringify(updatedEntries));
+       setHighlightedIds(updatedEntries.map((e: {id: string}) => e.id));
+     }
+  };
 
   const handleDownload = () => {
     const wb = XLSX.utils.book_new();
@@ -301,7 +437,6 @@ export default function ReportPage() {
         return new Date(a.date).getTime() - new Date(b.date).getTime();
       });
   
-      // Group services by officer
       const servicesByOfficer: { [key: string]: HealthcareService[] } = {};
       sortedServices.forEach(service => {
         if (!servicesByOfficer[service.officerName]) {
@@ -370,6 +505,58 @@ export default function ReportPage() {
     XLSX.writeFile(wb, `laporan_pelayanan_${monthLabel}_${yearLabel}.xlsx`);
   };
 
+  const filterControls = (
+    <div className="flex flex-col sm:flex-row w-full md:w-auto md:justify-end gap-2">
+      <div className="flex gap-2">
+        <Select value={selectedMonth} onValueChange={setSelectedMonth}>
+          <SelectTrigger className="w-full sm:w-[180px]">
+            <SelectValue placeholder="Pilih Bulan" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all-months">Semua Bulan</SelectItem>
+            {months.map((month) => (
+              <SelectItem key={month.value} value={month.value}>
+                {month.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Select value={selectedYear} onValueChange={setSelectedYear}>
+          <SelectTrigger className="w-full sm:w-[120px]">
+            <SelectValue placeholder="Pilih Tahun" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all-years">Semua Tahun</SelectItem>
+            {years.map((year) => (
+              <SelectItem key={year} value={year}>
+                {year}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+      <Input
+        placeholder="Cari data..."
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        className="w-full md:w-64"
+      />
+    </div>
+  );
+
+  const tabsList = (
+    <TabsList className="grid w-full grid-cols-2">
+      <TabsTrigger value="tabel">
+        <LayoutGrid className="mr-2 h-4 w-4" />
+        Tabel
+      </TabsTrigger>
+      <TabsTrigger value="statistik">
+        <BarChart2 className="mr-2 h-4 w-4" />
+        Statistik
+      </TabsTrigger>
+    </TabsList>
+  );
+
   return (
     <div className="container px-4 sm:px-8 py-4 md:py-8 space-y-6">
       <Tabs defaultValue="tabel" className="w-full">
@@ -400,25 +587,26 @@ export default function ReportPage() {
               </div>
             </div>
           </CardHeader>
-          <CardContent>
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="tabel">
-                <LayoutGrid className="mr-2 h-4 w-4" />
-                Tabel
-              </TabsTrigger>
-              <TabsTrigger value="statistik">
-                <BarChart2 className="mr-2 h-4 w-4" />
-                Statistik
-              </TabsTrigger>
-            </TabsList>
+          <CardContent className="flex flex-col gap-4">
+            <div className="hidden md:flex items-center justify-between">
+              {tabsList}
+              {filterControls}
+            </div>
+            <div className="md:hidden flex flex-col gap-4">
+              {filterControls}
+              {tabsList}
+            </div>
           </CardContent>
         </Card>
 
         <TabsContent value="tabel">
           <ServiceTable
-            onServicesFiltered={setFilteredServices}
-            onMonthChange={setSelectedMonth}
-            onYearChange={setSelectedYear}
+            services={filteredServices}
+            loading={loading && allServices.length === 0}
+            highlightedIds={highlightedIds}
+            searchTerm={searchTerm}
+            onDelete={handleLocalDelete}
+            isPending={isPending}
           />
         </TabsContent>
         <TabsContent value="statistik">

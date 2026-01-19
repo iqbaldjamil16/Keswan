@@ -1,22 +1,13 @@
 
 'use client';
 
-import { useState, useTransition, useEffect, useCallback, Suspense } from 'react';
+import { useState, useTransition, Suspense } from 'react';
 import { useRouter } from 'next/navigation';
-import { format, getMonth, getYear, subYears } from 'date-fns';
+import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
-import {
-  doc,
-  deleteDoc,
-  collection,
-  query,
-  orderBy,
-  getDocs,
-  Timestamp,
-} from 'firebase/firestore';
+import { doc, deleteDoc } from 'firebase/firestore';
 
-import { HealthcareService, serviceSchema } from '@/lib/types';
-import { Input } from '@/components/ui/input';
+import { HealthcareService } from '@/lib/types';
 import {
   Table,
   TableBody,
@@ -29,7 +20,6 @@ import { Badge } from './ui/badge';
 import {
   Card,
   CardContent,
-  CardFooter,
   CardHeader,
 } from './ui/card';
 import {
@@ -52,19 +42,11 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from '@/components/ui/collapsible';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from './ui/skeleton';
 import { cn } from '@/lib/utils';
 import { useFirebase } from '@/firebase';
 import { PasswordDialog } from './password-dialog';
-
 
 function ReportSkeleton() {
   return (
@@ -250,7 +232,7 @@ function ServiceCard({
               </ul>
             </div>
           </CardContent>
-          <CardFooter className="p-4 pt-0 flex justify-end gap-2">
+          <CardHeader className="p-4 pt-0 flex justify-end gap-2">
             <PasswordDialog
               title="Akses Terbatas"
               description="Silakan masukkan kata sandi untuk mengedit data."
@@ -280,7 +262,7 @@ function ServiceCard({
                 </Button>
               }
             />
-          </CardFooter>
+          </CardHeader>
         </CollapsibleContent>
       </Card>
     </Collapsible>
@@ -356,176 +338,18 @@ function ActionsCell({
   );
 }
 
-const years = Array.from({ length: 5 }, (_, i) =>
-  getYear(subYears(new Date(), i)).toString()
-);
-const months = Array.from({ length: 12 }, (_, i) => ({
-  value: i.toString(),
-  label: new Date(0, i).toLocaleString(id, { month: 'long' }),
-}));
-
-interface ServiceTableInternalProps {
-  onServicesFiltered: (services: HealthcareService[]) => void;
-  onMonthChange: (month: string) => void;
-  onYearChange: (year: string) => void;
+interface ServiceTableProps {
+  services: HealthcareService[];
+  loading: boolean;
+  highlightedIds: string[];
+  searchTerm: string;
+  onDelete: (id: string) => void;
+  isPending: boolean;
 }
 
-function ServiceTableInternal({ onServicesFiltered, onMonthChange, onYearChange }: ServiceTableInternalProps) {
-  const [allServices, setAllServices] = useState<HealthcareService[]>([]);
-  const [filteredServices, setFilteredServices] = useState<HealthcareService[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [isPending, startTransition] = useTransition();
-  const [selectedMonth, setSelectedMonth] = useState<string>('');
-  const [selectedYear, setSelectedYear] = useState<string>('');
-  const [searchTerm, setSearchTerm] = useState('');
-  const [highlightedIds, setHighlightedIds] = useState<string[]>([]);
-
-  const { firestore } = useFirebase();
-
-  useEffect(() => {
-    onServicesFiltered(filteredServices);
-  }, [filteredServices, onServicesFiltered]);
-
-  useEffect(() => {
-    const updateHighlighted = () => {
-      const storedEntries = JSON.parse(localStorage.getItem('newEntries') || '[]');
-      const now = Date.now();
-      const oneHour = 3600 * 1000;
-      
-      const validEntries = storedEntries.filter(
-        (entry: { id: string, timestamp: number }) => (now - entry.timestamp) < oneHour
-      );
-
-      if (validEntries.length !== storedEntries.length) {
-        localStorage.setItem('newEntries', JSON.stringify(validEntries));
-      }
-      
-      setHighlightedIds(validEntries.map((entry: { id: string }) => entry.id));
-    };
-
-    updateHighlighted(); // Initial check
-    const interval = setInterval(updateHighlighted, 60000); // Check every minute
-
-    return () => clearInterval(interval);
-  }, []);
-
-  const loadAllServices = useCallback(async () => {
-    if (!firestore) return;
-    setLoading(true);
-    try {
-      const servicesCollection = collection(firestore, 'healthcareServices');
-      const q = query(servicesCollection, orderBy('date', 'desc'));
-
-      const querySnapshot = await getDocs(q);
-      const fetchedServices: HealthcareService[] = [];
-      querySnapshot.forEach((doc) => {
-        const data = doc.data();
-        try {
-          const service = serviceSchema.parse({
-            ...data,
-            id: doc.id,
-            date: (data.date as Timestamp).toDate(),
-          });
-          fetchedServices.push(service);
-        } catch (e) {
-          console.error('Validation error parsing service data:', e);
-        }
-      });
-      setAllServices(fetchedServices);
-    } catch (error) {
-      console.error('Failed to fetch services:', error);
-      setAllServices([]);
-    } finally {
-      setLoading(false);
-    }
-  }, [firestore]);
-
-  useEffect(() => {
-    loadAllServices();
-  }, [loadAllServices]);
-
-  useEffect(() => {
-    startTransition(() => {
-      let servicesToFilter = allServices;
-
-      const year =
-        selectedYear === 'all-years' || selectedYear === ''
-          ? null
-          : parseInt(selectedYear, 10);
-      const month =
-        selectedMonth === 'all-months' || selectedMonth === ''
-          ? null
-          : parseInt(selectedMonth, 10);
-
-      if (year || month !== null) {
-        servicesToFilter = allServices.filter((service) => {
-          const serviceDate = new Date(service.date);
-          const isYearMatch = year ? getYear(serviceDate) === year : true;
-          const isMonthMatch =
-            month !== null ? getMonth(serviceDate) === month : true;
-          return isYearMatch && isMonthMatch;
-        });
-      }
-
-      const lowercasedFilter = searchTerm.toLowerCase();
-      if (lowercasedFilter) {
-        servicesToFilter = servicesToFilter.filter((service) => {
-          const ownerName = service.ownerName.toLowerCase();
-          const officerName = service.officerName.toLowerCase();
-          const puskeswan = service.puskeswan.toLowerCase();
-          const diagnosis = service.diagnosis.toLowerCase();
-          const livestockType = service.livestockType.toLowerCase();
-          const formattedDate = format(new Date(service.date), 'dd MMM yyyy', {
-            locale: id,
-          }).toLowerCase();
-
-          return (
-            ownerName.includes(lowercasedFilter) ||
-            officerName.includes(lowercasedFilter) ||
-            puskeswan.includes(lowercasedFilter) ||
-            diagnosis.includes(lowercasedFilter) ||
-            livestockType.includes(lowercasedFilter) ||
-            formattedDate.includes(lowercasedFilter)
-          );
-        });
-      }
-      
-      if (highlightedIds.length > 0) {
-        const highlightedItems = servicesToFilter.filter(s => highlightedIds.includes(s.id!));
-        const restItems = servicesToFilter.filter(s => !highlightedIds.includes(s.id!));
-        servicesToFilter = [...highlightedItems, ...restItems];
-      }
-
-      setFilteredServices(servicesToFilter);
-    });
-  }, [selectedMonth, selectedYear, searchTerm, allServices, highlightedIds]);
-
-
-  const handleLocalDelete = (serviceId: string) => {
-    setAllServices((currentServices) =>
-      currentServices.filter((s) => s.id !== serviceId)
-    );
-     // Also remove from localStorage if it exists there
-     const newEntries = JSON.parse(localStorage.getItem('newEntries') || '[]');
-     const updatedEntries = newEntries.filter((entry: {id: string}) => entry.id !== serviceId);
-     if(newEntries.length !== updatedEntries.length) {
-       localStorage.setItem('newEntries', JSON.stringify(updatedEntries));
-       setHighlightedIds(updatedEntries.map((e: {id: string}) => e.id));
-     }
-  };
+export function ServiceTable({ services, loading, highlightedIds, searchTerm, onDelete, isPending }: ServiceTableProps) {
   
-  const handleMonthChange = (month: string) => {
-    setSelectedMonth(month);
-    onMonthChange(month);
-  }
-
-  const handleYearChange = (year: string) => {
-    setSelectedYear(year);
-    onYearChange(year);
-  }
-
-
-  if (loading && allServices.length === 0) {
+  if (loading) {
     return <ReportSkeleton />;
   }
 
@@ -534,76 +358,28 @@ function ServiceTableInternal({ onServicesFiltered, onMonthChange, onYearChange 
       <Card
         className={cn('h-full flex flex-col', isPending && 'opacity-50 transition-opacity duration-300')}
       >
-        <CardHeader className="p-4 md:p-6">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="flex flex-col sm:flex-row w-full md:w-auto md:justify-end gap-2">
-              <div className="flex gap-2">
-                <Select value={selectedMonth} onValueChange={handleMonthChange}>
-                  <SelectTrigger className="w-full sm:w-[180px]">
-                    <SelectValue placeholder="Pilih Bulan" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all-months">Semua Bulan</SelectItem>
-                    {months.map((month) => (
-                      <SelectItem key={month.value} value={month.value}>
-                        {month.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <Select value={selectedYear} onValueChange={handleYearChange}>
-                  <SelectTrigger className="w-full sm:w-[120px]">
-                    <SelectValue placeholder="Pilih Tahun" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all-years">Semua Tahun</SelectItem>
-                    {years.map((year) => (
-                      <SelectItem key={year} value={year}>
-                        {year}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <Input
-                placeholder="Cari data..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full md:w-64"
-              />
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent className="p-0 md:p-6 md:pt-0 flex-grow overflow-hidden">
+        <CardContent className="p-0 md:p-0 flex-grow overflow-hidden">
           {/* Mobile View */}
           <div className="md:hidden h-full overflow-y-auto">
-            {loading && filteredServices.length === 0 ? (
+            {services.length > 0 ? (
               <div className="space-y-4 p-4">
-                <Skeleton className="h-24 w-full" />
-                <Skeleton className="h-24 w-full" />
-                <Skeleton className="h-24 w-full" />
+                {services.map((service) => (
+                  <ServiceCard
+                    key={service.id}
+                    service={service}
+                    onDelete={onDelete}
+                    isHighlighted={service.id ? highlightedIds.includes(service.id) : false}
+                  />
+                ))}
               </div>
             ) : (
-              <div className="space-y-4 p-4">
-                {filteredServices.length > 0 ? (
-                  filteredServices.map((service) => (
-                    <ServiceCard
-                      key={service.id}
-                      service={service}
-                      onDelete={handleLocalDelete}
-                      isHighlighted={highlightedIds.includes(service.id!)}
-                    />
-                  ))
-                ) : (
-                  <div className="flex flex-col items-center justify-center gap-2 py-12">
-                    <PawPrint className="h-8 w-8 text-muted-foreground" />
-                    <p className="text-muted-foreground text-center">
-                      {searchTerm
-                        ? 'Tidak ada hasil ditemukan.'
-                        : 'Belum ada data untuk periode ini.'}
-                    </p>
-                  </div>
-                )}
+              <div className="flex flex-col items-center justify-center gap-2 py-12">
+                <PawPrint className="h-8 w-8 text-muted-foreground" />
+                <p className="text-muted-foreground text-center">
+                  {searchTerm
+                    ? 'Tidak ada hasil ditemukan.'
+                    : 'Belum ada data untuk periode ini.'}
+                </p>
               </div>
             )}
           </div>
@@ -623,27 +399,9 @@ function ServiceTableInternal({ onServicesFiltered, onMonthChange, onYearChange 
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {loading && filteredServices.length === 0 ? (
-                  <>
-                    <TableRow>
-                      <TableCell colSpan={7}>
-                        <Skeleton className="h-10 w-full" />
-                      </TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell colSpan={7}>
-                        <Skeleton className="h-10 w-full" />
-                      </TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell colSpan={7}>
-                        <Skeleton className="h-10 w-full" />
-                      </TableCell>
-                    </TableRow>
-                  </>
-                ) : filteredServices.length > 0 ? (
-                  filteredServices.map((service) => (
-                    <TableRow key={service.id} className={cn(highlightedIds.includes(service.id!) && "highlight-new")}>
+                {services.length > 0 ? (
+                  services.map((service) => (
+                    <TableRow key={service.id} className={cn(service.id && highlightedIds.includes(service.id) && "highlight-new")}>
                       <TableCell className="font-medium align-top">
                         {format(new Date(service.date), 'dd MMM yyyy', {
                           locale: id,
@@ -703,7 +461,7 @@ function ServiceTableInternal({ onServicesFiltered, onMonthChange, onYearChange 
                       <TableCell className="align-top text-center">
                         <ActionsCell
                           service={service}
-                          onDelete={handleLocalDelete}
+                          onDelete={onDelete}
                         />
                       </TableCell>
                     </TableRow>
@@ -730,20 +488,3 @@ function ServiceTableInternal({ onServicesFiltered, onMonthChange, onYearChange 
     </div>
   );
 }
-
-interface ServiceTableProps {
-  onServicesFiltered: (services: HealthcareService[]) => void;
-  onMonthChange: (month: string) => void;
-  onYearChange: (year: string) => void;
-}
-
-export function ServiceTable(props: ServiceTableProps) {
-  return (
-    <Suspense fallback={<ReportSkeleton />}>
-      <ServiceTableInternal {...props} />
-    </Suspense>
-  )
-}
-
-    
-    
