@@ -75,13 +75,13 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
   });
 
   const puskeswanColors: { [key: string]: string } = {
-    'Puskeswan Topoyo': '#4169E1', // RoyalBlue
-    'Puskeswan Tobadak': '#008000', // Green
-    'Puskeswan Karossa': '#FF0000', // Red
-    'Puskeswan Budong-Budong': '#FFFF00', // Yellow
-    'Puskeswan Pangale': '#8A2BE2', // BlueViolet
+    'Puskeswan Topoyo': '#4682B4',
+    'Puskeswan Tobadak': '#008000',
+    'Puskeswan Karossa': '#FF0000',
+    'Puskeswan Budong-Budong': '#FFFF00',
+    'Puskeswan Pangale': '#800080',
   };
-  const defaultColor = 'hsl(var(--primary))';
+  const defaultColor = '#808080';
 
 
   const StatChart = ({ title, data }: { title: string; data: StatItem[] }) => {
@@ -198,7 +198,7 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
     };
 
     const renderLegendText = (value: string) => {
-      return <span style={{ color: 'hsl(var(--foreground))' }}>{value}</span>;
+      return <span style={{ color: 'black' }}>{value}</span>;
     };
   
     return (
