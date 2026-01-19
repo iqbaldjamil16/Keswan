@@ -101,6 +101,7 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
   const defaultColor = '#808080';
 
   const StatChart = ({ title, data }: { title: string; data: StatItem[] }) => {
+    const [showLabels, setShowLabels] = useState(false);
     const chartData = data;
     const yAxisWidth = isMobile ? 100 : 140;
     const rightMargin = isMobile ? 70 : 90;
@@ -117,6 +118,7 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
               data={chartData}
               layout="vertical"
               margin={{ top: 5, right: rightMargin, left: 10, bottom: 5 }}
+              onAnimationEnd={() => setShowLabels(true)}
             >
               <XAxis type="number" hide />
               <YAxis
@@ -157,7 +159,7 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
                 radius={[0, 4, 4, 0]}
                 animationDuration={3000}
               >
-                <LabelList
+                {showLabels && <LabelList
                     dataKey={(d: StatItem) => `${d.count} (${d.percentage.toFixed(0)}%)`}
                     position="right"
                     offset={8}
@@ -165,7 +167,7 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
                     className="font-semibold"
                     fill="hsl(var(--foreground))"
                     fontSize={12}
-                />
+                />}
                 {chartData.map((entry, index) => {
                     let color = defaultColor;
                     if (title === 'Statistik per Bulan') {
@@ -189,8 +191,11 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
   };
   
   const StatPieChart = ({ title, data, colorMap }: { title: string; data: StatItem[]; colorMap: { [key: string]: string } }) => {
+    const [showLabels, setShowLabels] = useState(false);
     const RADIAN = Math.PI / 180;
     const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent, value, name }: any) => {
+        if (!showLabels) return null;
+
         const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
         const x = cx + radius * Math.cos(-midAngle * RADIAN);
         const y = cy + radius * Math.sin(-midAngle * RADIAN);
@@ -215,7 +220,7 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
         </CardHeader>
         <CardContent>
           <ResponsiveContainer key={animationKey} width="100%" height={isMobile ? 450 : 350}>
-            <PieChart>
+            <PieChart onAnimationEnd={() => setShowLabels(true)}>
               <Pie
                 data={data}
                 dataKey="count"
@@ -617,5 +622,7 @@ export default function ReportPage() {
     </div>
   );
 }
+
+    
 
     
