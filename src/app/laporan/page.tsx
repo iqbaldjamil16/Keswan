@@ -71,30 +71,28 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
     const chartData = [...data].reverse();
 
     const CustomLabel = (props: any) => {
-      const { x, y, width, height, payload } = props;
-      
-      const count = payload?.count;
-      const percentage = payload?.percentage;
-
-      if (count === undefined || percentage === undefined) {
+        const { x, y, width, height, index } = props;
+        const item = chartData[index];
+    
+        if (!item) {
           return null;
-      }
-
-      const labelText = `${count} (${percentage.toFixed(0)}%)`;
-      
-      return (
+        }
+    
+        const labelText = `${item.count} (${item.percentage.toFixed(0)}%)`;
+    
+        return (
           <text
-              x={x + width + 8}
-              y={y + height / 2}
-              dominantBaseline="middle"
-              fill="hsl(var(--foreground))"
-              fontSize={12}
-              className="font-semibold"
+            x={x + width + 8}
+            y={y + height / 2}
+            dominantBaseline="middle"
+            fill="hsl(var(--foreground))"
+            fontSize={12}
+            className="font-semibold"
           >
-              {labelText}
+            {labelText}
           </text>
-      );
-    };
+        );
+      };
 
     return (
       <Card>
