@@ -105,6 +105,7 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
     const yAxisWidth = isMobile ? 100 : 140;
     const rightMargin = isMobile ? 70 : 90;
     const labelTruncateLength = isMobile ? 12 : 20;
+    const [showLabels, setShowLabels] = useState(false);
 
     return (
       <Card>
@@ -117,6 +118,7 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
               data={chartData}
               layout="vertical"
               margin={{ top: 5, right: rightMargin, left: 10, bottom: 5 }}
+              onAnimationEnd={() => setShowLabels(true)}
             >
               <XAxis type="number" hide />
               <YAxis
@@ -139,8 +141,8 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
                   if (active && payload && payload.length) {
                     return (
                       <div className="rounded-lg border bg-background p-2 shadow-sm text-sm">
-                        <div className="flex items-center gap-2">
-                            <span className="font-bold">{label}</span>
+                        <div className="flex flex-nowrap items-center gap-2">
+                            <span className="font-bold whitespace-nowrap">{label}</span>
                             <span className="text-muted-foreground whitespace-nowrap">
                               {`Jumlah: ${
                                 payload[0].value
@@ -159,7 +161,7 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
                 radius={[0, 4, 4, 0]}
                 animationDuration={3000}
               >
-                <LabelList
+                {showLabels && <LabelList
                     dataKey={(d: StatItem) => `${d.count} (${d.percentage.toFixed(0)}%)`}
                     position="right"
                     offset={8}
@@ -167,7 +169,7 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
                     className="font-semibold"
                     fill="hsl(var(--foreground))"
                     fontSize={12}
-                />
+                />}
                 {chartData.map((entry, index) => {
                     let color = defaultColor;
                     if (title === 'Statistik per Bulan') {
@@ -242,9 +244,9 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
                     const dataPayload = payload[0];
                     return (
                       <div className="rounded-lg border bg-background p-2 shadow-sm text-sm">
-                        <div className="flex items-center gap-2">
-                          <div className="w-2 h-2 rounded-full" style={{ backgroundColor: dataPayload.payload.fill }}></div>
-                          <span className="font-bold">{dataPayload.name}</span>
+                        <div className="flex flex-nowrap items-center gap-2">
+                          <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: dataPayload.payload.fill }}></div>
+                          <span className="font-bold whitespace-nowrap">{dataPayload.name}</span>
                           <span className="text-muted-foreground whitespace-nowrap">
                             {`Jumlah: ${dataPayload.value} (${(dataPayload.payload.percentage).toFixed(0)}%)`}
                           </span>
