@@ -71,8 +71,7 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
     const chartData = [...data].reverse();
 
     const CustomLabel = (props: any) => {
-        const { x, y, width, height, value } = props;
-        const percentage = props.payload?.percentage;
+        const { x, y, width, height, value, percentage } = props;
 
         if (value == null || percentage === undefined) {
             return null;
@@ -128,7 +127,7 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
                         <p className="text-muted-foreground">
                           {`Jumlah: ${
                             payload[0].value
-                          } (${payload[0].payload.percentage.toFixed(0)}%)`}
+                          } (${(payload[0].payload as StatItem).percentage.toFixed(0)}%)`}
                         </p>
                       </div>
                     );
