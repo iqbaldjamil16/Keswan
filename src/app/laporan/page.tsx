@@ -7,13 +7,14 @@ import { getYear, getMonth, format, subYears } from "date-fns";
 import { id } from 'date-fns/locale';
 
 import { ServiceTable } from "@/components/service-table";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { CornerUpLeft, Download } from "lucide-react";
+import { CornerUpLeft, Download, LayoutGrid, BarChart2 } from "lucide-react";
 import { type HealthcareService } from "@/lib/types";
 import { PasswordDialog } from "@/components/password-dialog";
 import { puskeswanList } from "@/lib/definitions";
 import { Progress } from "@/components/ui/progress";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface StatItem {
   name: string;
@@ -48,7 +49,16 @@ function calculateStats(services: HealthcareService[], groupBy: 'month' | 'offic
 
 function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
   if (services.length === 0) {
-      return null;
+      return (
+        <Card>
+            <CardHeader>
+                <CardTitle>Statistik Belum Tersedia</CardTitle>
+                <CardDescription>
+                    Tidak ada data untuk ditampilkan statistiknya pada periode yang dipilih.
+                </CardDescription>
+            </CardHeader>
+        </Card>
+      );
   }
 
   const statsByMonth = calculateStats(services, 'month');
@@ -75,21 +85,11 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
   );
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Statistik Data</CardTitle>
-        <CardDescription>
-            Ringkasan statistik berdasarkan data yang ditampilkan pada tabel di bawah ini.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            <StatCard title="Per Bulan" data={statsByMonth} />
-            <StatCard title="Per Petugas" data={statsByOfficer} />
-            <StatCard title="Per Puskeswan" data={statsByPuskeswan} />
-        </div>
-      </CardContent>
-    </Card>
+    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <StatCard title="Per Bulan" data={statsByMonth} />
+        <StatCard title="Per Petugas" data={statsByOfficer} />
+        <StatCard title="Per Puskeswan" data={statsByPuskeswan} />
+    </div>
   );
 }
 
@@ -128,7 +128,7 @@ export default function ReportPage() {
       });
   
       const allDataForSheet: any[] = [];
-      const headers = ['Tanggal', 'Nama Pemilik', 'Alamat Pemilik', 'Jenis Ternak', 'Gejala Klinis', 'Diagnosa', 'Jenis Penanganan', 'Obat yang Digunakan', 'Dosis', 'Jumlah Ternak'];
+      const headers = ['Tanggal', 'Nama Pemilik', 'Alamat Pemilik', 'Gejala Klinis', 'Diagnosa', 'Jenis Penanganan', 'Obat yang Digunakan', 'Dosis', 'Jenis Ternak', 'Jumlah Ternak'];
       
       const officerNames = Object.keys(servicesByOfficer).sort();
 
@@ -141,17 +141,17 @@ export default function ReportPage() {
             'Tanggal': format(new Date(service.date), 'dd-MM-yyyy'),
             'Nama Pemilik': service.ownerName,
             'Alamat Pemilik': service.ownerAddress,
-            'Jenis Ternak': service.livestockType,
             'Gejala Klinis': service.clinicalSymptoms,
             'Diagnosa': service.diagnosis,
             'Jenis Penanganan': service.treatmentType,
             'Obat yang Digunakan': service.treatments.map((t) => t.medicineName).join(', '),
             'Dosis': service.treatments.map((t) => `${t.dosageValue} ${t.dosageUnit}`).join(', '),
+            'Jenis Ternak': service.livestockType,
             'Jumlah Ternak': service.livestockCount,
         }));
         allDataForSheet.push(...data);
-        allDataForSheet.push({}); // Add a blank row for spacing
-        allDataForSheet.push({}); // Add a second blank row for spacing
+        allDataForSheet.push({});
+        allDataForSheet.push({});
       });
 
       const sheetName = puskeswan
@@ -160,14 +160,13 @@ export default function ReportPage() {
 
       const ws = XLSX.utils.json_to_sheet(allDataForSheet, { skipHeader: true });
 
-      // Auto-fit column widths
       const columnWidths = headers.map((header) => {
         const allValues = allDataForSheet.map(row => row[header]).filter(Boolean);
         const maxLength = allValues.reduce((max, cellValue) => {
           const cellLength = cellValue ? String(cellValue).length : 0;
           return Math.max(max, cellLength);
         }, header.length);
-        return { wch: maxLength + 2 }; // Add a little padding
+        return { wch: maxLength + 2 }; 
       });
       ws['!cols'] = columnWidths;
       
@@ -190,36 +189,51 @@ export default function ReportPage() {
 
   return (
     <div className="container px-4 sm:px-8 py-4 md:py-8 space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle>Data Laporan Pelayanan</CardTitle>
-          <CardDescription>Cari dan lihat semua data pelayanan yang telah diinput.</CardDescription>
-        </CardHeader>
-         <CardFooter className="p-4 flex justify-end">
-            <PasswordDialog
-              title="Akses Terbatas"
-              description="Silakan masukkan kata sandi untuk mengunduh laporan."
-              onSuccess={handleDownload}
-              trigger={
-                <Button 
-                  disabled={filteredServices.length === 0}
-                >
-                  <Download className="mr-2 h-5 w-5" />
-                  Unduh Laporan
-                </Button>
-              }
-            />
-        </CardFooter>
-      </Card>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div className="flex-1">
+          <h1 className="text-2xl md:text-3xl font-bold tracking-tight font-headline">Laporan Pelayanan</h1>
+          <p className="text-muted-foreground mt-1 text-sm md:text-base">
+            Cari, lihat, dan unduh semua data pelayanan yang telah diinput.
+          </p>
+        </div>
+        <PasswordDialog
+          title="Akses Terbatas"
+          description="Silakan masukkan kata sandi untuk mengunduh laporan."
+          onSuccess={handleDownload}
+          trigger={
+            <Button 
+              disabled={filteredServices.length === 0}
+            >
+              <Download className="mr-2 h-5 w-5" />
+              Unduh Laporan
+            </Button>
+          }
+        />
+      </div>
 
-      <StatisticsDisplay services={filteredServices} />
+      <Tabs defaultValue="tabel" className="w-full">
+        <TabsList>
+          <TabsTrigger value="tabel">
+            <LayoutGrid className="mr-2 h-4 w-4" />
+            Tabel
+          </TabsTrigger>
+          <TabsTrigger value="statistik">
+            <BarChart2 className="mr-2 h-4 w-4" />
+            Statistik
+          </TabsTrigger>
+        </TabsList>
+        <TabsContent value="tabel" className="mt-4">
+          <ServiceTable 
+            onServicesFiltered={setFilteredServices}
+            onMonthChange={setSelectedMonth}
+            onYearChange={setSelectedYear}
+          />
+        </TabsContent>
+        <TabsContent value="statistik" className="mt-4">
+           <StatisticsDisplay services={filteredServices} />
+        </TabsContent>
+      </Tabs>
       
-      <ServiceTable 
-        onServicesFiltered={setFilteredServices}
-        onMonthChange={setSelectedMonth}
-        onYearChange={setSelectedYear}
-      />
-
       <Button
           variant="default"
           className="fixed bottom-6 left-6 h-14 w-14 rounded-full shadow-lg"
