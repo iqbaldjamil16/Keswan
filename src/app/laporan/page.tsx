@@ -96,7 +96,7 @@ const StatChart = ({ title, data, officerToPuskeswanMap, puskeswanColors, defaul
             <BarChart
               data={chartData}
               layout="vertical"
-              margin={{ top: 5, right: rightMargin, left: 10, bottom: 5 }}
+              margin={{ top: 5, right: rightMargin, left: 0, bottom: 5 }}
             >
               <XAxis type="number" hide />
               <YAxis
@@ -118,7 +118,7 @@ const StatChart = ({ title, data, officerToPuskeswanMap, puskeswanColors, defaul
                 content={({ active, payload, label }) => {
                   if (active && payload && payload.length) {
                     return (
-                      <div 
+                      <div
                         className="rounded-lg border bg-background p-2 shadow-sm text-sm"
                         style={{ whiteSpace: 'nowrap' }}
                       >
@@ -228,7 +228,7 @@ const StatPieChart = ({ title, data, colorMap, defaultColor }: {
               data={data}
               dataKey="count"
               nameKey="name"
-              cx={isMobile ? '50%' : '65%'}
+              cx={isMobile ? '35%' : '65%'}
               cy={isMobile ? '45%' : '50%'}
               outerRadius={isMobile ? 100 : 120}
               labelLine={false}
@@ -244,9 +244,9 @@ const StatPieChart = ({ title, data, colorMap, defaultColor }: {
                 if (active && payload && payload.length) {
                   const dataPayload = payload[0];
                   return (
-                    <div 
+                    <div
                       className="rounded-lg border bg-background p-2 shadow-sm text-sm"
-                      style={{ whiteSpace: 'nowrap' }}
+                      style={{ display: 'flex', alignItems: 'center', whiteSpace: 'nowrap' }}
                     >
                       <div className="w-2 h-2 rounded-full inline-block mr-2" style={{ backgroundColor: dataPayload.payload.fill, verticalAlign: 'middle' }}></div>
                       <span className="font-bold">{dataPayload.name}</span>
@@ -690,3 +690,4 @@ export default function ReportPage() {
     
 
     
+
