@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useTransition, useEffect, useCallback, useMemo } from "react";
@@ -16,7 +15,7 @@ import { type HealthcareService, serviceSchema } from "@/lib/types";
 import { PasswordDialog } from "@/components/password-dialog";
 import { puskeswanList } from "@/lib/definitions";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, LabelList, Cell, PieChart, Pie, Legend } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, LabelList, Cell } from 'recharts';
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useFirebase } from "@/firebase";
 import { Input } from "@/components/ui/input";
@@ -166,100 +165,6 @@ const StatChart = ({ title, data, officerToPuskeswanMap, puskeswanColors, defaul
   );
 };
 
-const StatPieChart = ({ title, data, colorMap, defaultColor }: { 
-  title: string; 
-  data: StatItem[]; 
-  colorMap: { [key: string]: string }, 
-  defaultColor: string 
-}) => {
-  const isMobile = useIsMobile();
-  const [showLabel, setShowLabel] = useState(false);
-
-  useEffect(() => {
-    // This timeout is a workaround to ensure labels appear after the pie animation.
-    const timer = setTimeout(() => {
-      setShowLabel(true);
-    }, 2000); // Duration should match animationDuration of the Pie
-    return () => clearTimeout(timer);
-  }, [data]); // Re-trigger if data changes
-
-  const RADIAN = Math.PI / 180;
-  const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent }: any) => {
-      if (!showLabel || percent * 100 < 5) return null;
-      
-      const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
-      const x = cx + radius * Math.cos(-midAngle * RADIAN);
-      const y = cy + radius * Math.sin(-midAngle * RADIAN);
-
-      return (
-        <text x={x} y={y} fill="white" textAnchor="middle" dominantBaseline="central" className="font-bold text-xs drop-shadow-[0_1px_1px_rgba(0,0,0,0.5)]">
-          {`${(percent * 100).toFixed(0)}%`}
-        </text>
-      );
-    };
-
-  const renderLegendText = (value: string) => {
-    return <span className="text-xs" style={{ color: 'hsl(var(--foreground))' }}>{value}</span>;
-  };
-
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-lg text-left">{title}</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <ResponsiveContainer width="100%" height={isMobile ? 400 : 350}>
-          <PieChart>
-            <Pie
-              data={data}
-              dataKey="count"
-              nameKey="name"
-              cx="50%"
-              cy="50%"
-              outerRadius={isMobile ? 90 : 110}
-              labelLine={false}
-              label={renderCustomizedLabel}
-              animationDuration={2000}
-            >
-              {data.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={colorMap[entry.name] || defaultColor} />
-              ))}
-            </Pie>
-            <Tooltip
-              content={({ active, payload }) => {
-                if (active && payload && payload.length) {
-                  const dataPayload = payload[0];
-                  return (
-                    <div
-                      className="rounded-lg border bg-background p-2 shadow-sm text-sm"
-                      style={{ whiteSpace: 'nowrap' }}
-                    >
-                      <div className="w-2 h-2 rounded-full inline-block mr-2" style={{ backgroundColor: dataPayload.payload.fill, verticalAlign: 'middle' }}></div>
-                      <span className="font-bold">{`${dataPayload.name}: `}</span>
-                      <span className="text-muted-foreground">
-                        {`${dataPayload.value} (${(dataPayload.payload.percentage).toFixed(1)}%)`}
-                      </span>
-                    </div>
-                  );
-                }
-                return null;
-              }}
-            />
-            <Legend
-              layout={isMobile ? 'vertical' : 'horizontal'}
-              verticalAlign="bottom"
-              formatter={renderLegendText}
-              iconSize={10}
-              align={isMobile ? 'left' : 'center'}
-            />
-          </PieChart>
-        </ResponsiveContainer>
-      </CardContent>
-    </Card>
-  );
-};
-
-
 function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
 
   if (services.length === 0) {
@@ -277,7 +182,6 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
 
   const statsByMonth = calculateStats(services, 'month');
   const statsByOfficer = calculateStats(services, 'officerName');
-  const statsByPuskeswan = calculateStats(services, 'puskeswan');
   const statsByDiagnosis = calculateStats(services, 'diagnosis');
 
   const officerToPuskeswanMap: { [key: string]: string } = {};
@@ -312,12 +216,6 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
           puskeswanColors={puskeswanColors}
           defaultColor={defaultColor}
           showAll={true}
-        />
-        <StatPieChart 
-          title="Statistik per Puskeswan" 
-          data={statsByPuskeswan} 
-          colorMap={puskeswanColors} 
-          defaultColor={defaultColor} 
         />
         <StatChart 
           title="Statistik per Kasus/Penyakit" 
@@ -670,5 +568,6 @@ export default function ReportPage() {
     </div>
   );
 }
+
 
 
