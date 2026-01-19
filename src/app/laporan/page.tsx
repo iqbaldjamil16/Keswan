@@ -62,41 +62,23 @@ const StatChart = ({ title, data, officerToPuskeswanMap, puskeswanColors, defaul
   defaultColor: string;
 }) => {
   const isMobile = useIsMobile();
-  const [animationKey, setAnimationKey] = useState(0);
-  const [showLabels, setShowLabels] = useState(false);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setShowLabels(true);
-    }, 3000); // Match animation duration
-    return () => clearTimeout(timer);
-  }, [animationKey]);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-        setShowLabels(false);
-        setAnimationKey(prev => prev + 1);
-    }, 33000); 
-
-    return () => clearInterval(interval);
-  }, []);
   
   const chartData = useMemo(() => data.slice(0, 10), [data]);
-  const yAxisWidth = isMobile ? 80 : 140;
-  const rightMargin = isMobile ? 80 : 90;
-  const labelTruncateLength = isMobile ? 10 : 20;
+  const yAxisWidth = isMobile ? 100 : 140;
+  const rightMargin = isMobile ? 65 : 80;
+  const labelTruncateLength = isMobile ? 12 : 20;
 
   return (
     <Card>
       <CardHeader>
         <CardTitle className="text-lg text-left">{title}</CardTitle>
       </CardHeader>
-      <CardContent className={cn(isMobile && "overflow-x-auto", isMobile && "-mx-4")}>
-          <ResponsiveContainer key={animationKey} width="100%" height={Math.max(150, chartData.length * 26)}>
+      <CardContent className="pr-0">
+          <ResponsiveContainer width="100%" height={Math.max(150, chartData.length * 28)}>
             <BarChart
               data={chartData}
               layout="vertical"
-              margin={{ top: 5, right: rightMargin, left: 0, bottom: 5 }}
+              margin={{ top: 5, right: rightMargin, left: 5, bottom: 5 }}
             >
               <XAxis type="number" hide />
               <YAxis
@@ -136,9 +118,9 @@ const StatChart = ({ title, data, officerToPuskeswanMap, puskeswanColors, defaul
                 dataKey="count"
                 name="Jumlah"
                 radius={[0, 4, 4, 0]}
-                animationDuration={3000}
+                animationDuration={2000}
               >
-                {showLabels && <LabelList
+                <LabelList
                     dataKey={(d: StatItem) => `${d.count} (${d.percentage.toFixed(0)}%)`}
                     position="right"
                     offset={8}
@@ -146,7 +128,7 @@ const StatChart = ({ title, data, officerToPuskeswanMap, puskeswanColors, defaul
                     className="font-semibold"
                     fill="hsl(var(--foreground))"
                     fontSize={12}
-                />}
+                />
                 {chartData.map((entry, index) => {
                     let color = defaultColor;
                     if (title === 'Statistik per Bulan') {
@@ -176,29 +158,9 @@ const StatPieChart = ({ title, data, colorMap, defaultColor }: {
   defaultColor: string 
 }) => {
   const isMobile = useIsMobile();
-  const [animationKey, setAnimationKey] = useState(0);
-  const [showLabels, setShowLabels] = useState(false);
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-        setShowLabels(true);
-    }, 3000);
-    return () => clearTimeout(timer);
-  }, [animationKey]);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-        setShowLabels(false);
-        setAnimationKey(prev => prev + 1);
-    }, 33000); 
-
-    return () => clearInterval(interval);
-  }, []);
-  
   const RADIAN = Math.PI / 180;
-  const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent, value, name }: any) => {
-      if (!showLabels) return null;
-
+  const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent }: any) => {
       const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
       const x = cx + radius * Math.cos(-midAngle * RADIAN);
       const y = cy + radius * Math.sin(-midAngle * RADIAN);
@@ -206,14 +168,14 @@ const StatPieChart = ({ title, data, colorMap, defaultColor }: {
       if (percent * 100 < 5) return null;
 
       return (
-        <text x={x} y={y} fill="black" textAnchor="middle" dominantBaseline="central" className="font-bold text-sm">
-          {`${value} (${(percent * 100).toFixed(0)}%)`}
+        <text x={x} y={y} fill="white" textAnchor="middle" dominantBaseline="central" className="font-bold text-xs drop-shadow-[0_1px_1px_rgba(0,0,0,0.5)]">
+          {`${(percent * 100).toFixed(0)}%`}
         </text>
       );
     };
 
   const renderLegendText = (value: string) => {
-    return <span style={{ color: 'black' }}>{value}</span>;
+    return <span style={{ color: 'hsl(var(--foreground))' }}>{value}</span>;
   };
 
   return (
@@ -222,18 +184,18 @@ const StatPieChart = ({ title, data, colorMap, defaultColor }: {
         <CardTitle className="text-lg text-left">{title}</CardTitle>
       </CardHeader>
       <CardContent>
-        <ResponsiveContainer key={animationKey} width="100%" height={isMobile ? 450 : 350}>
+        <ResponsiveContainer width="100%" height={isMobile ? 400 : 350}>
           <PieChart>
             <Pie
               data={data}
               dataKey="count"
               nameKey="name"
-              cx={isMobile ? '35%' : '65%'}
-              cy={isMobile ? '45%' : '50%'}
-              outerRadius={isMobile ? 100 : 120}
+              cx="50%"
+              cy="50%"
+              outerRadius={isMobile ? 90 : 110}
               labelLine={false}
               label={renderCustomizedLabel}
-              animationDuration={3000}
+              animationDuration={2000}
             >
               {data.map((entry, index) => (
                 <Cell key={`cell-${index}`} fill={colorMap[entry.name] || defaultColor} />
@@ -260,11 +222,10 @@ const StatPieChart = ({ title, data, colorMap, defaultColor }: {
               }}
             />
             <Legend 
-              layout={isMobile ? 'horizontal' : 'vertical'}
-              align={'left'}
-              verticalAlign={isMobile ? 'bottom' : 'middle'}
-              wrapperStyle={isMobile ? { paddingTop: '20px' } : { paddingLeft: '20px' }}
+              verticalAlign="bottom"
+              wrapperStyle={{ paddingTop: '20px' }}
               formatter={renderLegendText}
+              iconSize={10}
             />
           </PieChart>
         </ResponsiveContainer>
@@ -686,8 +647,3 @@ export default function ReportPage() {
     </div>
   );
 }
-
-    
-
-    
-
