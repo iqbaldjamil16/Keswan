@@ -193,27 +193,31 @@ export default function ReportPage() {
 
   return (
     <div className="container px-4 sm:px-8 py-4 md:py-8 space-y-6">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <div className="flex-1">
-                <h1 className="text-2xl md:text-3xl font-bold tracking-tight font-headline">Laporan Pelayanan</h1>
-                <p className="text-muted-foreground mt-1 text-sm md:text-base">
-                    Cari, lihat, dan unduh semua data pelayanan yang telah diinput.
-                </p>
-            </div>
-            <PasswordDialog
-                title="Akses Terbatas"
-                description="Silakan masukkan kata sandi untuk mengunduh laporan."
-                onSuccess={handleDownload}
-                trigger={
-                    <Button 
-                        disabled={filteredServices.length === 0}
-                    >
-                        <Download className="mr-2 h-5 w-5" />
-                        Unduh Laporan
-                    </Button>
-                }
-            />
-        </div>
+        <Card>
+            <CardHeader>
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div className="flex-1">
+                        <CardTitle className="text-2xl md:text-3xl font-bold tracking-tight font-headline">Laporan Pelayanan</CardTitle>
+                        <CardDescription className="mt-1 text-sm md:text-base">
+                            Cari, lihat, dan unduh semua data pelayanan yang telah diinput.
+                        </CardDescription>
+                    </div>
+                    <PasswordDialog
+                        title="Akses Terbatas"
+                        description="Silakan masukkan kata sandi untuk mengunduh laporan."
+                        onSuccess={handleDownload}
+                        trigger={
+                            <Button 
+                                disabled={filteredServices.length === 0}
+                            >
+                                <Download className="mr-2 h-5 w-5" />
+                                Unduh Laporan
+                            </Button>
+                        }
+                    />
+                </div>
+            </CardHeader>
+        </Card>
         
         <Card>
             <CardContent className="p-6">
