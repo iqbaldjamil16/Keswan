@@ -79,7 +79,7 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
     'Puskeswan Tobadak': '#FF0000',      // Red
     'Puskeswan Karossa': '#FA8072',      // Salem Pink
     'Puskeswan Budong-Budong': '#FFEB3B', // Yellow
-    'Puskeswan Pangale': '#D8BFD8',      // Light Purple
+    'Puskeswan Pangale': '#800080',      // Dark Purple
   };
   const defaultColor = 'hsl(var(--primary))';
 
@@ -291,7 +291,7 @@ export default function ReportPage() {
   return (
     <div className="container px-4 sm:px-8 py-4 md:py-8 space-y-6">
       <Tabs defaultValue="tabel" className="w-full">
-        <Card>
+      <Card>
           <CardHeader>
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
               <div className="flex-1">
@@ -353,3 +353,6 @@ export default function ReportPage() {
     </div>
   );
 }
+
+
+    
