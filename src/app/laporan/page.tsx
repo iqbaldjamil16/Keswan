@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useTransition, useEffect, useCallback } from "react";
@@ -59,12 +58,18 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
   const [animationKey, setAnimationKey] = useState(0);
 
   useEffect(() => {
+    // Reset the animation key whenever the services data changes to restart the animation cycle
+    setAnimationKey(prevKey => prevKey + 1);
+  }, [services]);
+
+  useEffect(() => {
+    // This effect runs the interval for the animation cycle.
     const intervalId = setInterval(() => {
       setAnimationKey(prevKey => prevKey + 1);
-    }, 13000); // 3-second animation + 10-second pause
+    }, 33000); // 3-second animation + 30-second pause
 
     return () => clearInterval(intervalId);
-  }, []);
+  }, []); // Empty dependency array ensures this runs once for the component's lifetime
 
   if (services.length === 0) {
       return (
@@ -106,7 +111,8 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
     const rightMargin = isMobile ? 70 : 90;
     const labelTruncateLength = isMobile ? 12 : 20;
     const [showLabels, setShowLabels] = useState(false);
-
+  
+    // Reset showLabels to false whenever animationKey changes (new animation cycle starts)
     useEffect(() => {
       setShowLabels(false);
     }, [animationKey]);
@@ -145,10 +151,12 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
                   if (active && payload && payload.length) {
                     return (
                       <div className="rounded-lg border bg-background p-2 shadow-sm text-sm whitespace-nowrap">
-                          <span className="font-bold">{label}</span>
-                          <span className="text-muted-foreground ml-2">
-                            {`Jumlah: ${payload[0].value} (${(payload[0].payload as StatItem).percentage.toFixed(0)}%)`}
-                          </span>
+                        <div className='flex items-center flex-nowrap'>
+                            <span className="font-bold">{label}</span>
+                            <span className="text-muted-foreground ml-2">
+                              {`Jumlah: ${payload[0].value} (${(payload[0].payload as StatItem).percentage.toFixed(0)}%)`}
+                            </span>
+                        </div>
                       </div>
                     );
                   }
@@ -194,11 +202,12 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
   
   const StatPieChart = ({ title, data, colorMap }: { title: string; data: StatItem[]; colorMap: { [key: string]: string } }) => {
     const [showLabels, setShowLabels] = useState(false);
-
+  
+    // Reset showLabels to false whenever animationKey changes (new animation cycle starts)
     useEffect(() => {
-      setShowLabels(false);
+        setShowLabels(false);
     }, [animationKey]);
-
+    
     const RADIAN = Math.PI / 180;
     const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent, value, name }: any) => {
         if (!showLabels) return null;
@@ -248,17 +257,17 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
                   if (active && payload && payload.length) {
                     const dataPayload = payload[0];
                     return (
-                      <div className="rounded-lg border bg-background p-2 shadow-sm text-sm whitespace-nowrap">
-                        <div className="flex items-center gap-2">
-                          <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: dataPayload.payload.fill }}></div>
-                           <div>
-                                <span className="font-bold">{dataPayload.name}</span>
-                                <span className="text-muted-foreground ml-2">
-                                    {`Jumlah: ${dataPayload.value} (${(dataPayload.payload.percentage).toFixed(0)}%)`}
-                                </span>
-                           </div>
+                        <div className="rounded-lg border bg-background p-2 shadow-sm text-sm whitespace-nowrap">
+                            <div className="flex items-center gap-2 flex-nowrap">
+                              <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: dataPayload.payload.fill }}></div>
+                               <div>
+                                    <span className="font-bold">{dataPayload.name}</span>
+                                    <span className="text-muted-foreground ml-2">
+                                        {`Jumlah: ${dataPayload.value} (${(dataPayload.payload.percentage).toFixed(0)}%)`}
+                                    </span>
+                               </div>
+                            </div>
                         </div>
-                      </div>
                     );
                   }
                   return null;
