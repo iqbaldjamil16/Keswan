@@ -76,8 +76,8 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
   });
 
   const puskeswanColors: { [key: string]: string } = {
-    'Puskeswan Topoyo': '#0000CD',
-    'Puskeswan Tobadak': '#008000',
+    'Puskeswan Topoyo': '#00008B',
+    'Puskeswan Tobadak': '#006400',
     'Puskeswan Karossa': '#FF0000',
     'Puskeswan Budong-Budong': '#FFFF00',
     'Puskeswan Pangale': '#4B0082',
@@ -137,6 +137,7 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
                 }
                 interval={0}
                 width={140}
+                tick={{ fontWeight: 'bold' }}
               />
               <Tooltip
                 cursor={{ fill: "hsl(var(--muted))" }}
@@ -262,7 +263,7 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
   return (
     <div className="space-y-6">
         <StatChart title="Statistik per Bulan" data={statsByMonth} />
-        <StatChart title="Statistik per Petugas" data={statsByOfficer} />
+        <StatChart title="Statistik per Petugas" data={statsByOfficer.sort((a, b) => b.count - a.count)} />
         <StatPieChart title="Statistik per Puskeswan" data={statsByPuskeswan} colorMap={puskeswanColors} />
         <StatChart title="Statistik per Kasus/Penyakit" data={statsByDiagnosis} />
     </div>
