@@ -169,7 +169,7 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
                 dataKey="count"
                 name="Jumlah"
                 radius={[0, 4, 4, 0]}
-                animationDuration={20000}
+                animationDuration={10000}
               >
                 <LabelList content={<CustomLabel />} />
                 {chartData.map((entry, index) => {
@@ -231,7 +231,7 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
                 outerRadius={isMobile ? 100 : 120}
                 labelLine={false}
                 label={renderCustomizedLabel}
-                animationDuration={20000}
+                animationDuration={10000}
               >
                 {data.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={colorMap[entry.name] || defaultColor} />
@@ -623,3 +623,5 @@ export default function ReportPage() {
     </div>
   );
 }
+
+    
