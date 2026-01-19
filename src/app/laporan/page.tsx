@@ -247,10 +247,9 @@ const StatPieChart = ({ title, data, colorMap, defaultColor }: {
             />
             <Legend
               layout={isMobile ? 'vertical' : 'horizontal'}
-              verticalAlign={isMobile ? 'top' : 'bottom'}
+              verticalAlign="bottom"
               wrapperStyle={{ 
-                paddingTop: isMobile ? 0 : '20px',
-                paddingBottom: isMobile ? '20px' : 0,
+                paddingTop: '20px',
               }}
               formatter={renderLegendText}
               iconSize={10}
@@ -646,8 +645,8 @@ export default function ReportPage() {
             Statistik
           </TabsTrigger>
         </TabsList>
-        <div className="mt-6 md:mt-0">
-          <TabsContent value="tabel" className="md:mt-6">
+        <div className="md:mt-6">
+          <TabsContent value="tabel" className="mt-6 md:mt-0">
             <ServiceTable
               services={filteredServices}
               loading={loading && allServices.length === 0}
@@ -657,7 +656,7 @@ export default function ReportPage() {
               isPending={isPending}
             />
           </TabsContent>
-          <TabsContent value="statistik" className="md:mt-6">
+          <TabsContent value="statistik" className="mt-6 md:mt-0">
             <StatisticsDisplay services={filteredServices} />
           </TabsContent>
         </div>
