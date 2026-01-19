@@ -74,7 +74,7 @@ const StatChart = ({ title, data, officerToPuskeswanMap, puskeswanColors, defaul
   
   const chartData = useMemo(() => showAll ? data : data.slice(0, 10), [data, showAll]);
   const yAxisWidth = isMobile ? 100 : 140;
-  const rightMargin = isMobile ? 65 : 80;
+  const rightMargin = isMobile ? 40 : 80;
   const labelTruncateLength = isMobile ? 12 : 20;
 
   const barHeight = 28;
@@ -91,7 +91,7 @@ const StatChart = ({ title, data, officerToPuskeswanMap, puskeswanColors, defaul
             <BarChart
               data={chartData}
               layout="vertical"
-              margin={{ top: 5, right: rightMargin, left: -16, bottom: 5 }}
+              margin={{ top: 5, right: rightMargin, left: 0, bottom: 5 }}
             >
               <XAxis type="number" hide />
               <YAxis
@@ -630,35 +630,31 @@ export default function ReportPage() {
       </Card>
 
       <Tabs defaultValue="tabel" className="w-full">
-        <Card>
-            <CardContent className="p-6">
-                <TabsList className="grid w-full grid-cols-2">
-                    <TabsTrigger value="tabel">
-                    <LayoutGrid className="mr-2 h-4 w-4" />
-                    Tabel
-                    </TabsTrigger>
-                    <TabsTrigger value="statistik">
-                    <BarChart2 className="mr-2 h-4 w-4" />
-                    Statistik
-                    </TabsTrigger>
-                </TabsList>
-                 <div className="mt-6">
-                    <TabsContent value="tabel">
-                        <ServiceTable
-                            services={filteredServices}
-                            loading={loading && allServices.length === 0}
-                            highlightedIds={highlightedIds}
-                            searchTerm={searchTerm}
-                            onDelete={handleLocalDelete}
-                            isPending={isPending}
-                        />
-                    </TabsContent>
-                    <TabsContent value="statistik">
-                        <StatisticsDisplay services={filteredServices} />
-                    </TabsContent>
-                </div>
-            </CardContent>
-        </Card>
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="tabel">
+            <LayoutGrid className="mr-2 h-4 w-4" />
+            Tabel
+          </TabsTrigger>
+          <TabsTrigger value="statistik">
+            <BarChart2 className="mr-2 h-4 w-4" />
+            Statistik
+          </TabsTrigger>
+        </TabsList>
+        <div className="mt-6">
+          <TabsContent value="tabel">
+            <ServiceTable
+              services={filteredServices}
+              loading={loading && allServices.length === 0}
+              highlightedIds={highlightedIds}
+              searchTerm={searchTerm}
+              onDelete={handleLocalDelete}
+              isPending={isPending}
+            />
+          </TabsContent>
+          <TabsContent value="statistik">
+            <StatisticsDisplay services={filteredServices} />
+          </TabsContent>
+        </div>
       </Tabs>
       
       <Button
@@ -672,5 +668,3 @@ export default function ReportPage() {
     </div>
   );
 }
-
-    
