@@ -75,11 +75,11 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
   });
 
   const puskeswanColors: { [key: string]: string } = {
-    'Puskeswan Topoyo': '#4682B4', 
-    'Puskeswan Tobadak': '#008000',
-    'Puskeswan Karossa': '#FF0000',
-    'Puskeswan Budong-Budong': '#FFFF00',
-    'Puskeswan Pangale': '#800080',
+    'Puskeswan Topoyo': '#4682B4', // Biru agak tua
+    'Puskeswan Tobadak': '#008000', // Hijau
+    'Puskeswan Karossa': '#FF0000', // Merah
+    'Puskeswan Budong-Budong': '#FFFF00', // Kuning
+    'Puskeswan Pangale': '#800080', // Ungu Tua
   };
   const defaultColor = 'hsl(var(--primary))';
 
@@ -88,7 +88,7 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
     const chartData = [...data].reverse();
 
     const CustomLabel = (props: any) => {
-        const { x, y, width, height, index } = props;
+        const { x, y, width, index } = props;
         const item = chartData[index];
     
         if (!item) {
@@ -100,7 +100,7 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
         return (
           <text
             x={x + width + 8}
-            y={y + height / 2}
+            y={y + 17}
             dominantBaseline="middle"
             fill="hsl(var(--foreground))"
             fontSize={12}
@@ -196,6 +196,10 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
         </text>
       );
     };
+
+    const renderLegendText = (value: string) => {
+      return <span style={{ color: 'hsl(var(--foreground))' }}>{value}</span>;
+    };
   
     return (
       <Card>
@@ -209,7 +213,7 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
                 data={data}
                 dataKey="count"
                 nameKey="name"
-                cx="50%"
+                cx="65%"
                 cy="50%"
                 outerRadius={120}
                 labelLine={false}
@@ -238,7 +242,13 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
                   return null;
                 }}
               />
-              <Legend wrapperStyle={{ paddingTop: "20px" }} />
+              <Legend 
+                layout="vertical"
+                align="left"
+                verticalAlign="middle"
+                wrapperStyle={{ paddingLeft: '20px' }}
+                formatter={renderLegendText}
+              />
             </PieChart>
           </ResponsiveContainer>
         </CardContent>
