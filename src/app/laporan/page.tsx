@@ -54,27 +54,33 @@ function calculateStats(services: HealthcareService[], groupBy: 'month' | 'offic
       .sort((a, b) => b.count - a.count);
 }
 
-const StatChart = ({ title, data, officerToPuskeswanMap, puskeswanColors, defaultColor }: { 
+const StatChart = ({ title, data, officerToPuskeswanMap, puskeswanColors, defaultColor, showAll = false }: { 
   title: string; 
   data: StatItem[];
   officerToPuskeswanMap: { [key: string]: string };
   puskeswanColors: { [key: string]: string };
   defaultColor: string;
+  showAll?: boolean;
 }) => {
   const isMobile = useIsMobile();
   const [showLabel, setShowLabel] = useState(false);
 
   useEffect(() => {
+    // No animation cycle
     const timer = setTimeout(() => {
       setShowLabel(true);
     }, 2000); // Match animation duration
     return () => clearTimeout(timer);
   }, [data]);
   
-  const chartData = useMemo(() => data.slice(0, 10), [data]);
+  const chartData = useMemo(() => showAll ? data : data.slice(0, 10), [data, showAll]);
   const yAxisWidth = isMobile ? 100 : 140;
   const rightMargin = isMobile ? 65 : 80;
   const labelTruncateLength = isMobile ? 12 : 20;
+
+  const barHeight = 28;
+  const chartHeight = Math.max(150, chartData.length * barHeight);
+
 
   return (
     <Card>
@@ -82,7 +88,7 @@ const StatChart = ({ title, data, officerToPuskeswanMap, puskeswanColors, defaul
         <CardTitle className="text-lg text-left">{title}</CardTitle>
       </CardHeader>
       <CardContent className="pr-0">
-          <ResponsiveContainer width="100%" height={Math.max(150, chartData.length * 28)}>
+          <ResponsiveContainer width="100%" height={chartHeight}>
             <BarChart
               data={chartData}
               layout="vertical"
@@ -127,6 +133,7 @@ const StatChart = ({ title, data, officerToPuskeswanMap, puskeswanColors, defaul
                 name="Jumlah"
                 radius={[0, 4, 4, 0]}
                 animationDuration={2000}
+                barSize={barHeight - 10}
               >
                 {showLabel && <LabelList
                     dataKey="count"
@@ -169,6 +176,7 @@ const StatPieChart = ({ title, data, colorMap, defaultColor }: {
   const [showLabel, setShowLabel] = useState(false);
 
   useEffect(() => {
+    // No animation cycle
     const timer = setTimeout(() => {
       setShowLabel(true);
     }, 2000); // Match animation duration
@@ -177,11 +185,11 @@ const StatPieChart = ({ title, data, colorMap, defaultColor }: {
 
   const RADIAN = Math.PI / 180;
   const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent }: any) => {
+      if (!showLabel || percent * 100 < 5) return null;
+      
       const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
       const x = cx + radius * Math.cos(-midAngle * RADIAN);
       const y = cy + radius * Math.sin(-midAngle * RADIAN);
-
-      if (!showLabel || percent * 100 < 5) return null;
 
       return (
         <text x={x} y={y} fill="white" textAnchor="middle" dominantBaseline="central" className="font-bold text-xs drop-shadow-[0_1px_1px_rgba(0,0,0,0.5)]">
@@ -315,6 +323,7 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
           officerToPuskeswanMap={officerToPuskeswanMap}
           puskeswanColors={puskeswanColors}
           defaultColor={defaultColor}
+          showAll={true}
         />
     </div>
   );
