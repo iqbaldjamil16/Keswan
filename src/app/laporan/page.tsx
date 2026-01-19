@@ -76,7 +76,7 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
   });
 
   const puskeswanColors: { [key: string]: string } = {
-    'Puskeswan Topoyo': '#00008B',
+    'Puskeswan Topoyo': '#0000CD',
     'Puskeswan Tobadak': '#008000',
     'Puskeswan Karossa': '#FF0000',
     'Puskeswan Budong-Budong': '#FFFF00',
@@ -86,7 +86,7 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
 
 
   const StatChart = ({ title, data }: { title: string; data: StatItem[] }) => {
-    const chartData = [...data].reverse();
+    const chartData = data;
 
     const CustomLabel = (props: any) => {
         const { x, y, width, index } = props;
@@ -164,7 +164,9 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
                 <LabelList content={<CustomLabel />} />
                 {chartData.map((entry, index) => {
                     let color = defaultColor;
-                    if (title === 'Statistik per Petugas') {
+                    if (title === 'Statistik per Bulan') {
+                        color = '#808080';
+                    } else if (title === 'Statistik per Petugas') {
                       const puskeswan = officerToPuskeswanMap[entry.name];
                       if (puskeswan) {
                         color = puskeswanColors[puskeswan] || defaultColor;
