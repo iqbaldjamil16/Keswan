@@ -66,10 +66,9 @@ const StatChart = ({ title, data, officerToPuskeswanMap, puskeswanColors, defaul
   const [showLabel, setShowLabel] = useState(false);
 
   useEffect(() => {
-    // No animation cycle
     const timer = setTimeout(() => {
       setShowLabel(true);
-    }, 2000); // Match animation duration
+    }, 2000); 
     return () => clearTimeout(timer);
   }, [data]);
   
@@ -176,10 +175,9 @@ const StatPieChart = ({ title, data, colorMap, defaultColor }: {
   const [showLabel, setShowLabel] = useState(false);
 
   useEffect(() => {
-    // No animation cycle
     const timer = setTimeout(() => {
       setShowLabel(true);
-    }, 2000); // Match animation duration
+    }, 2000); 
     return () => clearTimeout(timer);
   }, [data]);
 
@@ -199,7 +197,7 @@ const StatPieChart = ({ title, data, colorMap, defaultColor }: {
     };
 
   const renderLegendText = (value: string) => {
-    return <span style={{ color: 'hsl(var(--foreground))' }}>{value}</span>;
+    return <span className="text-xs" style={{ color: 'hsl(var(--foreground))' }}>{value}</span>;
   };
 
   return (
@@ -214,7 +212,7 @@ const StatPieChart = ({ title, data, colorMap, defaultColor }: {
               data={data}
               dataKey="count"
               nameKey="name"
-              cx="50%"
+              cx={isMobile ? '30%' : '50%'}
               cy="50%"
               outerRadius={isMobile ? 90 : 110}
               labelLine={false}
@@ -250,6 +248,7 @@ const StatPieChart = ({ title, data, colorMap, defaultColor }: {
               wrapperStyle={{ paddingTop: '20px' }}
               formatter={renderLegendText}
               iconSize={10}
+              align={isMobile ? 'left' : 'center'}
             />
           </PieChart>
         </ResponsiveContainer>
@@ -673,3 +672,5 @@ export default function ReportPage() {
     </div>
   );
 }
+
+    
