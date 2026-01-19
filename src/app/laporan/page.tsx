@@ -166,7 +166,7 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
                 {chartData.map((entry, index) => {
                     let color = defaultColor;
                     if (title === 'Statistik per Bulan') {
-                        color = '#808080';
+                        color = '#FA8072';
                     } else if (title === 'Statistik per Petugas') {
                       const puskeswan = officerToPuskeswanMap[entry.name];
                       if (puskeswan) {
@@ -262,8 +262,8 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
 
   return (
     <div className="space-y-6">
-        <StatChart title="Statistik per Bulan" data={statsByMonth} />
-        <StatChart title="Statistik per Petugas" data={statsByOfficer.sort((a, b) => b.count - a.count)} />
+        <StatChart title="Statistik per Bulan" data={statsByMonth.sort((a, b) => b.count - a.count)} />
+        <StatChart title="Statistik per Petugas" data={statsByOfficer} />
         <StatPieChart title="Statistik per Puskeswan" data={statsByPuskeswan} colorMap={puskeswanColors} />
         <StatChart title="Statistik per Kasus/Penyakit" data={statsByDiagnosis} />
     </div>
