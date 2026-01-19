@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useTransition, useEffect, useCallback } from "react";
@@ -537,10 +538,7 @@ export default function ReportPage() {
       
       <Tabs defaultValue="tabel" className="w-full">
         <Card>
-            <CardHeader>
-                <CardTitle className="text-xl font-semibold">Filter dan Tampilan</CardTitle>
-            </CardHeader>
-            <CardContent className="flex flex-col gap-4">
+            <CardContent className="p-6 flex flex-col gap-4">
                  <div className="flex flex-col md:flex-row md:justify-end gap-2">
                     <Select value={selectedMonth} onValueChange={setSelectedMonth}>
                     <SelectTrigger className="w-full sm:w-[180px]">
