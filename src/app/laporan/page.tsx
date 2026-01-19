@@ -66,11 +66,12 @@ const StatChart = ({ title, data, officerToPuskeswanMap, puskeswanColors, defaul
   const [showLabel, setShowLabel] = useState(false);
 
   useEffect(() => {
+    // This timeout is a workaround to ensure labels appear after the bar animation.
     const timer = setTimeout(() => {
       setShowLabel(true);
-    }, 2000); 
+    }, 2000); // Duration should match animationDuration of the Bar
     return () => clearTimeout(timer);
-  }, [data]);
+  }, [data]); // Re-trigger if data changes
   
   const chartData = useMemo(() => showAll ? data : data.slice(0, 10), [data, showAll]);
   const yAxisWidth = isMobile ? 100 : 140;
@@ -175,11 +176,12 @@ const StatPieChart = ({ title, data, colorMap, defaultColor }: {
   const [showLabel, setShowLabel] = useState(false);
 
   useEffect(() => {
+    // This timeout is a workaround to ensure labels appear after the pie animation.
     const timer = setTimeout(() => {
       setShowLabel(true);
-    }, 2000); 
+    }, 2000); // Duration should match animationDuration of the Pie
     return () => clearTimeout(timer);
-  }, [data]);
+  }, [data]); // Re-trigger if data changes
 
   const RADIAN = Math.PI / 180;
   const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent }: any) => {
@@ -213,7 +215,7 @@ const StatPieChart = ({ title, data, colorMap, defaultColor }: {
               dataKey="count"
               nameKey="name"
               cx="50%"
-              cy="50%"
+              cy={isMobile ? '40%' : '50%'}
               outerRadius={isMobile ? 90 : 110}
               labelLine={false}
               label={renderCustomizedLabel}
@@ -243,7 +245,8 @@ const StatPieChart = ({ title, data, colorMap, defaultColor }: {
                 return null;
               }}
             />
-            <Legend 
+            <Legend
+              layout={isMobile ? 'vertical' : 'horizontal'}
               verticalAlign="bottom"
               wrapperStyle={{ paddingTop: '20px' }}
               formatter={renderLegendText}
@@ -640,8 +643,8 @@ export default function ReportPage() {
             Statistik
           </TabsTrigger>
         </TabsList>
-        <div className="mt-6">
-          <TabsContent value="tabel">
+        <div className="mt-6 md:mt-0">
+          <TabsContent value="tabel" className="md:mt-6">
             <ServiceTable
               services={filteredServices}
               loading={loading && allServices.length === 0}
@@ -651,7 +654,7 @@ export default function ReportPage() {
               isPending={isPending}
             />
           </TabsContent>
-          <TabsContent value="statistik">
+          <TabsContent value="statistik" className="md:mt-6">
             <StatisticsDisplay services={filteredServices} />
           </TabsContent>
         </div>
