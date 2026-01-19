@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useTransition, useEffect, useCallback } from "react";
+import { useState, useTransition, useEffect, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import * as XLSX from 'xlsx';
 import { getYear, getMonth, format, subYears } from "date-fns";
@@ -54,35 +54,44 @@ function calculateStats(services: HealthcareService[], groupBy: 'month' | 'offic
       .sort((a, b) => b.count - a.count);
 }
 
-const StatChart = ({ title, data, animationKey, officerToPuskeswanMap, puskeswanColors, defaultColor }: { 
+const StatChart = ({ title, data, officerToPuskeswanMap, puskeswanColors, defaultColor }: { 
   title: string; 
   data: StatItem[];
-  animationKey: number;
   officerToPuskeswanMap: { [key: string]: string };
   puskeswanColors: { [key: string]: string };
   defaultColor: string;
 }) => {
   const isMobile = useIsMobile();
+  const [animationKey, setAnimationKey] = useState(0);
   const [showLabels, setShowLabels] = useState(false);
 
   useEffect(() => {
-    setShowLabels(false);
-    const timer = setTimeout(() => setShowLabels(true), 3000); // Match animation duration
+    const timer = setTimeout(() => {
+      setShowLabels(true);
+    }, 3000); // Match animation duration
     return () => clearTimeout(timer);
   }, [animationKey]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+        setShowLabels(false);
+        setAnimationKey(prev => prev + 1);
+    }, 33000); 
+
+    return () => clearInterval(interval);
+  }, []);
   
-  const chartData = data;
-  const yAxisWidth = isMobile ? 100 : 140;
-  const rightMargin = isMobile ? 70 : 90;
-  const labelTruncateLength = isMobile ? 12 : 20;
+  const chartData = useMemo(() => data.slice(0, 10), [data]);
+  const yAxisWidth = isMobile ? 80 : 140;
+  const rightMargin = isMobile ? 80 : 90;
+  const labelTruncateLength = isMobile ? 10 : 20;
 
   return (
     <Card>
       <CardHeader>
         <CardTitle className="text-lg">{title}</CardTitle>
       </CardHeader>
-      <CardContent className={cn(isMobile && "overflow-x-hidden")}>
-        <div className={cn(isMobile && "-mx-6")}>
+      <CardContent className={cn(isMobile && "overflow-x-auto", isMobile && "-mx-4")}>
           <ResponsiveContainer key={animationKey} width="100%" height={Math.max(150, chartData.length * 26)}>
             <BarChart
               data={chartData}
@@ -110,12 +119,10 @@ const StatChart = ({ title, data, animationKey, officerToPuskeswanMap, puskeswan
                   if (active && payload && payload.length) {
                     return (
                       <div className="rounded-lg border bg-background p-2 shadow-sm text-sm whitespace-nowrap">
-                         <div className="flex items-center gap-2">
-                            <span className="font-bold">{label}</span>
-                            <span className="text-muted-foreground">
-                              {`Jumlah: ${payload[0].value} (${(payload[0].payload as StatItem).percentage.toFixed(0)}%)`}
-                            </span>
-                        </div>
+                        <span className="font-bold">{label}</span>
+                        <span className="text-muted-foreground ml-2">
+                          {`Jumlah: ${payload[0].value} (${(payload[0].payload as StatItem).percentage.toFixed(0)}%)`}
+                        </span>
                       </div>
                     );
                   }
@@ -154,27 +161,36 @@ const StatChart = ({ title, data, animationKey, officerToPuskeswanMap, puskeswan
               </Bar>
             </BarChart>
           </ResponsiveContainer>
-        </div>
       </CardContent>
     </Card>
   );
 };
 
-const StatPieChart = ({ title, data, colorMap, animationKey, defaultColor }: { 
+const StatPieChart = ({ title, data, colorMap, defaultColor }: { 
   title: string; 
   data: StatItem[]; 
   colorMap: { [key: string]: string }, 
-  animationKey: number, 
   defaultColor: string 
 }) => {
   const isMobile = useIsMobile();
+  const [animationKey, setAnimationKey] = useState(0);
   const [showLabels, setShowLabels] = useState(false);
 
   useEffect(() => {
-    setShowLabels(false);
-    const timer = setTimeout(() => setShowLabels(true), 3000); // Match animation duration
+    const timer = setTimeout(() => {
+        setShowLabels(true);
+    }, 3000);
     return () => clearTimeout(timer);
   }, [animationKey]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+        setShowLabels(false);
+        setAnimationKey(prev => prev + 1);
+    }, 33000); 
+
+    return () => clearInterval(interval);
+  }, []);
   
   const RADIAN = Math.PI / 180;
   const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent, value, name }: any) => {
@@ -225,15 +241,15 @@ const StatPieChart = ({ title, data, colorMap, animationKey, defaultColor }: {
                 if (active && payload && payload.length) {
                   const dataPayload = payload[0];
                   return (
-                      <div className="rounded-lg border bg-background p-2 shadow-sm text-sm whitespace-nowrap">
-                          <div className="flex items-center gap-2">
-                            <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: dataPayload.payload.fill }}></div>
-                             <span className="font-bold">{dataPayload.name}</span>
-                             <span className="text-muted-foreground">
-                                 {`Jumlah: ${dataPayload.value} (${(dataPayload.payload.percentage).toFixed(0)}%)`}
-                             </span>
-                          </div>
+                    <div className="rounded-lg border bg-background p-2 shadow-sm text-sm whitespace-nowrap">
+                      <div className="flex items-center">
+                        <div className="w-2 h-2 rounded-full flex-shrink-0 mr-2" style={{ backgroundColor: dataPayload.payload.fill }}></div>
+                        <span className="font-bold">{dataPayload.name}</span>
+                        <span className="text-muted-foreground ml-2">
+                            {`Jumlah: ${dataPayload.value} (${(dataPayload.payload.percentage).toFixed(0)}%)`}
+                        </span>
                       </div>
+                    </div>
                   );
                 }
                 return null;
@@ -255,19 +271,6 @@ const StatPieChart = ({ title, data, colorMap, animationKey, defaultColor }: {
 
 
 function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
-  const [animationKey, setAnimationKey] = useState(0);
-
-  useEffect(() => {
-    setAnimationKey(prevKey => prevKey + 1);
-  }, [services]);
-
-  useEffect(() => {
-    const intervalId = setInterval(() => {
-      setAnimationKey(prevKey => prevKey + 1);
-    }, 33000); 
-
-    return () => clearInterval(intervalId);
-  }, []);
 
   if (services.length === 0) {
       return (
@@ -308,7 +311,6 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
         <StatChart 
           title="Statistik per Bulan" 
           data={statsByMonth} 
-          animationKey={animationKey}
           officerToPuskeswanMap={officerToPuskeswanMap}
           puskeswanColors={puskeswanColors}
           defaultColor={defaultColor}
@@ -316,7 +318,6 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
         <StatChart 
           title="Statistik per Petugas" 
           data={statsByOfficer} 
-          animationKey={animationKey}
           officerToPuskeswanMap={officerToPuskeswanMap}
           puskeswanColors={puskeswanColors}
           defaultColor={defaultColor}
@@ -325,13 +326,11 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
           title="Statistik per Puskeswan" 
           data={statsByPuskeswan} 
           colorMap={puskeswanColors} 
-          animationKey={animationKey} 
           defaultColor={defaultColor} 
         />
         <StatChart 
           title="Statistik per Kasus/Penyakit" 
           data={statsByDiagnosis} 
-          animationKey={animationKey}
           officerToPuskeswanMap={officerToPuskeswanMap}
           puskeswanColors={puskeswanColors}
           defaultColor={defaultColor}
@@ -521,7 +520,6 @@ export default function ReportPage() {
         allDataForSheet.push({ 'Nama Petugas': officerName }); 
         allDataForSheet.push(Object.fromEntries(headers.map(h => [h, h])));
 
-        const officerServices = servicesByOfficer[officerName];
         const data = officerServices.map((service) => ({
             'Tanggal': format(new Date(service.date), 'dd-MM-yyyy'),
             'Nama Pemilik': service.ownerName,
@@ -683,5 +681,3 @@ export default function ReportPage() {
     </div>
   );
 }
-
-    
