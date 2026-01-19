@@ -76,7 +76,7 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
 
   const puskeswanColors: { [key: string]: string } = {
     'Puskeswan Topoyo': '#87CEFA',       // Light Blue
-    'Puskeswan Tobadak': '#006400',      // Dark Green
+    'Puskeswan Tobadak': '#FF0000',      // Red
     'Puskeswan Karossa': '#FA8072',      // Salem Pink
     'Puskeswan Budong-Budong': '#FFA500', // Orange
     'Puskeswan Pangale': '#D8BFD8',      // Light Purple
