@@ -15,7 +15,7 @@ import { type HealthcareService } from "@/lib/types";
 import { PasswordDialog } from "@/components/password-dialog";
 import { puskeswanList } from "@/lib/definitions";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LabelList } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, LabelList } from 'recharts';
 
 
 interface StatItem {
@@ -71,7 +71,9 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
     const chartData = [...data].reverse();
 
     const CustomLabel = (props: any) => {
-        const { x, y, width, height, value, percentage } = props;
+        const { x, y, width, height, value } = props;
+        const percentage = props.payload?.percentage;
+
         if (value == null || percentage === undefined) {
             return null;
         }
@@ -140,7 +142,7 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
                 fill="hsl(var(--primary))"
                 radius={[0, 4, 4, 0]}
               >
-                <LabelList dataKey="count" content={CustomLabel} />
+                <LabelList dataKey="count" content={<CustomLabel />} />
               </Bar>
             </BarChart>
           </ResponsiveContainer>
