@@ -141,9 +141,9 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
                   if (active && payload && payload.length) {
                     return (
                       <div className="rounded-lg border bg-background p-2 shadow-sm text-sm">
-                        <div className="flex flex-nowrap items-center gap-2">
-                            <span className="font-bold whitespace-nowrap">{label}</span>
-                            <span className="text-muted-foreground whitespace-nowrap">
+                        <div className="whitespace-nowrap">
+                            <span className="font-bold">{label}</span>
+                            <span className="text-muted-foreground ml-2">
                               {`Jumlah: ${
                                 payload[0].value
                               } (${(payload[0].payload as StatItem).percentage.toFixed(0)}%)`}
@@ -244,12 +244,14 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
                     const dataPayload = payload[0];
                     return (
                       <div className="rounded-lg border bg-background p-2 shadow-sm text-sm">
-                        <div className="flex flex-nowrap items-center gap-2">
+                        <div className="flex items-center gap-2">
                           <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: dataPayload.payload.fill }}></div>
-                          <span className="font-bold whitespace-nowrap">{dataPayload.name}</span>
-                          <span className="text-muted-foreground whitespace-nowrap">
-                            {`Jumlah: ${dataPayload.value} (${(dataPayload.payload.percentage).toFixed(0)}%)`}
-                          </span>
+                           <div className="whitespace-nowrap">
+                                <span className="font-bold">{dataPayload.name}</span>
+                                <span className="text-muted-foreground ml-2">
+                                    {`Jumlah: ${dataPayload.value} (${(dataPayload.payload.percentage).toFixed(0)}%)`}
+                                </span>
+                           </div>
                         </div>
                       </div>
                     );
