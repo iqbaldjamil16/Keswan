@@ -61,7 +61,7 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
   useEffect(() => {
     const intervalId = setInterval(() => {
       setAnimationKey(prevKey => prevKey + 1);
-    }, 6000); // 3-second animation + 3-second pause
+    }, 13000); // 3-second animation + 10-second pause
 
     return () => clearInterval(intervalId);
   }, []);
@@ -622,9 +622,3 @@ export default function ReportPage() {
     </div>
   );
 }
-
-    
-
-    
-
-    
