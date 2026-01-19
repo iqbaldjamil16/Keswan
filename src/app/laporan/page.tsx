@@ -193,6 +193,7 @@ export default function ReportPage() {
 
   return (
     <div className="container px-4 sm:px-8 py-4 md:py-8 space-y-6">
+      <Tabs defaultValue="tabel" className="w-full">
         <Card>
             <CardHeader>
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -218,30 +219,30 @@ export default function ReportPage() {
                 </div>
             </CardHeader>
             <CardContent className="p-6 pt-0">
-                <Tabs defaultValue="tabel" className="w-full">
-                    <TabsList>
-                    <TabsTrigger value="tabel">
-                        <LayoutGrid className="mr-2 h-4 w-4" />
-                        Tabel
-                    </TabsTrigger>
-                    <TabsTrigger value="statistik">
-                        <BarChart2 className="mr-2 h-4 w-4" />
-                        Statistik
-                    </TabsTrigger>
-                    </TabsList>
-                    <TabsContent value="tabel" className="mt-4">
-                    <ServiceTable 
-                        onServicesFiltered={setFilteredServices}
-                        onMonthChange={setSelectedMonth}
-                        onYearChange={setSelectedYear}
-                    />
-                    </TabsContent>
-                    <TabsContent value="statistik" className="mt-4">
-                    <StatisticsDisplay services={filteredServices} />
-                    </TabsContent>
-                </Tabs>
+                <TabsList>
+                <TabsTrigger value="tabel">
+                    <LayoutGrid className="mr-2 h-4 w-4" />
+                    Tabel
+                </TabsTrigger>
+                <TabsTrigger value="statistik">
+                    <BarChart2 className="mr-2 h-4 w-4" />
+                    Statistik
+                </TabsTrigger>
+                </TabsList>
             </CardContent>
         </Card>
+        
+        <TabsContent value="tabel" className="mt-6">
+          <ServiceTable 
+              onServicesFiltered={setFilteredServices}
+              onMonthChange={setSelectedMonth}
+              onYearChange={setSelectedYear}
+          />
+        </TabsContent>
+        <TabsContent value="statistik" className="mt-6">
+          <StatisticsDisplay services={filteredServices} />
+        </TabsContent>
+      </Tabs>
       
       <Button
           variant="default"
