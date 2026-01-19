@@ -89,7 +89,7 @@ const StatChart = ({ title, data, officerToPuskeswanMap, puskeswanColors, defaul
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-lg">{title}</CardTitle>
+        <CardTitle className="text-lg text-left">{title}</CardTitle>
       </CardHeader>
       <CardContent className={cn(isMobile && "overflow-x-auto", isMobile && "-mx-4")}>
           <ResponsiveContainer key={animationKey} width="100%" height={Math.max(150, chartData.length * 26)}>
@@ -219,7 +219,7 @@ const StatPieChart = ({ title, data, colorMap, defaultColor }: {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-lg">{title}</CardTitle>
+        <CardTitle className="text-lg text-left">{title}</CardTitle>
       </CardHeader>
       <CardContent>
         <ResponsiveContainer key={animationKey} width="100%" height={isMobile ? 450 : 350}>
@@ -280,7 +280,7 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
       return (
         <Card>
             <CardHeader>
-                <CardTitle>Statistik Belum Tersedia</CardTitle>
+                <CardTitle className="text-left">Statistik Belum Tersedia</CardTitle>
                 <CardDescription>
                     Tidak ada data untuk ditampilkan statistiknya pada periode yang dipilih.
                 </CardDescription>
