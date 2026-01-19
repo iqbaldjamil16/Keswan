@@ -215,7 +215,7 @@ const StatPieChart = ({ title, data, colorMap, defaultColor }: {
               dataKey="count"
               nameKey="name"
               cx="50%"
-              cy="50%"
+              cy={isMobile ? "40%" : "50%"}
               outerRadius={isMobile ? 90 : 110}
               labelLine={false}
               label={renderCustomizedLabel}
@@ -673,3 +673,4 @@ export default function ReportPage() {
     </div>
   );
 }
+
