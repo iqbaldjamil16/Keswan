@@ -107,6 +107,10 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
     const labelTruncateLength = isMobile ? 12 : 20;
     const [showLabels, setShowLabels] = useState(false);
 
+    useEffect(() => {
+      setShowLabels(false);
+    }, [animationKey]);
+
     return (
       <Card>
         <CardHeader>
@@ -140,15 +144,11 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
                 content={({ active, payload, label }) => {
                   if (active && payload && payload.length) {
                     return (
-                      <div className="rounded-lg border bg-background p-2 shadow-sm text-sm">
-                        <div className="whitespace-nowrap">
-                            <span className="font-bold">{label}</span>
-                            <span className="text-muted-foreground ml-2">
-                              {`Jumlah: ${
-                                payload[0].value
-                              } (${(payload[0].payload as StatItem).percentage.toFixed(0)}%)`}
-                            </span>
-                        </div>
+                      <div className="rounded-lg border bg-background p-2 shadow-sm text-sm whitespace-nowrap">
+                          <span className="font-bold">{label}</span>
+                          <span className="text-muted-foreground ml-2">
+                            {`Jumlah: ${payload[0].value} (${(payload[0].payload as StatItem).percentage.toFixed(0)}%)`}
+                          </span>
                       </div>
                     );
                   }
@@ -194,6 +194,11 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
   
   const StatPieChart = ({ title, data, colorMap }: { title: string; data: StatItem[]; colorMap: { [key: string]: string } }) => {
     const [showLabels, setShowLabels] = useState(false);
+
+    useEffect(() => {
+      setShowLabels(false);
+    }, [animationKey]);
+
     const RADIAN = Math.PI / 180;
     const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent, value, name }: any) => {
         if (!showLabels) return null;
@@ -243,10 +248,10 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
                   if (active && payload && payload.length) {
                     const dataPayload = payload[0];
                     return (
-                      <div className="rounded-lg border bg-background p-2 shadow-sm text-sm">
+                      <div className="rounded-lg border bg-background p-2 shadow-sm text-sm whitespace-nowrap">
                         <div className="flex items-center gap-2">
                           <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: dataPayload.payload.fill }}></div>
-                           <div className="whitespace-nowrap">
+                           <div>
                                 <span className="font-bold">{dataPayload.name}</span>
                                 <span className="text-muted-foreground ml-2">
                                     {`Jumlah: ${dataPayload.value} (${(dataPayload.payload.percentage).toFixed(0)}%)`}
