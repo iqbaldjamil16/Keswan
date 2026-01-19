@@ -242,13 +242,11 @@ const StatPieChart = ({ title, data, colorMap, defaultColor }: {
                   const dataPayload = payload[0];
                   return (
                     <div className="rounded-lg border bg-background p-2 shadow-sm text-sm whitespace-nowrap">
-                      <div className="flex items-center">
-                        <div className="w-2 h-2 rounded-full flex-shrink-0 mr-2" style={{ backgroundColor: dataPayload.payload.fill }}></div>
-                        <span className="font-bold">{dataPayload.name}</span>
-                        <span className="text-muted-foreground ml-2">
-                            {`Jumlah: ${dataPayload.value} (${(dataPayload.payload.percentage).toFixed(0)}%)`}
-                        </span>
-                      </div>
+                      <div className="w-2 h-2 rounded-full inline-block mr-2" style={{ backgroundColor: dataPayload.payload.fill }}></div>
+                      <span className="font-bold">{dataPayload.name}</span>
+                      <span className="text-muted-foreground ml-2">
+                          {`Jumlah: ${dataPayload.value} (${(dataPayload.payload.percentage).toFixed(0)}%)`}
+                      </span>
                     </div>
                   );
                 }
@@ -520,6 +518,7 @@ export default function ReportPage() {
         allDataForSheet.push({ 'Nama Petugas': officerName }); 
         allDataForSheet.push(Object.fromEntries(headers.map(h => [h, h])));
 
+        const officerServices = servicesByOfficer[officerName];
         const data = officerServices.map((service) => ({
             'Tanggal': format(new Date(service.date), 'dd-MM-yyyy'),
             'Nama Pemilik': service.ownerName,
@@ -681,3 +680,5 @@ export default function ReportPage() {
     </div>
   );
 }
+
+    
