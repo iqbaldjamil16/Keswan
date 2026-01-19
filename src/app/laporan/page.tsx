@@ -53,8 +53,204 @@ function calculateStats(services: HealthcareService[], groupBy: 'month' | 'offic
       .sort((a, b) => b.count - a.count);
 }
 
-function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
+const StatChart = ({ title, data, animationKey, officerToPuskeswanMap, puskeswanColors, defaultColor }: { 
+  title: string; 
+  data: StatItem[];
+  animationKey: number;
+  officerToPuskeswanMap: { [key: string]: string };
+  puskeswanColors: { [key: string]: string };
+  defaultColor: string;
+}) => {
   const isMobile = useIsMobile();
+  const [showLabels, setShowLabels] = useState(false);
+
+  useEffect(() => {
+    setShowLabels(false);
+  }, [animationKey]);
+  
+  const chartData = data;
+  const yAxisWidth = isMobile ? 100 : 140;
+  const rightMargin = isMobile ? 70 : 90;
+  const labelTruncateLength = isMobile ? 12 : 20;
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-lg">{title}</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <ResponsiveContainer key={animationKey} width="100%" height={Math.max(150, chartData.length * 26)}>
+          <BarChart
+            data={chartData}
+            layout="vertical"
+            margin={{ top: 5, right: rightMargin, left: 10, bottom: 5 }}
+            onAnimationEnd={() => setShowLabels(true)}
+          >
+            <XAxis type="number" hide />
+            <YAxis
+              type="category"
+              dataKey="name"
+              tickLine={false}
+              axisLine={false}
+              stroke="hsl(var(--muted-foreground))"
+              fontSize={12}
+              tickFormatter={(value) =>
+                value.length > labelTruncateLength ? `${value.substring(0, labelTruncateLength)}...` : value
+              }
+              interval={0}
+              width={yAxisWidth}
+              tick={{ fontWeight: 'bold' }}
+            />
+            <Tooltip
+              cursor={{ fill: "hsl(var(--muted))" }}
+              content={({ active, payload, label }) => {
+                if (active && payload && payload.length) {
+                  return (
+                    <div className="rounded-lg border bg-background p-2 shadow-sm text-sm whitespace-nowrap">
+                      <div className='flex items-center flex-nowrap'>
+                          <span className="font-bold">{label}</span>
+                          <span className="text-muted-foreground ml-2">
+                            {`Jumlah: ${payload[0].value} (${(payload[0].payload as StatItem).percentage.toFixed(0)}%)`}
+                          </span>
+                      </div>
+                    </div>
+                  );
+                }
+                return null;
+              }}
+            />
+            <Bar
+              dataKey="count"
+              name="Jumlah"
+              radius={[0, 4, 4, 0]}
+              animationDuration={3000}
+            >
+              {showLabels && <LabelList
+                  dataKey={(d: StatItem) => `${d.count} (${d.percentage.toFixed(0)}%)`}
+                  position="right"
+                  offset={8}
+                  isAnimationActive={false}
+                  className="font-semibold"
+                  fill="hsl(var(--foreground))"
+                  fontSize={12}
+              />}
+              {chartData.map((entry, index) => {
+                  let color = defaultColor;
+                  if (title === 'Statistik per Bulan') {
+                      color = '#FA8072';
+                  } else if (title === 'Statistik per Petugas') {
+                    const puskeswan = officerToPuskeswanMap[entry.name];
+                    if (puskeswan) {
+                      color = puskeswanColors[puskeswan] || defaultColor;
+                    }
+                  } else if (title === 'Statistik per Kasus/Penyakit') {
+                    color = '#006400';
+                  }
+                  return <Cell key={`cell-${index}`} fill={color} />;
+                })}
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
+      </CardContent>
+    </Card>
+  );
+};
+
+const StatPieChart = ({ title, data, colorMap, animationKey, defaultColor }: { 
+  title: string; 
+  data: StatItem[]; 
+  colorMap: { [key: string]: string }, 
+  animationKey: number, 
+  defaultColor: string 
+}) => {
+  const isMobile = useIsMobile();
+  const [showLabels, setShowLabels] = useState(false);
+
+  useEffect(() => {
+      setShowLabels(false);
+  }, [animationKey]);
+  
+  const RADIAN = Math.PI / 180;
+  const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent, value, name }: any) => {
+      if (!showLabels) return null;
+
+      const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
+      const x = cx + radius * Math.cos(-midAngle * RADIAN);
+      const y = cy + radius * Math.sin(-midAngle * RADIAN);
+
+      if (percent * 100 < 5) return null;
+
+      return (
+        <text x={x} y={y} fill="black" textAnchor="middle" dominantBaseline="central" className="font-bold text-sm">
+          {`${value} (${(percent * 100).toFixed(0)}%)`}
+        </text>
+      );
+    };
+
+  const renderLegendText = (value: string) => {
+    return <span style={{ color: 'black' }}>{value}</span>;
+  };
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-lg">{title}</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <ResponsiveContainer key={animationKey} width="100%" height={isMobile ? 450 : 350}>
+          <PieChart onAnimationEnd={() => setShowLabels(true)}>
+            <Pie
+              data={data}
+              dataKey="count"
+              nameKey="name"
+              cx={isMobile ? '50%' : '65%'}
+              cy={isMobile ? '45%' : '50%'}
+              outerRadius={isMobile ? 100 : 120}
+              labelLine={false}
+              label={renderCustomizedLabel}
+              animationDuration={3000}
+            >
+              {data.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={colorMap[entry.name] || defaultColor} />
+              ))}
+            </Pie>
+            <Tooltip
+              content={({ active, payload }) => {
+                if (active && payload && payload.length) {
+                  const dataPayload = payload[0];
+                  return (
+                      <div className="rounded-lg border bg-background p-2 shadow-sm text-sm whitespace-nowrap">
+                          <div className="flex items-center gap-2 flex-nowrap">
+                            <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: dataPayload.payload.fill }}></div>
+                             <div>
+                                  <span className="font-bold">{dataPayload.name}</span>
+                                  <span className="text-muted-foreground ml-2">
+                                      {`Jumlah: ${dataPayload.value} (${(dataPayload.payload.percentage).toFixed(0)}%)`}
+                                  </span>
+                             </div>
+                          </div>
+                      </div>
+                  );
+                }
+                return null;
+              }}
+            />
+            <Legend 
+              layout={isMobile ? 'horizontal' : 'vertical'}
+              align={'left'}
+              verticalAlign={isMobile ? 'bottom' : 'middle'}
+              wrapperStyle={isMobile ? { paddingTop: '20px' } : { paddingLeft: '20px' }}
+              formatter={renderLegendText}
+            />
+          </PieChart>
+        </ResponsiveContainer>
+      </CardContent>
+    </Card>
+  );
+};
+
+
+function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
   const [animationKey, setAnimationKey] = useState(0);
 
   useEffect(() => {
@@ -69,7 +265,7 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
     }, 33000); // 3-second animation + 30-second pause
 
     return () => clearInterval(intervalId);
-  }, []); // Empty dependency array ensures this runs once for the component's lifetime
+  }, []);
 
   if (services.length === 0) {
       return (
@@ -105,194 +301,39 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
   };
   const defaultColor = '#808080';
 
-  const StatChart = ({ title, data }: { title: string; data: StatItem[] }) => {
-    const chartData = data;
-    const yAxisWidth = isMobile ? 100 : 140;
-    const rightMargin = isMobile ? 70 : 90;
-    const labelTruncateLength = isMobile ? 12 : 20;
-    const [showLabels, setShowLabels] = useState(false);
-  
-    // Reset showLabels to false whenever animationKey changes (new animation cycle starts)
-    useEffect(() => {
-      setShowLabels(false);
-    }, [animationKey]);
-
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">{title}</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <ResponsiveContainer key={animationKey} width="100%" height={Math.max(150, chartData.length * 26)}>
-            <BarChart
-              data={chartData}
-              layout="vertical"
-              margin={{ top: 5, right: rightMargin, left: 10, bottom: 5 }}
-              onAnimationEnd={() => setShowLabels(true)}
-            >
-              <XAxis type="number" hide />
-              <YAxis
-                type="category"
-                dataKey="name"
-                tickLine={false}
-                axisLine={false}
-                stroke="hsl(var(--muted-foreground))"
-                fontSize={12}
-                tickFormatter={(value) =>
-                  value.length > labelTruncateLength ? `${value.substring(0, labelTruncateLength)}...` : value
-                }
-                interval={0}
-                width={yAxisWidth}
-                tick={{ fontWeight: 'bold' }}
-              />
-              <Tooltip
-                cursor={{ fill: "hsl(var(--muted))" }}
-                content={({ active, payload, label }) => {
-                  if (active && payload && payload.length) {
-                    return (
-                      <div className="rounded-lg border bg-background p-2 shadow-sm text-sm whitespace-nowrap">
-                        <div className='flex items-center flex-nowrap'>
-                            <span className="font-bold">{label}</span>
-                            <span className="text-muted-foreground ml-2">
-                              {`Jumlah: ${payload[0].value} (${(payload[0].payload as StatItem).percentage.toFixed(0)}%)`}
-                            </span>
-                        </div>
-                      </div>
-                    );
-                  }
-                  return null;
-                }}
-              />
-              <Bar
-                dataKey="count"
-                name="Jumlah"
-                radius={[0, 4, 4, 0]}
-                animationDuration={3000}
-              >
-                {showLabels && <LabelList
-                    dataKey={(d: StatItem) => `${d.count} (${d.percentage.toFixed(0)}%)`}
-                    position="right"
-                    offset={8}
-                    isAnimationActive={false}
-                    className="font-semibold"
-                    fill="hsl(var(--foreground))"
-                    fontSize={12}
-                />}
-                {chartData.map((entry, index) => {
-                    let color = defaultColor;
-                    if (title === 'Statistik per Bulan') {
-                        color = '#FA8072';
-                    } else if (title === 'Statistik per Petugas') {
-                      const puskeswan = officerToPuskeswanMap[entry.name];
-                      if (puskeswan) {
-                        color = puskeswanColors[puskeswan] || defaultColor;
-                      }
-                    } else if (title === 'Statistik per Kasus/Penyakit') {
-                      color = '#006400';
-                    }
-                    return <Cell key={`cell-${index}`} fill={color} />;
-                  })}
-              </Bar>
-            </BarChart>
-          </ResponsiveContainer>
-        </CardContent>
-      </Card>
-    );
-  };
-  
-  const StatPieChart = ({ title, data, colorMap }: { title: string; data: StatItem[]; colorMap: { [key: string]: string } }) => {
-    const [showLabels, setShowLabels] = useState(false);
-  
-    // Reset showLabels to false whenever animationKey changes (new animation cycle starts)
-    useEffect(() => {
-        setShowLabels(false);
-    }, [animationKey]);
-    
-    const RADIAN = Math.PI / 180;
-    const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent, value, name }: any) => {
-        if (!showLabels) return null;
-
-        const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
-        const x = cx + radius * Math.cos(-midAngle * RADIAN);
-        const y = cy + radius * Math.sin(-midAngle * RADIAN);
-  
-        if (percent * 100 < 5) return null;
-  
-        return (
-          <text x={x} y={y} fill="black" textAnchor="middle" dominantBaseline="central" className="font-bold text-sm">
-            {`${value} (${(percent * 100).toFixed(0)}%)`}
-          </text>
-        );
-      };
-
-    const renderLegendText = (value: string) => {
-      return <span style={{ color: 'black' }}>{value}</span>;
-    };
-  
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">{title}</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <ResponsiveContainer key={animationKey} width="100%" height={isMobile ? 450 : 350}>
-            <PieChart onAnimationEnd={() => setShowLabels(true)}>
-              <Pie
-                data={data}
-                dataKey="count"
-                nameKey="name"
-                cx={isMobile ? '50%' : '65%'}
-                cy={isMobile ? '45%' : '50%'}
-                outerRadius={isMobile ? 100 : 120}
-                labelLine={false}
-                label={renderCustomizedLabel}
-                animationDuration={3000}
-              >
-                {data.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={colorMap[entry.name] || defaultColor} />
-                ))}
-              </Pie>
-              <Tooltip
-                content={({ active, payload }) => {
-                  if (active && payload && payload.length) {
-                    const dataPayload = payload[0];
-                    return (
-                        <div className="rounded-lg border bg-background p-2 shadow-sm text-sm whitespace-nowrap">
-                            <div className="flex items-center gap-2 flex-nowrap">
-                              <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: dataPayload.payload.fill }}></div>
-                               <div>
-                                    <span className="font-bold">{dataPayload.name}</span>
-                                    <span className="text-muted-foreground ml-2">
-                                        {`Jumlah: ${dataPayload.value} (${(dataPayload.payload.percentage).toFixed(0)}%)`}
-                                    </span>
-                               </div>
-                            </div>
-                        </div>
-                    );
-                  }
-                  return null;
-                }}
-              />
-              <Legend 
-                layout={isMobile ? 'horizontal' : 'vertical'}
-                align={'left'}
-                verticalAlign={isMobile ? 'bottom' : 'middle'}
-                wrapperStyle={isMobile ? { paddingTop: '20px' } : { paddingLeft: '20px' }}
-                formatter={renderLegendText}
-              />
-            </PieChart>
-          </ResponsiveContainer>
-        </CardContent>
-      </Card>
-    );
-  };
-
   return (
     <div className="space-y-6">
-        <StatChart title="Statistik per Bulan" data={statsByMonth} />
-        <StatChart title="Statistik per Petugas" data={statsByOfficer} />
-        <StatPieChart title="Statistik per Puskeswan" data={statsByPuskeswan} colorMap={puskeswanColors} />
-        <StatChart title="Statistik per Kasus/Penyakit" data={statsByDiagnosis} />
+        <StatChart 
+          title="Statistik per Bulan" 
+          data={statsByMonth} 
+          animationKey={animationKey}
+          officerToPuskeswanMap={officerToPuskeswanMap}
+          puskeswanColors={puskeswanColors}
+          defaultColor={defaultColor}
+        />
+        <StatChart 
+          title="Statistik per Petugas" 
+          data={statsByOfficer} 
+          animationKey={animationKey}
+          officerToPuskeswanMap={officerToPuskeswanMap}
+          puskeswanColors={puskeswanColors}
+          defaultColor={defaultColor}
+        />
+        <StatPieChart 
+          title="Statistik per Puskeswan" 
+          data={statsByPuskeswan} 
+          colorMap={puskeswanColors} 
+          animationKey={animationKey} 
+          defaultColor={defaultColor} 
+        />
+        <StatChart 
+          title="Statistik per Kasus/Penyakit" 
+          data={statsByDiagnosis} 
+          animationKey={animationKey}
+          officerToPuskeswanMap={officerToPuskeswanMap}
+          puskeswanColors={puskeswanColors}
+          defaultColor={defaultColor}
+        />
     </div>
   );
 }
