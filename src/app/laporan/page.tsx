@@ -67,7 +67,7 @@ const StatChart = ({ title, data, animationKey, officerToPuskeswanMap, puskeswan
 
   useEffect(() => {
     setShowLabels(false);
-    const timer = setTimeout(() => setShowLabels(true), 3000);
+    const timer = setTimeout(() => setShowLabels(true), 3000); // Match animation duration
     return () => clearTimeout(timer);
   }, [animationKey]);
   
@@ -81,78 +81,80 @@ const StatChart = ({ title, data, animationKey, officerToPuskeswanMap, puskeswan
       <CardHeader>
         <CardTitle className="text-lg">{title}</CardTitle>
       </CardHeader>
-      <CardContent className={cn(isMobile && 'px-0')}>
-        <ResponsiveContainer key={animationKey} width="100%" height={Math.max(150, chartData.length * 26)}>
-          <BarChart
-            data={chartData}
-            layout="vertical"
-            margin={{ top: 5, right: rightMargin, left: 10, bottom: 5 }}
-          >
-            <XAxis type="number" hide />
-            <YAxis
-              type="category"
-              dataKey="name"
-              tickLine={false}
-              axisLine={false}
-              stroke="hsl(var(--muted-foreground))"
-              fontSize={12}
-              tickFormatter={(value) =>
-                value.length > labelTruncateLength ? `${value.substring(0, labelTruncateLength)}...` : value
-              }
-              interval={0}
-              width={yAxisWidth}
-              tick={{ fontWeight: 'bold' }}
-            />
-            <Tooltip
-              cursor={{ fill: "hsl(var(--muted))" }}
-              content={({ active, payload, label }) => {
-                if (active && payload && payload.length) {
-                  return (
-                    <div className="rounded-lg border bg-background p-2 shadow-sm text-sm whitespace-nowrap">
-                       <div className="flex items-center gap-2">
-                          <span className="font-bold">{label}</span>
-                          <span className="text-muted-foreground">
-                            {`Jumlah: ${payload[0].value} (${(payload[0].payload as StatItem).percentage.toFixed(0)}%)`}
-                          </span>
-                      </div>
-                    </div>
-                  );
-                }
-                return null;
-              }}
-            />
-            <Bar
-              dataKey="count"
-              name="Jumlah"
-              radius={[0, 4, 4, 0]}
-              animationDuration={3000}
+      <CardContent className={cn(isMobile && "overflow-x-hidden")}>
+        <div className={cn(isMobile && "-mx-6")}>
+          <ResponsiveContainer key={animationKey} width="100%" height={Math.max(150, chartData.length * 26)}>
+            <BarChart
+              data={chartData}
+              layout="vertical"
+              margin={{ top: 5, right: rightMargin, left: 10, bottom: 5 }}
             >
-              {showLabels && <LabelList
-                  dataKey={(d: StatItem) => `${d.count} (${d.percentage.toFixed(0)}%)`}
-                  position="right"
-                  offset={8}
-                  isAnimationActive={false}
-                  className="font-semibold"
-                  fill="hsl(var(--foreground))"
-                  fontSize={12}
-              />}
-              {chartData.map((entry, index) => {
-                  let color = defaultColor;
-                  if (title === 'Statistik per Bulan') {
-                      color = '#FA8072';
-                  } else if (title === 'Statistik per Petugas') {
-                    const puskeswan = officerToPuskeswanMap[entry.name];
-                    if (puskeswan) {
-                      color = puskeswanColors[puskeswan] || defaultColor;
-                    }
-                  } else if (title === 'Statistik per Kasus/Penyakit') {
-                    color = '#006400';
+              <XAxis type="number" hide />
+              <YAxis
+                type="category"
+                dataKey="name"
+                tickLine={false}
+                axisLine={false}
+                stroke="hsl(var(--muted-foreground))"
+                fontSize={12}
+                tickFormatter={(value) =>
+                  value.length > labelTruncateLength ? `${value.substring(0, labelTruncateLength)}...` : value
+                }
+                interval={0}
+                width={yAxisWidth}
+                tick={{ fontWeight: 'bold' }}
+              />
+              <Tooltip
+                cursor={{ fill: "hsl(var(--muted))" }}
+                content={({ active, payload, label }) => {
+                  if (active && payload && payload.length) {
+                    return (
+                      <div className="rounded-lg border bg-background p-2 shadow-sm text-sm whitespace-nowrap">
+                         <div className="flex items-center gap-2">
+                            <span className="font-bold">{label}</span>
+                            <span className="text-muted-foreground">
+                              {`Jumlah: ${payload[0].value} (${(payload[0].payload as StatItem).percentage.toFixed(0)}%)`}
+                            </span>
+                        </div>
+                      </div>
+                    );
                   }
-                  return <Cell key={`cell-${index}`} fill={color} />;
-                })}
-            </Bar>
-          </BarChart>
-        </ResponsiveContainer>
+                  return null;
+                }}
+              />
+              <Bar
+                dataKey="count"
+                name="Jumlah"
+                radius={[0, 4, 4, 0]}
+                animationDuration={3000}
+              >
+                {showLabels && <LabelList
+                    dataKey={(d: StatItem) => `${d.count} (${d.percentage.toFixed(0)}%)`}
+                    position="right"
+                    offset={8}
+                    isAnimationActive={false}
+                    className="font-semibold"
+                    fill="hsl(var(--foreground))"
+                    fontSize={12}
+                />}
+                {chartData.map((entry, index) => {
+                    let color = defaultColor;
+                    if (title === 'Statistik per Bulan') {
+                        color = '#FA8072';
+                    } else if (title === 'Statistik per Petugas') {
+                      const puskeswan = officerToPuskeswanMap[entry.name];
+                      if (puskeswan) {
+                        color = puskeswanColors[puskeswan] || defaultColor;
+                      }
+                    } else if (title === 'Statistik per Kasus/Penyakit') {
+                      color = '#006400';
+                    }
+                    return <Cell key={`cell-${index}`} fill={color} />;
+                  })}
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
       </CardContent>
     </Card>
   );
@@ -170,7 +172,7 @@ const StatPieChart = ({ title, data, colorMap, animationKey, defaultColor }: {
 
   useEffect(() => {
     setShowLabels(false);
-    const timer = setTimeout(() => setShowLabels(true), 3000);
+    const timer = setTimeout(() => setShowLabels(true), 3000); // Match animation duration
     return () => clearTimeout(timer);
   }, [animationKey]);
   
