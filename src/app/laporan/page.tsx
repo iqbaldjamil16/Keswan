@@ -65,7 +65,12 @@ const StatChart = ({ title, data, animationKey, officerToPuskeswanMap, puskeswan
   const [showLabels, setShowLabels] = useState(false);
 
   useEffect(() => {
-    setShowLabels(false);
+    setShowLabels(false); // Hide labels on new animation
+    const timer = setTimeout(() => {
+      setShowLabels(true); // Show labels after animation duration
+    }, 3000); // Corresponds to animationDuration={3000} on <Bar>
+
+    return () => clearTimeout(timer);
   }, [animationKey]);
   
   const chartData = data;
@@ -84,7 +89,6 @@ const StatChart = ({ title, data, animationKey, officerToPuskeswanMap, puskeswan
             data={chartData}
             layout="vertical"
             margin={{ top: 5, right: rightMargin, left: 10, bottom: 5 }}
-            onAnimationEnd={() => setShowLabels(true)}
           >
             <XAxis type="number" hide />
             <YAxis
@@ -167,7 +171,12 @@ const StatPieChart = ({ title, data, colorMap, animationKey, defaultColor }: {
   const [showLabels, setShowLabels] = useState(false);
 
   useEffect(() => {
-      setShowLabels(false);
+    setShowLabels(false); // Hide labels on new animation
+    const timer = setTimeout(() => {
+      setShowLabels(true); // Show labels after animation duration
+    }, 3000); // Corresponds to animationDuration={3000} on <Pie>
+
+    return () => clearTimeout(timer);
   }, [animationKey]);
   
   const RADIAN = Math.PI / 180;
@@ -198,7 +207,7 @@ const StatPieChart = ({ title, data, colorMap, animationKey, defaultColor }: {
       </CardHeader>
       <CardContent>
         <ResponsiveContainer key={animationKey} width="100%" height={isMobile ? 450 : 350}>
-          <PieChart onAnimationEnd={() => setShowLabels(true)}>
+          <PieChart>
             <Pie
               data={data}
               dataKey="count"
