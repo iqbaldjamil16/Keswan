@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useTransition, useEffect, useCallback } from "react";
@@ -507,148 +506,103 @@ export default function ReportPage() {
 
   return (
     <div className="container px-4 sm:px-8 py-4 md:py-8 space-y-6">
+      <Card>
+        <CardHeader>
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div className="flex-1">
+              <CardTitle className="text-2xl md:text-3xl font-bold tracking-tight font-headline">
+                Laporan Pelayanan
+              </CardTitle>
+              <CardDescription className="mt-1 text-sm md:text-base">
+                Cari, lihat, dan unduh semua data pelayanan yang telah
+                diinput.
+              </CardDescription>
+            </div>
+            <div className="w-full flex justify-end sm:w-auto">
+              <PasswordDialog
+                title="Akses Terbatas"
+                description="Silakan masukkan kata sandi untuk mengunduh laporan."
+                onSuccess={handleDownload}
+                trigger={
+                  <Button disabled={filteredServices.length === 0}>
+                    <Download className="mr-2 h-5 w-5" />
+                    Unduh Laporan
+                  </Button>
+                }
+              />
+            </div>
+          </div>
+        </CardHeader>
+      </Card>
+      
       <Tabs defaultValue="tabel" className="w-full">
         <Card>
-          <CardHeader>
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-              <div className="flex-1">
-                <CardTitle className="text-2xl md:text-3xl font-bold tracking-tight font-headline">
-                  Laporan Pelayanan
-                </CardTitle>
-                <CardDescription className="mt-1 text-sm md:text-base">
-                  Cari, lihat, dan unduh semua data pelayanan yang telah
-                  diinput.
-                </CardDescription>
-              </div>
-              <div className="w-full flex justify-end sm:w-auto">
-                <PasswordDialog
-                  title="Akses Terbatas"
-                  description="Silakan masukkan kata sandi untuk mengunduh laporan."
-                  onSuccess={handleDownload}
-                  trigger={
-                    <Button disabled={filteredServices.length === 0}>
-                      <Download className="mr-2 h-5 w-5" />
-                      Unduh Laporan
-                    </Button>
-                  }
-                />
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent className="flex flex-col gap-4">
-            {/* Desktop Layout */}
-            <div className="hidden md:flex items-center justify-between">
-              <TabsList>
-                <TabsTrigger value="tabel">
-                  <LayoutGrid className="mr-2 h-4 w-4" />
-                  Tabel
-                </TabsTrigger>
-                <TabsTrigger value="statistik">
-                  <BarChart2 className="mr-2 h-4 w-4" />
-                  Statistik
-                </TabsTrigger>
-              </TabsList>
-              <div className="flex w-full md:w-auto md:justify-end gap-2">
-                <Select value={selectedMonth} onValueChange={setSelectedMonth}>
-                  <SelectTrigger className="w-full sm:w-[180px]">
-                    <SelectValue placeholder="Pilih Bulan" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all-months">Semua Bulan</SelectItem>
-                    {months.map((month) => (
-                      <SelectItem key={month.value} value={month.value}>
-                        {month.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <Select value={selectedYear} onValueChange={setSelectedYear}>
-                  <SelectTrigger className="w-full sm:w-[120px]">
-                    <SelectValue placeholder="Pilih Tahun" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all-years">Semua Tahun</SelectItem>
-                    {years.map((year) => (
-                      <SelectItem key={year} value={year}>
-                        {year}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <Input
-                  placeholder="Cari data..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full md:w-64"
-                />
-              </div>
-            </div>
-            
-            {/* Mobile Layout */}
-            <div className="md:hidden flex flex-col gap-4">
-              <div className="flex flex-col w-full gap-2">
-                  <div className="flex gap-2">
-                      <Select value={selectedMonth} onValueChange={setSelectedMonth}>
-                          <SelectTrigger className="w-full">
-                              <SelectValue placeholder="Pilih Bulan" />
-                          </SelectTrigger>
-                          <SelectContent>
-                              <SelectItem value="all-months">Semua Bulan</SelectItem>
-                              {months.map((month) => (
-                              <SelectItem key={month.value} value={month.value}>
-                                  {month.label}
-                              </SelectItem>
-                              ))}
-                          </SelectContent>
-                      </Select>
-                      <Select value={selectedYear} onValueChange={setSelectedYear}>
-                          <SelectTrigger className="w-full">
-                              <SelectValue placeholder="Pilih Tahun" />
-                          </SelectTrigger>
-                          <SelectContent>
-                              <SelectItem value="all-years">Semua Tahun</SelectItem>
-                              {years.map((year) => (
-                              <SelectItem key={year} value={year}>
-                                  {year}
-                              </SelectItem>
-                              ))}
-                          </SelectContent>
-                      </Select>
-                  </div>
-                  <Input
-                      placeholder="Cari data..."
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      className="w-full"
-                  />
-              </div>
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="tabel">
-                  <LayoutGrid className="mr-2 h-4 w-4" />
-                  Tabel
-                </TabsTrigger>
-                <TabsTrigger value="statistik">
-                  <BarChart2 className="mr-2 h-4 w-4" />
-                  Statistik
-                </TabsTrigger>
-              </TabsList>
-            </div>
-          </CardContent>
+            <CardHeader>
+                <CardTitle className="text-xl font-semibold">Filter dan Tampilan</CardTitle>
+            </CardHeader>
+            <CardContent className="flex flex-col gap-4">
+                 <div className="flex flex-col md:flex-row md:justify-end gap-2">
+                    <Select value={selectedMonth} onValueChange={setSelectedMonth}>
+                    <SelectTrigger className="w-full sm:w-[180px]">
+                        <SelectValue placeholder="Pilih Bulan" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="all-months">Semua Bulan</SelectItem>
+                        {months.map((month) => (
+                        <SelectItem key={month.value} value={month.value}>
+                            {month.label}
+                        </SelectItem>
+                        ))}
+                    </SelectContent>
+                    </Select>
+                    <Select value={selectedYear} onValueChange={setSelectedYear}>
+                    <SelectTrigger className="w-full sm:w-[120px]">
+                        <SelectValue placeholder="Pilih Tahun" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="all-years">Semua Tahun</SelectItem>
+                        {years.map((year) => (
+                        <SelectItem key={year} value={year}>
+                            {year}
+                        </SelectItem>
+                        ))}
+                    </SelectContent>
+                    </Select>
+                    <Input
+                    placeholder="Cari data..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-full md:w-64"
+                    />
+                </div>
+                <TabsList className="grid w-full grid-cols-2">
+                    <TabsTrigger value="tabel">
+                    <LayoutGrid className="mr-2 h-4 w-4" />
+                    Tabel
+                    </TabsTrigger>
+                    <TabsTrigger value="statistik">
+                    <BarChart2 className="mr-2 h-4 w-4" />
+                    Statistik
+                    </TabsTrigger>
+                </TabsList>
+            </CardContent>
         </Card>
 
-        <TabsContent value="tabel">
-          <ServiceTable
-            services={filteredServices}
-            loading={loading && allServices.length === 0}
-            highlightedIds={highlightedIds}
-            searchTerm={searchTerm}
-            onDelete={handleLocalDelete}
-            isPending={isPending}
-          />
-        </TabsContent>
-        <TabsContent value="statistik">
-          <StatisticsDisplay services={filteredServices} />
-        </TabsContent>
+        <div className="mt-6">
+            <TabsContent value="tabel">
+                <ServiceTable
+                    services={filteredServices}
+                    loading={loading && allServices.length === 0}
+                    highlightedIds={highlightedIds}
+                    searchTerm={searchTerm}
+                    onDelete={handleLocalDelete}
+                    isPending={isPending}
+                />
+            </TabsContent>
+            <TabsContent value="statistik">
+                <StatisticsDisplay services={filteredServices} />
+            </TabsContent>
+        </div>
       </Tabs>
       
       <Button
