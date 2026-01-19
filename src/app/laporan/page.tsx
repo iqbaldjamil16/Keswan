@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState } from "react";
@@ -14,14 +13,85 @@ import { CornerUpLeft, Download } from "lucide-react";
 import { type HealthcareService } from "@/lib/types";
 import { PasswordDialog } from "@/components/password-dialog";
 import { puskeswanList } from "@/lib/definitions";
+import { Progress } from "@/components/ui/progress";
 
-const years = Array.from({ length: 5 }, (_, i) =>
-  getYear(subYears(new Date(), i)).toString()
-);
-const months = Array.from({ length: 12 }, (_, i) => ({
-  value: i.toString(),
-  label: new Date(0, i).toLocaleString(id, { month: 'long' }),
-}));
+interface StatItem {
+  name: string;
+  count: number;
+  percentage: number;
+}
+
+function calculateStats(services: HealthcareService[], groupBy: 'month' | 'officerName' | 'puskeswan'): StatItem[] {
+  if (services.length === 0) return [];
+
+  const total = services.length;
+  const counts: { [key: string]: number } = {};
+
+  services.forEach(service => {
+      let key: string;
+      if (groupBy === 'month') {
+          key = format(new Date(service.date), 'MMMM yyyy', { locale: id });
+      } else {
+          key = service[groupBy as keyof HealthcareService] as string;
+      }
+      counts[key] = (counts[key] || 0) + 1;
+  });
+
+  return Object.entries(counts)
+      .map(([name, count]) => ({
+          name,
+          count,
+          percentage: (count / total) * 100,
+      }))
+      .sort((a, b) => b.count - a.count);
+}
+
+function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
+  if (services.length === 0) {
+      return null;
+  }
+
+  const statsByMonth = calculateStats(services, 'month');
+  const statsByOfficer = calculateStats(services, 'officerName');
+  const statsByPuskeswan = calculateStats(services, 'puskeswan');
+
+  const StatCard = ({ title, data }: { title: string; data: StatItem[] }) => (
+      <Card>
+          <CardHeader>
+              <CardTitle className="text-lg">{title}</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4 text-sm max-h-60 overflow-y-auto">
+              {data.map(item => (
+                  <div key={item.name}>
+                      <div className="flex justify-between mb-1">
+                          <span className="font-medium truncate pr-2" title={item.name}>{item.name}</span>
+                          <span className="text-muted-foreground whitespace-nowrap">{item.count} ({item.percentage.toFixed(1)}%)</span>
+                      </div>
+                      <Progress value={item.percentage} className="h-2" />
+                  </div>
+              ))}
+          </CardContent>
+      </Card>
+  );
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Statistik Data</CardTitle>
+        <CardDescription>
+            Ringkasan statistik berdasarkan data yang ditampilkan pada tabel di bawah ini.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <StatCard title="Per Bulan" data={statsByMonth} />
+            <StatCard title="Per Petugas" data={statsByOfficer} />
+            <StatCard title="Per Puskeswan" data={statsByPuskeswan} />
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
 
 
 export default function ReportPage() {
@@ -141,6 +211,8 @@ export default function ReportPage() {
             />
         </CardFooter>
       </Card>
+
+      <StatisticsDisplay services={filteredServices} />
       
       <ServiceTable 
         onServicesFiltered={setFilteredServices}
