@@ -15,7 +15,7 @@ import { type HealthcareService } from "@/lib/types";
 import { PasswordDialog } from "@/components/password-dialog";
 import { puskeswanList } from "@/lib/definitions";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, LabelList, Cell } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, LabelList, Cell, PieChart, Pie, Legend } from 'recharts';
 
 
 interface StatItem {
@@ -75,11 +75,11 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
   });
 
   const puskeswanColors: { [key: string]: string } = {
-    'Puskeswan Topoyo': '#4682B4', // Biru agak tua
-    'Puskeswan Tobadak': '#008000', // Hijau
-    'Puskeswan Karossa': '#FF0000', // Merah
-    'Puskeswan Budong-Budong': '#FFD700', // Kuning
-    'Puskeswan Pangale': '#800080', // Ungu Tua
+    'Puskeswan Topoyo': '#4682B4', 
+    'Puskeswan Tobadak': '#008000',
+    'Puskeswan Karossa': '#FF0000',
+    'Puskeswan Budong-Budong': '#FFFF00',
+    'Puskeswan Pangale': '#800080',
   };
   const defaultColor = 'hsl(var(--primary))';
 
@@ -180,12 +180,77 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
       </Card>
     );
   };
+  
+  const StatPieChart = ({ title, data, colorMap }: { title: string; data: StatItem[]; colorMap: { [key: string]: string } }) => {
+    const RADIAN = Math.PI / 180;
+    const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent }: any) => {
+      const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
+      const x = cx + radius * Math.cos(-midAngle * RADIAN);
+      const y = cy + radius * Math.sin(-midAngle * RADIAN);
+
+      if (percent * 100 < 5) return null;
+
+      return (
+        <text x={x} y={y} fill="white" textAnchor="middle" dominantBaseline="central" className="font-bold text-sm drop-shadow-[0_1.2px_1.2px_rgba(0,0,0,0.8)]">
+          {`${(percent * 100).toFixed(0)}%`}
+        </text>
+      );
+    };
+  
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">{title}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ResponsiveContainer width="100%" height={350}>
+            <PieChart>
+              <Pie
+                data={data}
+                dataKey="count"
+                nameKey="name"
+                cx="50%"
+                cy="50%"
+                outerRadius={120}
+                labelLine={false}
+                label={renderCustomizedLabel}
+              >
+                {data.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={colorMap[entry.name] || defaultColor} />
+                ))}
+              </Pie>
+              <Tooltip
+                content={({ active, payload }) => {
+                  if (active && payload && payload.length) {
+                    const dataPayload = payload[0];
+                    return (
+                      <div className="rounded-lg border bg-background p-2 shadow-sm text-sm">
+                        <div className="flex items-center gap-2">
+                          <div className="w-2 h-2 rounded-full" style={{ backgroundColor: dataPayload.payload.fill }}></div>
+                          <p className="font-bold">{dataPayload.name}</p>
+                        </div>
+                        <p className="text-muted-foreground pl-4">
+                          {`Jumlah: ${dataPayload.value} (${(dataPayload.payload.percentage).toFixed(0)}%)`}
+                        </p>
+                      </div>
+                    );
+                  }
+                  return null;
+                }}
+              />
+              <Legend wrapperStyle={{ paddingTop: "20px" }} />
+            </PieChart>
+          </ResponsiveContainer>
+        </CardContent>
+      </Card>
+    );
+  };
 
   return (
     <div className="space-y-6">
         <StatChart title="Statistik per Bulan" data={statsByMonth} />
         <StatChart title="Statistik per Petugas" data={statsByOfficer} />
-        <StatChart title="Statistik per Puskeswan" data={statsByPuskeswan} />
+        <StatPieChart title="Statistik per Puskeswan" data={statsByPuskeswan} colorMap={puskeswanColors} />
     </div>
   );
 }
@@ -353,5 +418,3 @@ export default function ReportPage() {
     </div>
   );
 }
-
-    
