@@ -336,7 +336,7 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
     'Puskeswan Topoyo': '#00008B',
     'Puskeswan Tobadak': '#006400',
     'Puskeswan Karossa': '#6A5ACD',
-    'Puskeswan Budong-Budong': '#FFA500',
+    'Puskeswan Budong-Budong': '#FFC107',
     'Puskeswan Pangale': '#B19CD9',
   };
   const defaultColor = '#808080';
@@ -713,5 +713,7 @@ export default function ReportPage() {
     </div>
   );
 }
+
+    
 
     
