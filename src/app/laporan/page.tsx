@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useTransition, useEffect, useCallback, useMemo } from "react";
@@ -209,11 +210,11 @@ const StatPieChart = ({ title, data, colors, defaultColor }: {
                 <Pie
                     data={data}
                     cx="50%"
-                    cy="50%"
+                    cy={isMobile ? "45%" : "50%"}
                     labelLine={false}
                     label={renderCustomizedLabel}
-                    outerRadius={isMobile ? 100 : 110}
-                    innerRadius={isMobile ? 40: 50}
+                    outerRadius={isMobile ? 80 : 110}
+                    innerRadius={isMobile ? 30: 50}
                     dataKey="count"
                     nameKey="name"
                     animationDuration={1500}
@@ -241,11 +242,12 @@ const StatPieChart = ({ title, data, colors, defaultColor }: {
                   }}
                 />
                 <Legend 
+                  verticalAlign={isMobile ? "bottom" : "middle"}
+                  align={isMobile ? "left" : "right"}
                   layout="vertical"
-                  verticalAlign="middle"
-                  align="right"
                   iconSize={12}
                   iconType="circle"
+                  wrapperStyle={isMobile ? { paddingTop: '20px', paddingLeft: '20px' } : {}}
                 />
             </PieChart>
         </ResponsiveContainer>
@@ -626,33 +628,35 @@ export default function ReportPage() {
         </CardContent>
       </Card>
 
-      <Tabs defaultValue="tabel" className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="tabel">
-            <LayoutGrid className="mr-2 h-4 w-4" />
-            Tabel
-          </TabsTrigger>
-          <TabsTrigger value="statistik">
-            <BarChart2 className="mr-2 h-4 w-4" />
-            Statistik
-          </TabsTrigger>
-        </TabsList>
-        <div className="mt-6 md:mt-0">
-          <TabsContent value="tabel" className="mt-6 md:mt-0">
-            <ServiceTable
-              services={filteredServices}
-              loading={loading && allServices.length === 0}
-              highlightedIds={highlightedIds}
-              searchTerm={searchTerm}
-              onDelete={handleLocalDelete}
-              isPending={isPending}
-            />
-          </TabsContent>
-          <TabsContent value="statistik" className="mt-6 md:mt-0">
-            <StatisticsDisplay services={filteredServices} />
-          </TabsContent>
-        </div>
-      </Tabs>
+      <div className="md:card">
+        <Tabs defaultValue="tabel" className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="tabel">
+              <LayoutGrid className="mr-2 h-4 w-4" />
+              Tabel
+            </TabsTrigger>
+            <TabsTrigger value="statistik">
+              <BarChart2 className="mr-2 h-4 w-4" />
+              Statistik
+            </TabsTrigger>
+          </TabsList>
+          <div className="mt-6">
+            <TabsContent value="tabel">
+              <ServiceTable
+                services={filteredServices}
+                loading={loading && allServices.length === 0}
+                highlightedIds={highlightedIds}
+                searchTerm={searchTerm}
+                onDelete={handleLocalDelete}
+                isPending={isPending}
+              />
+            </TabsContent>
+            <TabsContent value="statistik">
+              <StatisticsDisplay services={filteredServices} />
+            </TabsContent>
+          </div>
+        </Tabs>
+      </div>
       
       <Button
           variant="default"
