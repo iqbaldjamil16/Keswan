@@ -201,7 +201,8 @@ const StatPieChart = ({ title, data, colors, defaultColor }: {
         <CardTitle className="text-lg text-left">{title}</CardTitle>
       </CardHeader>
       <CardContent>
-        <ResponsiveContainer width="100%" height={350}>
+        <div className="relative h-[350px]">
+          <ResponsiveContainer width="100%" height="100%">
             <PieChart>
                 <Pie
                     data={data}
@@ -251,7 +252,13 @@ const StatPieChart = ({ title, data, colors, defaultColor }: {
                   formatter={(value) => <span style={{color: 'hsl(var(--foreground))'}}>{value}</span>}
                 />
             </PieChart>
-        </ResponsiveContainer>
+          </ResponsiveContainer>
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <span className="text-2xl font-bold text-foreground -translate-y-4">
+              {total}
+            </span>
+          </div>
+        </div>
       </CardContent>
     </Card>
   );
