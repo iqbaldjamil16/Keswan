@@ -206,20 +206,15 @@ const StatPieChart = ({ title, data, colors, defaultColor }: {
       </CardHeader>
       <CardContent>
         <ResponsiveContainer width="100%" height={300}>
-            <PieChart margin={{
-                top: isMobile ? 0 : 20,
-                right: isMobile ? 20 : 0,
-                bottom: isMobile ? 80 : 20,
-                left: isMobile ? 20 : 0,
-            }}>
+            <PieChart>
                 <Pie
                     data={data}
-                    cx="50%"
-                    cy="50%"
+                    cx={isMobile ? '30%' : '50%'}
+                    cy={'50%'}
                     labelLine={false}
                     label={renderCustomizedLabel}
-                    outerRadius={isMobile ? 80 : 100}
-                    innerRadius={isMobile ? 30 : 40}
+                    outerRadius={isMobile ? 60 : 100}
+                    innerRadius={isMobile ? 25 : 40}
                     dataKey="count"
                     nameKey="name"
                     animationDuration={1500}
@@ -249,10 +244,10 @@ const StatPieChart = ({ title, data, colors, defaultColor }: {
                 <Legend 
                   verticalAlign={isMobile ? "bottom" : "right"}
                   align={isMobile ? "left" : "center"}
-                  layout={isMobile ? "vertical" : "vertical"}
+                  layout={'vertical'}
+                  wrapperStyle={isMobile ? { paddingLeft: '0px' } : {}}
                   iconSize={12}
                   iconType="circle"
-                  wrapperStyle={isMobile ? {paddingLeft: '20px'} : {paddingRight: '20px'}}
                 />
             </PieChart>
         </ResponsiveContainer>
@@ -633,9 +628,9 @@ export default function ReportPage() {
         </CardContent>
       </Card>
 
-      <div className="md:card">
+      <div className="md:card md:p-0">
         <Tabs defaultValue="tabel" className="w-full">
-            <CardContent className="p-0 md:p-6">
+            <div className="p-0 md:p-6 md:pb-0">
                 <TabsList className="grid w-full grid-cols-2">
                     <TabsTrigger value="tabel">
                     <LayoutGrid className="mr-2 h-4 w-4" />
@@ -646,7 +641,7 @@ export default function ReportPage() {
                     Statistik
                     </TabsTrigger>
                 </TabsList>
-            </CardContent>
+            </div>
           <div className="mt-6">
             <TabsContent value="tabel">
               <ServiceTable
