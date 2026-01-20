@@ -16,7 +16,7 @@ import { type HealthcareService, serviceSchema } from "@/lib/types";
 import { PasswordDialog } from "@/components/password-dialog";
 import { puskeswanList } from "@/lib/definitions";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, LabelList, Cell, PieChart, Pie, Legend } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, LabelList, Cell, PieChart, Pie, Legend, Label } from 'recharts';
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useFirebase } from "@/firebase";
 import { Input } from "@/components/ui/input";
@@ -256,16 +256,17 @@ const StatPieChart = ({ title, data, colors, defaultColor }: {
                 />
                 <Legend
                   verticalAlign={isMobile ? "bottom" : "right"}
-                  align={isMobile ? "center" : "right"}
-                  layout={isMobile ? "horizontal" : "vertical"}
+                  align={isMobile ? "center" : "left"}
+                  layout={"vertical"}
                   wrapperStyle={{
                     fontSize: '12px',
-                    paddingTop: isMobile ? '10px' : '0px',
-                    paddingLeft: isMobile ? '0px' : '20px',
+                    paddingTop: isMobile ? '20px' : '0px',
+                    paddingLeft: isMobile ? '20px' : '20px',
+                    color: 'hsl(var(--foreground))'
                   }}
                   iconSize={12}
                   iconType="circle"
-                  formatter={(value) => <span className="text-foreground">{value}</span>}
+                  formatter={(value) => <span style={{color: 'hsl(var(--foreground))'}}>{value}</span>}
                 />
             </PieChart>
         </ResponsiveContainer>
@@ -687,3 +688,5 @@ export default function ReportPage() {
     </div>
   );
 }
+
+    
