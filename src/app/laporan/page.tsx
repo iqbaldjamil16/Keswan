@@ -175,14 +175,12 @@ const StatPieChart = ({ title, data, colors, defaultColor }: {
   const total = useMemo(() => data.reduce((sum, item) => sum + item.count, 0), [data]);
 
   const RADIAN = Math.PI / 180;
-  const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent }: any) => {
+  const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, value, percent, index }: any) => {
     const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
     const x = cx + radius * Math.cos(-midAngle * RADIAN);
     const y = cy + radius * Math.sin(-midAngle * RADIAN);
     
-    if (percent * 100 < 5) return null;
-
-    return (
+    const sliceLabel = percent * 100 >= 5 ? (
       <text
         x={x}
         y={y}
@@ -190,13 +188,41 @@ const StatPieChart = ({ title, data, colors, defaultColor }: {
         textAnchor="middle"
         dominantBaseline="central"
         className="text-xs font-bold"
-        style={{
-             textShadow: '0px 1px 2px rgba(0, 0, 0, 0.8)',
-        }}
+        style={{ textShadow: '0px 1px 2px rgba(0, 0, 0, 0.8)' }}
       >
-        {`${(percent * 100).toFixed(0)}%`}
+        {value}
       </text>
-    );
+    ) : null;
+
+    if (index === 0) {
+      return (
+        <g>
+          {sliceLabel}
+          <text
+            x={cx}
+            y={cy - 8}
+            textAnchor="middle"
+            dominantBaseline="middle"
+            className="text-2xl font-bold"
+            fill="hsl(var(--foreground))"
+          >
+            {total}
+          </text>
+          <text
+            x={cx}
+            y={cy + 12}
+            textAnchor="middle"
+            dominantBaseline="middle"
+            className="text-xs"
+            fill="hsl(var(--muted-foreground))"
+          >
+            Total
+          </text>
+        </g>
+      );
+    }
+
+    return sliceLabel;
   };
 
   return (
@@ -244,11 +270,12 @@ const StatPieChart = ({ title, data, colors, defaultColor }: {
                 <Legend
                   verticalAlign={isMobile ? "bottom" : "middle"}
                   align={isMobile ? "center" : "right"}
-                  layout="vertical"
+                  layout={isMobile ? "horizontal" : "vertical"}
                   wrapperStyle={{
                     fontSize: '12px',
                     ...(isMobile ? {
                         paddingTop: '20px',
+                        textAlign: 'left'
                     } : {
                         paddingLeft: '20px'
                     })
