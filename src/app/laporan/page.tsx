@@ -201,57 +201,66 @@ const StatPieChart = ({ title, data, colors, defaultColor }: {
         <CardTitle className="text-lg text-left">{title}</CardTitle>
       </CardHeader>
       <CardContent>
-        <ResponsiveContainer width="100%" height={350}>
-            <PieChart>
-                <Pie
-                    data={data}
-                    cx="50%"
-                    cy="50%"
-                    labelLine={false}
-                    label={renderCustomizedLabel}
-                    outerRadius={isMobile ? 80 : 100}
-                    innerRadius={isMobile ? 30 : 40}
-                    dataKey="count"
-                    nameKey="name"
-                    animationDuration={1500}
-                >
-                    {data.map((entry) => (
-                        <Cell key={`cell-${entry.name}`} fill={colors[entry.name] || defaultColor} stroke={'hsl(var(--card))'} strokeWidth={2}/>
-                    ))}
-                </Pie>
-                <Tooltip
-                  content={({ active, payload }) => {
-                    if (active && payload && payload.length) {
-                      const item = payload[0];
-                      const percentage = total > 0 ? (((item.value as number) / total) * 100).toFixed(1) : 0;
-                      const name = item.name as string;
-                      return (
-                        <div className="rounded-lg border bg-background p-2 shadow-sm text-sm">
-                          <span className="font-bold">{name}: </span>
-                          <span className="text-muted-foreground">
-                            {`${item.value} ternak (${percentage}%)`}
-                          </span>
-                        </div>
-                      );
-                    }
-                    return null;
-                  }}
-                />
-                <Legend
-                  verticalAlign={"bottom"}
-                  align={"center"}
-                  layout={'vertical'}
-                  wrapperStyle={{
-                    fontSize: '12px',
-                    paddingLeft: '0px',
-                    color: 'hsl(var(--foreground))'
-                  }}
-                  iconSize={12}
-                  iconType="circle"
-                  formatter={(value) => <span style={{color: 'hsl(var(--foreground))'}}>{value}</span>}
-                />
-            </PieChart>
-        </ResponsiveContainer>
+        <div className="relative w-full h-[350px]">
+          <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                  <Pie
+                      data={data}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={false}
+                      label={renderCustomizedLabel}
+                      outerRadius={isMobile ? 80 : 100}
+                      innerRadius={isMobile ? 30 : 40}
+                      dataKey="count"
+                      nameKey="name"
+                      animationDuration={1500}
+                  >
+                      {data.map((entry) => (
+                          <Cell key={`cell-${entry.name}`} fill={colors[entry.name] || defaultColor} stroke={'hsl(var(--card))'} strokeWidth={2}/>
+                      ))}
+                  </Pie>
+                  <Tooltip
+                    content={({ active, payload }) => {
+                      if (active && payload && payload.length) {
+                        const item = payload[0];
+                        const percentage = total > 0 ? (((item.value as number) / total) * 100).toFixed(1) : 0;
+                        const name = item.name as string;
+                        return (
+                          <div className="rounded-lg border bg-background p-2 shadow-sm text-sm">
+                            <span className="font-bold">{name}: </span>
+                            <span className="text-muted-foreground">
+                              {`${item.value} ternak (${percentage}%)`}
+                            </span>
+                          </div>
+                        );
+                      }
+                      return null;
+                    }}
+                  />
+                  <Legend
+                    verticalAlign={"bottom"}
+                    align={"center"}
+                    layout={'vertical'}
+                    wrapperStyle={{
+                      fontSize: '12px',
+                      paddingLeft: '0px',
+                      color: 'hsl(var(--foreground))'
+                    }}
+                    iconSize={12}
+                    iconType="circle"
+                    formatter={(value) => <span style={{color: 'hsl(var(--foreground))'}}>{value}</span>}
+                  />
+              </PieChart>
+          </ResponsiveContainer>
+          {total > 0 && (
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+              <span className="text-3xl font-bold text-foreground -translate-y-4">
+                {total}
+              </span>
+            </div>
+          )}
+        </div>
       </CardContent>
     </Card>
   );
@@ -330,7 +339,7 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
     'Puskeswan Tobadak': '#006400',
     'Puskeswan Karossa': '#FF0000',
     'Puskeswan Budong-Budong': '#FFFF00',
-    'Puskeswan Pangale': '#4B0082',
+    'Puskeswan Pangale': '#FF0000',
   };
   const defaultColor = '#808080';
 
