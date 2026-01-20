@@ -205,7 +205,7 @@ const StatPieChart = ({ title, data, colors, defaultColor }: {
         <CardTitle className="text-lg text-left">{title}</CardTitle>
       </CardHeader>
       <CardContent>
-        <ResponsiveContainer width="100%" height={isMobile ? 400 : 300}>
+        <ResponsiveContainer width="100%" height={300}>
             <PieChart>
                 <Pie
                     data={data}
@@ -241,11 +241,16 @@ const StatPieChart = ({ title, data, colors, defaultColor }: {
                     return null;
                   }}
                 />
-                <Legend 
-                  verticalAlign={isMobile ? "bottom" : "right"}
-                  align={isMobile ? "center" : "right"}
-                  layout={isMobile ? "horizontal" : "vertical"}
-                  wrapperStyle={isMobile ? { paddingTop: '20px' } : {}}
+                <Legend
+                  verticalAlign={isMobile ? "bottom" : "middle"}
+                  align={isMobile ? "left" : "right"}
+                  layout="vertical"
+                  wrapperStyle={{
+                    fontSize: '12px',
+                    color: 'hsl(var(--foreground))',
+                    paddingTop: isMobile ? '20px' : '0',
+                    paddingLeft: isMobile ? '20px' : '0',
+                  }}
                   iconSize={12}
                   iconType="circle"
                 />
