@@ -71,9 +71,8 @@ const StatChart = ({ title, data, officerToPuskeswanMap, puskeswanColors, defaul
   }, [data]); // Re-trigger if data changes
   
   const chartData = useMemo(() => showAll ? data : data.slice(0, 10), [data, showAll]);
-  const yAxisWidth = isMobile ? 100 : 140;
+  const yAxisWidth = isMobile ? 120 : 180;
   const rightMargin = isMobile ? 40 : 80;
-  const labelTruncateLength = isMobile ? 12 : 20;
 
   const barHeight = 28;
   const chartHeight = Math.max(150, chartData.length * barHeight);
@@ -99,9 +98,6 @@ const StatChart = ({ title, data, officerToPuskeswanMap, puskeswanColors, defaul
                 axisLine={false}
                 stroke="hsl(var(--muted-foreground))"
                 fontSize={12}
-                tickFormatter={(value) =>
-                  value.length > labelTruncateLength ? `${'...'}` : value
-                }
                 interval={0}
                 width={yAxisWidth}
                 tick={{ fontWeight: 'bold' }}
@@ -688,5 +684,3 @@ export default function ReportPage() {
     </div>
   );
 }
-
-    
