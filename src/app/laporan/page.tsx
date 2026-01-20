@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useTransition, useEffect, useCallback, useMemo } from "react";
@@ -16,7 +15,7 @@ import { type HealthcareService, serviceSchema } from "@/lib/types";
 import { PasswordDialog } from "@/components/password-dialog";
 import { puskeswanList } from "@/lib/definitions";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, LabelList, Cell, PieChart, Pie, Legend, Label } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, LabelList, Cell, PieChart, Pie, Legend } from 'recharts';
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useFirebase } from "@/firebase";
 import { Input } from "@/components/ui/input";
@@ -215,13 +214,9 @@ const StatPieChart = ({ title, data, colors, defaultColor }: {
                     nameKey="name"
                     animationDuration={1500}
                 >
-                    <Label
-                        value={total}
-                        position="center"
-                        fill="hsl(var(--foreground))"
-                        className="text-xl font-bold"
-                        dy={-8}
-                    />
+                    <text x="50%" y="50%" textAnchor="middle" dominantBaseline="middle" className="text-xl font-bold" fill="hsl(var(--foreground))" dy={-8}>
+                        {total}
+                    </text>
                     {data.map((entry) => (
                         <Cell key={`cell-${entry.name}`} fill={colors[entry.name] || defaultColor} stroke={'hsl(var(--card))'} strokeWidth={2}/>
                     ))}
@@ -245,12 +240,12 @@ const StatPieChart = ({ title, data, colors, defaultColor }: {
                   }}
                 />
                 <Legend
-                  verticalAlign={isMobile ? "bottom" : "right"}
-                  align={isMobile ? "center" : "left"}
+                  verticalAlign={"bottom"}
+                  align={"center"}
                   layout={'vertical'}
                   wrapperStyle={{
                     fontSize: '12px',
-                    paddingLeft: isMobile ? '0' : '20px',
+                    paddingLeft: '0px',
                     color: 'hsl(var(--foreground))'
                   }}
                   iconSize={12}
@@ -284,7 +279,7 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
                 <CardDescription>
                     Tidak ada data untuk ditampilkan statistiknya pada periode yang dipilih.
                 </CardDescription>
-            </CardHeader>
+            </Header>
         </Card>
       );
   }
@@ -632,7 +627,7 @@ export default function ReportPage() {
       
       <Card>
         <Tabs defaultValue="tabel" className="w-full">
-            <CardContent className="p-6 pb-2 space-y-4">
+            <CardContent className="p-6 space-y-4">
                 <div className="grid grid-cols-2 md:flex md:justify-end gap-2">
                     <Select value={selectedMonth} onValueChange={setSelectedMonth}>
                     <SelectTrigger className="w-full">
