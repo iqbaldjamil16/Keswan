@@ -120,7 +120,7 @@ export const budongBudongOfficerList = [
 export const karossaOfficerList = [
     "Asari Rasyid",
     "drh. Stephani",
-    "Basuki",
+    "Basuki Budianto",
     "Hasaruddin",
     "Nasaruddin",
     "Lainnya",

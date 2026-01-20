@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useTransition, useEffect, useCallback, useMemo } from "react";
@@ -16,7 +15,7 @@ import { type HealthcareService, serviceSchema } from "@/lib/types";
 import { PasswordDialog } from "@/components/password-dialog";
 import { puskeswanList } from "@/lib/definitions";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, LabelList, Cell, PieChart, Pie, Legend, Label } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, LabelList, Cell, PieChart, Pie, Legend } from 'recharts';
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useFirebase } from "@/firebase";
 import { Input } from "@/components/ui/input";
@@ -71,8 +70,8 @@ const StatChart = ({ title, data, officerToPuskeswanMap, puskeswanColors, defaul
   }, [data]); // Re-trigger if data changes
   
   const chartData = useMemo(() => showAll ? data : data.slice(0, 10), [data, showAll]);
-  const yAxisWidth = isMobile ? 120 : 180;
-  const rightMargin = isMobile ? 40 : 80;
+  const yAxisWidth = 180;
+  const rightMargin = 80;
 
   const barHeight = 28;
   const chartHeight = Math.max(150, chartData.length * barHeight);
@@ -215,13 +214,6 @@ const StatPieChart = ({ title, data, colors, defaultColor }: {
                     nameKey="name"
                     animationDuration={1500}
                 >
-                    <Label
-                        value={total}
-                        position="center"
-                        fill="hsl(var(--foreground))"
-                        className="text-2xl font-bold"
-                        dy={-5}
-                    />
                     {data.map((entry) => (
                         <Cell key={`cell-${entry.name}`} fill={colors[entry.name] || defaultColor} stroke={'hsl(var(--card))'} strokeWidth={2}/>
                     ))}
@@ -422,6 +414,9 @@ export default function ReportPage() {
       querySnapshot.forEach((doc) => {
         const data = doc.data();
         try {
+          if (data.officerName && data.officerName.toLowerCase().includes('basuki')) {
+            data.officerName = 'Basuki Budianto';
+          }
           const service = serviceSchema.parse({
             ...data,
             id: doc.id,
@@ -631,8 +626,8 @@ export default function ReportPage() {
       </Card>
       
       <Tabs defaultValue="tabel" className="w-full">
-        <Card className="pb-0">
-          <CardContent className="p-4 sm:p-6 pb-0">
+        <Card className="p-4 sm:p-6 pb-0">
+          <CardContent className="p-0">
               <div className="grid grid-cols-2 md:flex md:justify-end gap-2">
                   <Select value={selectedMonth} onValueChange={setSelectedMonth}>
                   <SelectTrigger className="w-full">
@@ -681,7 +676,7 @@ export default function ReportPage() {
               </div>
           </CardContent>
 
-          <TabsContent value="tabel" className="p-0 md:p-6 md:pt-4">
+          <TabsContent value="tabel" className="md:pt-4">
             <ServiceTable
               services={filteredServices}
               loading={loading && allServices.length === 0}
@@ -691,8 +686,8 @@ export default function ReportPage() {
               isPending={isPending}
             />
           </TabsContent>
-          <TabsContent value="statistik" className="p-0 md:p-6 md:pt-4">
-              <div className="p-4 sm:p-0 sm:pb-6">
+          <TabsContent value="statistik" className="md:pt-4">
+              <div className="p-4 sm:p-0">
                   <StatisticsDisplay services={filteredServices} />
               </div>
           </TabsContent>
