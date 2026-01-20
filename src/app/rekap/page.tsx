@@ -294,6 +294,45 @@ export default function RekapPage() {
             const sheetName = puskeswan.replace('Puskeswan ', '').replace(/[/\\?*:[\]]/g, ""); // Sanitize sheet name
             XLSX.utils.book_append_sheet(wb, ws, sheetName.substring(0, 31));
         });
+
+        // Add Rekap Total Puskeswan sheet
+        if (totalRecapData) {
+            // Total Rekap Kasus
+            const totalDiagnosisHeader = [{ 'Rekap Total Kasus/Diagnosa': '' }];
+            const totalDiagnosisDataForSheet = Object.entries(totalRecapData.cases)
+                .sort(([a], [b]) => a.localeCompare(b))
+                .flatMap(([livestockType, diagnoses]) => {
+                    return Object.entries(diagnoses)
+                        .sort(([a], [b]) => a.localeCompare(b))
+                        .map(([diagnosis, count]) => ({
+                            'Bulan': monthLabel,
+                            'Jenis Hewan': livestockType,
+                            'Diagnosa': diagnosis,
+                            'Jumlah Kasus': count,
+                        }));
+                });
+
+            // Total Rekap Obat
+            const totalMedicineHeader = [{ 'Rekap Total Obat': '' }];
+            const totalMedicineDataForSheet = Object.entries(totalRecapData.medicines)
+                .sort(([, a], [, b]) => b.count - a.count)
+                .map(([medicineName, { count, unit }]) => ({
+                    'Bulan': monthLabel,
+                    'Nama Obat': medicineName,
+                    'Total Dosis': `${formatDosage(count)} ${unit}`,
+                }));
+
+            const wsTotal = XLSX.utils.json_to_sheet(totalDiagnosisHeader, { skipHeader: true });
+            XLSX.utils.sheet_add_json(wsTotal, totalDiagnosisDataForSheet, { origin: 'A2' });
+
+            XLSX.utils.sheet_add_json(wsTotal, [{}], { origin: -1, skipHeader: true });
+            XLSX.utils.sheet_add_json(wsTotal, [{}], { origin: -1, skipHeader: true });
+
+            XLSX.utils.sheet_add_json(wsTotal, totalMedicineHeader, { origin: -1, skipHeader: true });
+            XLSX.utils.sheet_add_json(wsTotal, totalMedicineDataForSheet, { origin: -1 });
+
+            XLSX.utils.book_append_sheet(wb, wsTotal, "Rekap Total");
+        }
     
         const yearLabel = selectedYear === 'all-years' ? 'SemuaTahun' : selectedYear;
         const filenameMonthLabel = selectedMonth === 'all-months' ? 'SemuaBulan' : months.find(m => m.value === selectedMonth)?.label || 'Bulan';
@@ -534,5 +573,3 @@ export default function RekapPage() {
     </div>
   );
 }
-
-    
