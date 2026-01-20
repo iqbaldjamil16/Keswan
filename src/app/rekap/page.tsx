@@ -271,14 +271,22 @@ export default function RekapPage() {
                         'Jumlah Kasus': count,
                     }));
                 });
+            }).sort((a, b) => {
+                const desaComp = a['Desa'].localeCompare(b['Desa']);
+                if (desaComp !== 0) return desaComp;
+                const hewanComp = a['Jenis Hewan'].localeCompare(b['Jenis Hewan']);
+                if (hewanComp !== 0) return hewanComp;
+                return a['Diagnosa'].localeCompare(b['Diagnosa']);
             });
 
             // Rekap Obat
             const medicineHeader = [{ 'Rekap Obat': '' }];
-            const medicineDataForSheet = Object.entries(data.medicines).map(([medicineName, { count, unit }]) => ({
-                'Bulan': monthLabel,
-                'Nama Obat': medicineName,
-                'Total Dosis': `${formatDosage(count)} ${unit}`,
+            const medicineDataForSheet = Object.entries(data.medicines)
+                .sort(([a], [b]) => a.localeCompare(b))
+                .map(([medicineName, { count, unit }]) => ({
+                    'Bulan': monthLabel,
+                    'Nama Obat': medicineName,
+                    'Total Dosis': `${formatDosage(count)} ${unit}`,
             }));
             
             const ws = XLSX.utils.json_to_sheet(diagnosisHeader, { skipHeader: true });
@@ -315,7 +323,7 @@ export default function RekapPage() {
             // Total Rekap Obat
             const totalMedicineHeader = [{ 'Rekap Total Obat': '' }];
             const totalMedicineDataForSheet = Object.entries(totalRecapData.medicines)
-                .sort(([, a], [, b]) => b.count - a.count)
+                .sort(([a], [b]) => a.localeCompare(b))
                 .map(([medicineName, { count, unit }]) => ({
                     'Bulan': monthLabel,
                     'Nama Obat': medicineName,
