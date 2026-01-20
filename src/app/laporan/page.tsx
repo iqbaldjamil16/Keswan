@@ -40,7 +40,7 @@ function calculateStats(services: HealthcareService[], groupBy: 'month' | 'offic
       } else {
           key = service[groupBy as keyof HealthcareService] as string;
       }
-      counts[key] = (counts[key] || 0) + 1;
+      counts[key] = (counts[key] || 0) + service.livestockCount;
   });
 
   return Object.entries(counts)
@@ -114,7 +114,7 @@ const StatChart = ({ title, data, officerToPuskeswanMap, puskeswanColors, defaul
                       >
                         <span className="font-bold">{label}</span>
                         <span className="text-muted-foreground ml-2">
-                          {`Jumlah: ${payload[0].value}`}
+                          {`Jumlah Ternak: ${payload[0].value}`}
                         </span>
                       </div>
                     );
@@ -124,7 +124,7 @@ const StatChart = ({ title, data, officerToPuskeswanMap, puskeswanColors, defaul
               />
               <Bar
                 dataKey="count"
-                name="Jumlah"
+                name="Jumlah Ternak"
                 radius={[0, 4, 4, 0]}
                 animationDuration={2000}
                 barSize={barHeight - 10}
@@ -223,7 +223,7 @@ const StatPieChart = ({ title, data, colors, defaultColor }: {
                         dy={-8}
                     />
                     <Label
-                        value="Total"
+                        value="Total Ternak"
                         position="center"
                         fill="hsl(var(--muted-foreground))"
                         className="text-xs"
@@ -243,7 +243,7 @@ const StatPieChart = ({ title, data, colors, defaultColor }: {
                         <div className="rounded-lg border bg-background p-2 shadow-sm text-sm">
                           <span className="font-bold">{name}: </span>
                           <span className="text-muted-foreground">
-                            {`${item.value} (${percentage}%)`}
+                            {`${item.value} ternak (${percentage}%)`}
                           </span>
                         </div>
                       );
