@@ -254,7 +254,7 @@ const StatPieChart = ({ title, data, colors, defaultColor }: {
             </PieChart>
           </ResponsiveContainer>
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <span className="text-2xl font-bold text-foreground -translate-y-6">
+            <span className="text-2xl font-bold text-foreground -translate-y-11">
               {total}
             </span>
           </div>
@@ -335,9 +335,9 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
   const puskeswanColors: { [key: string]: string } = {
     'Puskeswan Topoyo': '#00008B',
     'Puskeswan Tobadak': '#006400',
-    'Puskeswan Karossa': '#FF0000',
-    'Puskeswan Budong-Budong': '#FFFF00',
-    'Puskeswan Pangale': '#4B0082',
+    'Puskeswan Karossa': '#6A5ACD',
+    'Puskeswan Budong-Budong': '#FFA500',
+    'Puskeswan Pangale': '#B19CD9',
   };
   const defaultColor = '#808080';
 
