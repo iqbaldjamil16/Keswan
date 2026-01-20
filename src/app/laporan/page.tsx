@@ -16,7 +16,7 @@ import { type HealthcareService, serviceSchema } from "@/lib/types";
 import { PasswordDialog } from "@/components/password-dialog";
 import { puskeswanList } from "@/lib/definitions";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, LabelList, Cell, PieChart, Pie, Legend, Label } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, LabelList, Cell, PieChart, Pie, Legend } from 'recharts';
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useFirebase } from "@/firebase";
 import { Input } from "@/components/ui/input";
@@ -100,6 +100,7 @@ const StatChart = ({ title, data, officerToPuskeswanMap, puskeswanColors, defaul
                 fontSize={12}
                 interval={0}
                 width={yAxisWidth}
+                tickFormatter={(value) => value}
                 tick={{ fontWeight: 'bold' }}
               />
               <Tooltip
@@ -170,6 +171,7 @@ const StatPieChart = ({ title, data, colors, defaultColor }: {
   const isMobile = useIsMobile();
   const total = useMemo(() => data.reduce((sum, item) => sum + item.count, 0), [data]);
 
+  const RADIAN = Math.PI / 180;
   const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, value, percent, index }: any) => {
     const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
     const x = cx + radius * Math.cos(-midAngle * RADIAN);
@@ -192,7 +194,6 @@ const StatPieChart = ({ title, data, colors, defaultColor }: {
     );
   };
 
-  const RADIAN = Math.PI / 180;
   
   return (
     <Card>
@@ -200,12 +201,12 @@ const StatPieChart = ({ title, data, colors, defaultColor }: {
         <CardTitle className="text-lg text-left">{title}</CardTitle>
       </CardHeader>
       <CardContent>
-        <ResponsiveContainer width="100%" height={isMobile ? 350 : 300}>
+        <ResponsiveContainer width="100%" height={300}>
             <PieChart>
                 <Pie
                     data={data}
                     cx="50%"
-                    cy={isMobile ? "45%" : "50%"}
+                    cy="50%"
                     labelLine={false}
                     label={renderCustomizedLabel}
                     outerRadius={isMobile ? 60 : 100}
@@ -253,11 +254,10 @@ const StatPieChart = ({ title, data, colors, defaultColor }: {
                 <Legend
                   verticalAlign={isMobile ? "bottom" : "right"}
                   align={isMobile ? "center" : "left"}
-                  layout={"vertical"}
+                  layout={isMobile ? 'horizontal' : 'vertical'}
                   wrapperStyle={{
                     fontSize: '12px',
-                    paddingTop: isMobile ? '20px' : '0px',
-                    paddingLeft: isMobile ? '20px' : '20px',
+                    paddingLeft: isMobile ? '0' : '20px',
                     color: 'hsl(var(--foreground))'
                   }}
                   iconSize={12}
@@ -604,74 +604,74 @@ export default function ReportPage() {
         </CardHeader>
       </Card>
       
-      <Tabs defaultValue="tabel" className="w-full">
-        <Card>
-          <CardContent className="p-6 space-y-4">
-              <div className="grid grid-cols-2 md:flex md:justify-end gap-2">
-                  <Select value={selectedMonth} onValueChange={setSelectedMonth}>
-                  <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Pilih Bulan" />
-                  </SelectTrigger>
-                  <SelectContent>
-                      <SelectItem value="all-months">Semua Bulan</SelectItem>
-                      {months.map((month) => (
-                      <SelectItem key={month.value} value={month.value}>
-                          {month.label}
-                      </SelectItem>
-                      ))}
-                  </SelectContent>
-                  </Select>
-                  <Select value={selectedYear} onValueChange={setSelectedYear}>
-                  <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Pilih Tahun" />
-                  </SelectTrigger>
-                  <SelectContent>
-                      <SelectItem value="all-years">Semua Tahun</SelectItem>
-                      {years.map((year) => (
-                      <SelectItem key={year} value={year}>
-                          {year}
-                      </SelectItem>
-                      ))}
-                  </SelectContent>
-                  </Select>
-                  <Input
-                  placeholder="Cari data..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full col-span-2 md:w-64"
-                  />
-              </div>
-              <div className="pt-4">
-                  <TabsList className="grid w-full grid-cols-2">
-                      <TabsTrigger value="tabel">
-                      <LayoutGrid className="mr-2 h-4 w-4" />
-                      Tabel
-                      </TabsTrigger>
-                      <TabsTrigger value="statistik">
-                      <BarChart2 className="mr-2 h-4 w-4" />
-                      Statistik
-                      </TabsTrigger>
-                  </TabsList>
-              </div>
-          </CardContent>
-        </Card>
+      <Card>
+        <Tabs defaultValue="tabel" className="w-full">
+            <CardContent className="p-6 space-y-4">
+                <div className="grid grid-cols-2 md:flex md:justify-end gap-2">
+                    <Select value={selectedMonth} onValueChange={setSelectedMonth}>
+                    <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Pilih Bulan" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="all-months">Semua Bulan</SelectItem>
+                        {months.map((month) => (
+                        <SelectItem key={month.value} value={month.value}>
+                            {month.label}
+                        </SelectItem>
+                        ))}
+                    </SelectContent>
+                    </Select>
+                    <Select value={selectedYear} onValueChange={setSelectedYear}>
+                    <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Pilih Tahun" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="all-years">Semua Tahun</SelectItem>
+                        {years.map((year) => (
+                        <SelectItem key={year} value={year}>
+                            {year}
+                        </SelectItem>
+                        ))}
+                    </SelectContent>
+                    </Select>
+                    <Input
+                    placeholder="Cari data..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-full col-span-2 md:w-64"
+                    />
+                </div>
+                <div className="pt-4">
+                    <TabsList className="grid w-full grid-cols-2">
+                        <TabsTrigger value="tabel">
+                        <LayoutGrid className="mr-2 h-4 w-4" />
+                        Tabel
+                        </TabsTrigger>
+                        <TabsTrigger value="statistik">
+                        <BarChart2 className="mr-2 h-4 w-4" />
+                        Statistik
+                        </TabsTrigger>
+                    </TabsList>
+                </div>
+            </CardContent>
 
-        <div className="mt-6">
-          <TabsContent value="tabel">
-            <ServiceTable
-              services={filteredServices}
-              loading={loading && allServices.length === 0}
-              highlightedIds={highlightedIds}
-              searchTerm={searchTerm}
-              onDelete={handleLocalDelete}
-              isPending={isPending}
-            />
-          </TabsContent>
-          <TabsContent value="statistik">
-            <StatisticsDisplay services={filteredServices} />
-          </TabsContent>
-        </div>
-      </Tabs>
+            <TabsContent value="tabel">
+              <ServiceTable
+                services={filteredServices}
+                loading={loading && allServices.length === 0}
+                highlightedIds={highlightedIds}
+                searchTerm={searchTerm}
+                onDelete={handleLocalDelete}
+                isPending={isPending}
+              />
+            </TabsContent>
+            <TabsContent value="statistik">
+                <div className="px-6 pb-6">
+                    <StatisticsDisplay services={filteredServices} />
+                </div>
+            </TabsContent>
+        </Tabs>
+      </Card>
       
       <Button
           variant="default"
