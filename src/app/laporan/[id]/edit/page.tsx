@@ -29,9 +29,9 @@ function EditSkeleton() {
   }
 
 export default function EditServicePage() {
-  const params = useParams();
+  const params = useParams<{ id: string }>();
   const router = useRouter();
-  const id = params.id as string;
+  const id = params.id;
   const { firestore } = useFirebase();
   const [service, setService] = useState<HealthcareService | null>(null);
   const [loading, setLoading] = useState(true);
