@@ -51,74 +51,61 @@ import { PasswordDialog } from './password-dialog';
 
 function ReportSkeleton() {
   return (
-    <Card>
-      <CardHeader className="p-4 md:p-6">
-        <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="flex flex-col sm:flex-row w-full md:w-auto md:justify-end gap-2">
-            <div className="flex gap-2">
-              <Skeleton className="h-10 w-full sm:w-[180px]" />
-              <Skeleton className="h-10 w-full sm:w-[120px]" />
-            </div>
-            <Skeleton className="h-10 w-full md:w-64" />
-          </div>
-        </div>
-      </CardHeader>
-      <CardContent className="p-0 md:p-6 md:pt-0">
-        {/* Mobile Skeleton */}
-        <div className="md:hidden space-y-4 p-4">
-          <Skeleton className="h-24 w-full" />
-          <Skeleton className="h-24 w-full" />
-          <Skeleton className="h-24 w-full" />
-        </div>
-        {/* Desktop Skeleton */}
-        <div className="hidden md:block rounded-md border">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-[120px]">
-                  <Skeleton className="h-5 w-full" />
-                </TableHead>
-                <TableHead>
-                  <Skeleton className="h-5 w-full" />
-                </TableHead>
-                <TableHead>
-                  <Skeleton className="h-5 w-full" />
-                </TableHead>
-                <TableHead>
-                  <Skeleton className="h-5 w-full" />
-                </TableHead>
-                <TableHead>
-                  <Skeleton className="h-5 w-full" />
-                </TableHead>
-                <TableHead>
-                  <Skeleton className="h-5 w-full" />
-                </TableHead>
-                <TableHead className="w-[100px]">
-                  <Skeleton className="h-5 w-full" />
-                </TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              <TableRow>
-                <TableCell colSpan={7}>
-                  <Skeleton className="h-10 w-full" />
-                </TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell colSpan={7}>
-                  <Skeleton className="h-10 w-full" />
-                </TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell colSpan={7}>
-                  <Skeleton className="h-10 w-full" />
-                </TableCell>
-              </TableRow>
-            </TableBody>
-          </Table>
-        </div>
-      </CardContent>
-    </Card>
+    <>
+      {/* Mobile Skeleton */}
+      <div className="md:hidden space-y-4 p-4">
+        <Skeleton className="h-24 w-full" />
+        <Skeleton className="h-24 w-full" />
+        <Skeleton className="h-24 w-full" />
+      </div>
+      {/* Desktop Skeleton */}
+      <div className="hidden md:block rounded-md border">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="w-[120px]">
+                <Skeleton className="h-5 w-full" />
+              </TableHead>
+              <TableHead>
+                <Skeleton className="h-5 w-full" />
+              </TableHead>
+              <TableHead>
+                <Skeleton className="h-5 w-full" />
+              </TableHead>
+              <TableHead>
+                <Skeleton className="h-5 w-full" />
+              </TableHead>
+              <TableHead>
+                <Skeleton className="h-5 w-full" />
+              </TableHead>
+              <TableHead>
+                <Skeleton className="h-5 w-full" />
+              </TableHead>
+              <TableHead className="w-[100px]">
+                <Skeleton className="h-5 w-full" />
+              </TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            <TableRow>
+              <TableCell colSpan={7}>
+                <Skeleton className="h-10 w-full" />
+              </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell colSpan={7}>
+                <Skeleton className="h-10 w-full" />
+              </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell colSpan={7}>
+                <Skeleton className="h-10 w-full" />
+              </TableCell>
+            </TableRow>
+          </TableBody>
+        </Table>
+      </div>
+    </>
   );
 }
 
@@ -355,138 +342,137 @@ export function ServiceTable({ services, loading, highlightedIds, searchTerm, on
   }
 
   return (
-    <div className='md:h-auto h-full'>
-      <Card
-        className={cn('h-full flex flex-col', isPending && 'opacity-50 transition-opacity duration-300')}
-      >
-        <CardContent className="p-0 md:p-0 flex-grow overflow-hidden">
-          {/* Mobile View */}
-          <div className="md:hidden h-full overflow-y-auto">
-            {services.length > 0 ? (
-              <div className="space-y-4 p-4">
-                {services.map((service) => (
-                  <ServiceCard
-                    key={service.id}
-                    service={service}
-                    onDelete={onDelete}
-                    isHighlighted={service.id ? highlightedIds.includes(service.id) : false}
-                  />
-                ))}
-              </div>
-            ) : (
-              <div className="flex flex-col items-center justify-center gap-2 py-12">
-                <PawPrint className="h-8 w-8 text-muted-foreground" />
-                <p className="text-muted-foreground text-center">
-                  {searchTerm
-                    ? 'Tidak ada hasil ditemukan.'
-                    : 'Belum ada data untuk periode ini.'}
-                </p>
-              </div>
-            )}
+    <div
+      className={cn('h-full', isPending && 'opacity-50 transition-opacity duration-300')}
+    >
+      {/* Mobile View */}
+      <div className="md:hidden h-full overflow-y-auto">
+        {services.length > 0 ? (
+          <div className="space-y-4 p-4">
+            {services.map((service) => (
+              <ServiceCard
+                key={service.id}
+                service={service}
+                onDelete={onDelete}
+                isHighlighted={service.id ? highlightedIds.includes(service.id) : false}
+              />
+            ))}
           </div>
+        ) : (
+          <div className="flex flex-col items-center justify-center gap-2 py-12">
+            <PawPrint className="h-8 w-8 text-muted-foreground" />
+            <p className="text-muted-foreground text-center">
+              {searchTerm
+                ? 'Tidak ada hasil ditemukan.'
+                : 'Belum ada data untuk periode ini.'}
+            </p>
+          </div>
+        )}
+      </div>
 
-          {/* Desktop View */}
-          <div className="hidden md:block relative w-full overflow-auto rounded-md border h-[520px]">
-            <Table>
-              <TableHeader className="sticky top-0 bg-card">
-                <TableRow>
-                  <TableHead className="w-[120px]">Tanggal</TableHead>
-                  <TableHead>Pemilik</TableHead>
-                  <TableHead>Jenis Ternak</TableHead>
-                  <TableHead>Diagnosa</TableHead>
-                  <TableHead>Pengobatan</TableHead>
-                  <TableHead>Petugas</TableHead>
-                  <TableHead className="w-[100px] text-center">Aksi</TableHead>
+      {/* Desktop View */}
+      <div className="hidden md:block relative w-full overflow-auto rounded-md border h-[520px]">
+        <Table>
+          <TableHeader className="sticky top-0 bg-card">
+            <TableRow>
+              <TableHead className="w-[120px]">Tanggal</TableHead>
+              <TableHead>Pemilik</TableHead>
+              <TableHead>Jenis Ternak</TableHead>
+              <TableHead>Diagnosa</TableHead>
+              <TableHead>Pengobatan</TableHead>
+              <TableHead>Petugas</TableHead>
+              <TableHead className="w-[100px] text-center">Aksi</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {services.length > 0 ? (
+              services.map((service) => (
+                <TableRow key={service.id} className={cn(service.id && highlightedIds.includes(service.id) && "highlight-new")}>
+                  <TableCell className="font-medium align-top">
+                    {format(new Date(service.date), 'dd MMM yyyy', {
+                      locale: id,
+                    })}
+                  </TableCell>
+                  <TableCell className="align-top">
+                    <div className="font-medium">{service.ownerName}</div>
+                    <div className="text-xs text-muted-foreground">
+                      {service.ownerAddress}
+                    </div>
+                  </TableCell>
+                  <TableCell className="align-top">
+                    <Badge variant="secondary">
+                      {service.livestockType} ({service.livestockCount})
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="align-top">
+                    {service.diagnosis}
+                  </TableCell>
+                  <TableCell className="align-top">
+                    <Accordion
+                      type="single"
+                      collapsible
+                      className="w-full max-w-xs"
+                    >
+                      <AccordionItem value="item-1">
+                        <AccordionTrigger className="py-1 text-primary hover:no-underline">
+                          <PlusCircle className="mr-2 h-4 w-4" /> Lihat{' '}
+                          {service.treatments.length} pengobatan
+                        </AccordionTrigger>
+                        <AccordionContent>
+                          <ul className="list-disc pl-5 space-y-1 text-xs">
+                            {service.treatments.map((treatment, index) => (
+                              <li key={index}>
+                                <span className="font-semibold">
+                                  {treatment.medicineName}
+                                </span>{' '}
+                                ({treatment.dosageValue}{' '}
+                                {treatment.dosageUnit})
+                                <br />
+                                <span className="text-muted-foreground">
+                                  {treatment.medicineType}
+                                </span>
+                              </li>
+                            ))}
+                          </ul>
+                        </AccordionContent>
+                      </AccordionItem>
+                    </Accordion>
+                  </TableCell>
+                  <TableCell className="align-top">
+                    <div className="font-medium">{service.officerName}</div>
+                    <div className="text-xs text-muted-foreground">
+                      {service.puskeswan}
+                    </div>
+                  </TableCell>
+                  <TableCell className="align-top text-center">
+                    <ActionsCell
+                      service={service}
+                      onDelete={onDelete}
+                    />
+                  </TableCell>
                 </TableRow>
-              </TableHeader>
-              <TableBody>
-                {services.length > 0 ? (
-                  services.map((service) => (
-                    <TableRow key={service.id} className={cn(service.id && highlightedIds.includes(service.id) && "highlight-new")}>
-                      <TableCell className="font-medium align-top">
-                        {format(new Date(service.date), 'dd MMM yyyy', {
-                          locale: id,
-                        })}
-                      </TableCell>
-                      <TableCell className="align-top">
-                        <div className="font-medium">{service.ownerName}</div>
-                        <div className="text-xs text-muted-foreground">
-                          {service.ownerAddress}
-                        </div>
-                      </TableCell>
-                      <TableCell className="align-top">
-                        <Badge variant="secondary">
-                          {service.livestockType} ({service.livestockCount})
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="align-top">
-                        {service.diagnosis}
-                      </TableCell>
-                      <TableCell className="align-top">
-                        <Accordion
-                          type="single"
-                          collapsible
-                          className="w-full max-w-xs"
-                        >
-                          <AccordionItem value="item-1">
-                            <AccordionTrigger className="py-1 text-primary hover:no-underline">
-                              <PlusCircle className="mr-2 h-4 w-4" /> Lihat{' '}
-                              {service.treatments.length} pengobatan
-                            </AccordionTrigger>
-                            <AccordionContent>
-                              <ul className="list-disc pl-5 space-y-1 text-xs">
-                                {service.treatments.map((treatment, index) => (
-                                  <li key={index}>
-                                    <span className="font-semibold">
-                                      {treatment.medicineName}
-                                    </span>{' '}
-                                    ({treatment.dosageValue}{' '}
-                                    {treatment.dosageUnit})
-                                    <br />
-                                    <span className="text-muted-foreground">
-                                      {treatment.medicineType}
-                                    </span>
-                                  </li>
-                                ))}
-                              </ul>
-                            </AccordionContent>
-                          </AccordionItem>
-                        </Accordion>
-                      </TableCell>
-                      <TableCell className="align-top">
-                        <div className="font-medium">{service.officerName}</div>
-                        <div className="text-xs text-muted-foreground">
-                          {service.puskeswan}
-                        </div>
-                      </TableCell>
-                      <TableCell className="align-top text-center">
-                        <ActionsCell
-                          service={service}
-                          onDelete={onDelete}
-                        />
-                      </TableCell>
-                    </TableRow>
-                  ))
-                ) : (
-                  <TableRow>
-                    <TableCell colSpan={7} className="h-24 text-center">
-                      <div className="flex flex-col items-center justify-center gap-2">
-                        <PawPrint className="h-8 w-8 text-muted-foreground" />
-                        <p className="text-muted-foreground">
-                          {searchTerm
-                            ? 'Tidak ada hasil ditemukan.'
-                            : 'Pilih bulan dan tahun untuk menampilkan data.'}
-                        </p>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </div>
-        </CardContent>
-      </Card>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={7} className="h-24 text-center">
+                  <div className="flex flex-col items-center justify-center gap-2">
+                    <PawPrint className="h-8 w-8 text-muted-foreground" />
+                    <p className="text-muted-foreground">
+                      {searchTerm
+                        ? 'Tidak ada hasil ditemukan.'
+                        : 'Pilih bulan dan tahun untuk menampilkan data.'}
+                    </p>
+                  </div>
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </div>
     </div>
   );
 }
 
+
+
+    
