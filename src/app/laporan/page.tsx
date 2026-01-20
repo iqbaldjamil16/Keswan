@@ -16,7 +16,7 @@ import { type HealthcareService, serviceSchema } from "@/lib/types";
 import { PasswordDialog } from "@/components/password-dialog";
 import { puskeswanList } from "@/lib/definitions";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, LabelList, Cell, PieChart, Pie, Legend } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, LabelList, Cell, PieChart, Pie, Legend, Label } from 'recharts';
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useFirebase } from "@/firebase";
 import { Input } from "@/components/ui/input";
@@ -201,7 +201,7 @@ const StatPieChart = ({ title, data, colors, defaultColor }: {
         <CardTitle className="text-lg text-left">{title}</CardTitle>
       </CardHeader>
       <CardContent>
-        <ResponsiveContainer width="100%" height={300}>
+        <ResponsiveContainer width="100%" height={350}>
             <PieChart>
                 <Pie
                     data={data}
@@ -254,7 +254,7 @@ const StatPieChart = ({ title, data, colors, defaultColor }: {
                 <Legend
                   verticalAlign={isMobile ? "bottom" : "right"}
                   align={isMobile ? "center" : "left"}
-                  layout={isMobile ? 'horizontal' : 'vertical'}
+                  layout={isMobile ? 'vertical' : 'vertical'}
                   wrapperStyle={{
                     fontSize: '12px',
                     paddingLeft: isMobile ? '0' : '20px',
@@ -604,8 +604,8 @@ export default function ReportPage() {
         </CardHeader>
       </Card>
       
-      <Card>
-        <Tabs defaultValue="tabel" className="w-full">
+      <Tabs defaultValue="tabel" className="w-full">
+        <Card>
             <CardContent className="p-6 space-y-4">
                 <div className="grid grid-cols-2 md:flex md:justify-end gap-2">
                     <Select value={selectedMonth} onValueChange={setSelectedMonth}>
@@ -655,7 +655,7 @@ export default function ReportPage() {
                 </div>
             </CardContent>
 
-            <TabsContent value="tabel">
+            <TabsContent value="tabel" className="p-0 md:p-6 md:pt-0">
               <ServiceTable
                 services={filteredServices}
                 loading={loading && allServices.length === 0}
@@ -670,8 +670,8 @@ export default function ReportPage() {
                     <StatisticsDisplay services={filteredServices} />
                 </div>
             </TabsContent>
-        </Tabs>
-      </Card>
+        </Card>
+      </Tabs>
       
       <Button
           variant="default"
