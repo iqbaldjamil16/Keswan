@@ -100,7 +100,7 @@ const StatChart = ({ title, data, officerToPuskeswanMap, puskeswanColors, defaul
                 stroke="hsl(var(--muted-foreground))"
                 fontSize={12}
                 tickFormatter={(value) =>
-                  value.length > labelTruncateLength ? `${value.substring(0, labelTruncateLength)}...` : value
+                  value.length > labelTruncateLength ? `${'...'}` : value
                 }
                 interval={0}
                 width={yAxisWidth}
@@ -174,13 +174,14 @@ const StatPieChart = ({ title, data, colors, defaultColor }: {
   const isMobile = useIsMobile();
   const total = useMemo(() => data.reduce((sum, item) => sum + item.count, 0), [data]);
 
-  const RADIAN = Math.PI / 180;
   const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, value, percent, index }: any) => {
     const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
     const x = cx + radius * Math.cos(-midAngle * RADIAN);
     const y = cy + radius * Math.sin(-midAngle * RADIAN);
     
-    const sliceLabel = (
+    if (percent < 0.05) return null;
+
+    return (
       <text
         x={x}
         y={y}
@@ -193,38 +194,10 @@ const StatPieChart = ({ title, data, colors, defaultColor }: {
         {value}
       </text>
     );
-
-    if (index === 0) {
-      return (
-        <g>
-          {sliceLabel}
-          <text
-            x={cx}
-            y={cy - 8}
-            textAnchor="middle"
-            dominantBaseline="middle"
-            className="text-xl font-bold"
-            fill="hsl(var(--foreground))"
-          >
-            {total}
-          </text>
-          <text
-            x={cx}
-            y={cy + 12}
-            textAnchor="middle"
-            dominantBaseline="middle"
-            className="text-xs"
-            fill="hsl(var(--muted-foreground))"
-          >
-            Total
-          </text>
-        </g>
-      );
-    }
-
-    return sliceLabel;
   };
 
+  const RADIAN = Math.PI / 180;
+  
   return (
     <Card>
       <CardHeader>
@@ -239,14 +212,28 @@ const StatPieChart = ({ title, data, colors, defaultColor }: {
                     cy={isMobile ? "45%" : "50%"}
                     labelLine={false}
                     label={renderCustomizedLabel}
-                    outerRadius={isMobile ? 70 : 100}
-                    innerRadius={isMobile ? 30 : 40}
+                    outerRadius={isMobile ? 60 : 100}
+                    innerRadius={isMobile ? 25 : 40}
                     dataKey="count"
                     nameKey="name"
                     animationDuration={1500}
                 >
+                    <Label
+                        value={total}
+                        position="center"
+                        fill="hsl(var(--foreground))"
+                        className="text-xl font-bold"
+                        dy={-8}
+                    />
+                    <Label
+                        value="Total"
+                        position="center"
+                        fill="hsl(var(--muted-foreground))"
+                        className="text-xs"
+                        dy={12}
+                    />
                     {data.map((entry) => (
-                        <Cell key={`cell-${entry.name}`} fill={colors[entry.name] || defaultColor} stroke={colors[entry.name]}/>
+                        <Cell key={`cell-${entry.name}`} fill={colors[entry.name] || defaultColor} stroke={'hsl(var(--card))'} strokeWidth={2}/>
                     ))}
                 </Pie>
                 <Tooltip
@@ -268,20 +255,17 @@ const StatPieChart = ({ title, data, colors, defaultColor }: {
                   }}
                 />
                 <Legend
-                  verticalAlign={isMobile ? "bottom" : "middle"}
+                  verticalAlign={isMobile ? "bottom" : "right"}
                   align={isMobile ? "center" : "right"}
-                  layout="vertical"
+                  layout={isMobile ? "horizontal" : "vertical"}
                   wrapperStyle={{
                     fontSize: '12px',
-                    ...(isMobile ? {
-                        paddingTop: '20px',
-                    } : {
-                        paddingLeft: '20px',
-                    })
+                    paddingTop: isMobile ? '10px' : '0px',
+                    paddingLeft: isMobile ? '0px' : '20px',
                   }}
                   iconSize={12}
                   iconType="circle"
-                  formatter={(value) => <span style={{ color: 'hsl(var(--foreground))' }}>{value}</span>}
+                  formatter={(value) => <span className="text-foreground">{value}</span>}
                 />
             </PieChart>
         </ResponsiveContainer>
@@ -623,76 +607,74 @@ export default function ReportPage() {
         </CardHeader>
       </Card>
       
-      <Card>
-        <CardContent className="p-6 space-y-4">
-            <div className="grid grid-cols-2 md:flex md:justify-end gap-2">
-                <Select value={selectedMonth} onValueChange={setSelectedMonth}>
-                <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Pilih Bulan" />
-                </SelectTrigger>
-                <SelectContent>
-                    <SelectItem value="all-months">Semua Bulan</SelectItem>
-                    {months.map((month) => (
-                    <SelectItem key={month.value} value={month.value}>
-                        {month.label}
-                    </SelectItem>
-                    ))}
-                </SelectContent>
-                </Select>
-                <Select value={selectedYear} onValueChange={setSelectedYear}>
-                <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Pilih Tahun" />
-                </SelectTrigger>
-                <SelectContent>
-                    <SelectItem value="all-years">Semua Tahun</SelectItem>
-                    {years.map((year) => (
-                    <SelectItem key={year} value={year}>
-                        {year}
-                    </SelectItem>
-                    ))}
-                </SelectContent>
-                </Select>
-                <Input
-                placeholder="Cari data..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full col-span-2 md:w-64"
-                />
-            </div>
-        </CardContent>
-      </Card>
+      <Tabs defaultValue="tabel" className="w-full">
+        <Card>
+          <CardContent className="p-6 space-y-4">
+              <div className="grid grid-cols-2 md:flex md:justify-end gap-2">
+                  <Select value={selectedMonth} onValueChange={setSelectedMonth}>
+                  <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Pilih Bulan" />
+                  </SelectTrigger>
+                  <SelectContent>
+                      <SelectItem value="all-months">Semua Bulan</SelectItem>
+                      {months.map((month) => (
+                      <SelectItem key={month.value} value={month.value}>
+                          {month.label}
+                      </SelectItem>
+                      ))}
+                  </SelectContent>
+                  </Select>
+                  <Select value={selectedYear} onValueChange={setSelectedYear}>
+                  <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Pilih Tahun" />
+                  </SelectTrigger>
+                  <SelectContent>
+                      <SelectItem value="all-years">Semua Tahun</SelectItem>
+                      {years.map((year) => (
+                      <SelectItem key={year} value={year}>
+                          {year}
+                      </SelectItem>
+                      ))}
+                  </SelectContent>
+                  </Select>
+                  <Input
+                  placeholder="Cari data..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full col-span-2 md:w-64"
+                  />
+              </div>
+              <div className="pt-4">
+                  <TabsList className="grid w-full grid-cols-2">
+                      <TabsTrigger value="tabel">
+                      <LayoutGrid className="mr-2 h-4 w-4" />
+                      Tabel
+                      </TabsTrigger>
+                      <TabsTrigger value="statistik">
+                      <BarChart2 className="mr-2 h-4 w-4" />
+                      Statistik
+                      </TabsTrigger>
+                  </TabsList>
+              </div>
+          </CardContent>
+        </Card>
 
-      <div className="md:card md:p-0">
-        <Tabs defaultValue="tabel" className="w-full">
-            <div className="p-0 md:p-6 md:pb-0">
-                <TabsList className="grid w-full grid-cols-2">
-                    <TabsTrigger value="tabel">
-                    <LayoutGrid className="mr-2 h-4 w-4" />
-                    Tabel
-                    </TabsTrigger>
-                    <TabsTrigger value="statistik">
-                    <BarChart2 className="mr-2 h-4 w-4" />
-                    Statistik
-                    </TabsTrigger>
-                </TabsList>
-            </div>
-          <div className="mt-6">
-            <TabsContent value="tabel">
-              <ServiceTable
-                services={filteredServices}
-                loading={loading && allServices.length === 0}
-                highlightedIds={highlightedIds}
-                searchTerm={searchTerm}
-                onDelete={handleLocalDelete}
-                isPending={isPending}
-              />
-            </TabsContent>
-            <TabsContent value="statistik">
-              <StatisticsDisplay services={filteredServices} />
-            </TabsContent>
-          </div>
-        </Tabs>
-      </div>
+        <div className="mt-6">
+          <TabsContent value="tabel">
+            <ServiceTable
+              services={filteredServices}
+              loading={loading && allServices.length === 0}
+              highlightedIds={highlightedIds}
+              searchTerm={searchTerm}
+              onDelete={handleLocalDelete}
+              isPending={isPending}
+            />
+          </TabsContent>
+          <TabsContent value="statistik">
+            <StatisticsDisplay services={filteredServices} />
+          </TabsContent>
+        </div>
+      </Tabs>
       
       <Button
           variant="default"
