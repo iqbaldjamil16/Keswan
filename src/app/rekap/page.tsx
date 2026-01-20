@@ -200,6 +200,49 @@ export default function RekapPage() {
 
     const recapData = useMemo(() => processRecapData(services), [services]);
     const puskeswanList = Object.keys(recapData).sort();
+
+    const totalRecapData = useMemo(() => {
+        if (puskeswanList.length === 0) {
+            return null;
+        }
+    
+        const totalCases: { [livestockType: string]: { [diagnosis: string]: number } } = {};
+        const totalMedicines: { [medicineName: string]: { count: number, unit: string } } = {};
+    
+        for (const puskeswan of puskeswanList) {
+            const data = recapData[puskeswan];
+            if (!data) continue;
+    
+            // Aggregate cases
+            if (data.cases) {
+                for (const desa in data.cases) {
+                    for (const livestockType in data.cases[desa]) {
+                        if (!totalCases[livestockType]) {
+                            totalCases[livestockType] = {};
+                        }
+                        for (const diagnosis in data.cases[desa][livestockType]) {
+                            totalCases[livestockType][diagnosis] = (totalCases[livestockType][diagnosis] || 0) + data.cases[desa][livestockType][diagnosis];
+                        }
+                    }
+                }
+            }
+    
+            // Aggregate medicines
+            if (data.medicines) {
+                for (const medicineName in data.medicines) {
+                    const { count, unit } = data.medicines[medicineName];
+                    if (!totalMedicines[medicineName]) {
+                        totalMedicines[medicineName] = { count: 0, unit: unit };
+                    }
+                    totalMedicines[medicineName].count += count;
+                    if (totalMedicines[medicineName].unit === 'unit' && unit !== 'unit') {
+                        totalMedicines[medicineName].unit = unit;
+                    }
+                }
+            }
+        }
+        return { cases: totalCases, medicines: totalMedicines };
+    }, [recapData, puskeswanList]);
     
     const formatDosage = (count: number) => {
         return Number(count.toFixed(2)).toLocaleString("id-ID");
@@ -375,6 +418,85 @@ export default function RekapPage() {
                             </AccordionItem>
                         )
                     })}
+
+                    {totalRecapData && (
+                        <AccordionItem value="rekap-total" key="rekap-total" className="border rounded-lg bg-card">
+                            <AccordionTrigger className="px-4 sm:px-6 py-4 text-lg font-bold hover:no-underline">
+                                Rekap Total Puskeswan
+                            </AccordionTrigger>
+                            <AccordionContent className="px-4 sm:px-6 pb-6">
+                                <div className="space-y-8">
+                                    <div className="overflow-x-auto">
+                                        <h3 className="font-semibold mb-2">Total Rekap Kasus/Diagnosa</h3>
+                                        <div className="rounded-md border">
+                                            <Table>
+                                                <TableHeader>
+                                                    <TableRow>
+                                                        <TableHead>Jenis Hewan</TableHead>
+                                                        <TableHead>Diagnosa</TableHead>
+                                                        <TableHead className="text-right w-[80px]">Jumlah</TableHead>
+                                                    </TableRow>
+                                                </TableHeader>
+                                                <TableBody>
+                                                    {Object.keys(totalRecapData.cases).length > 0 ? (
+                                                        Object.entries(totalRecapData.cases)
+                                                            .sort(([a], [b]) => a.localeCompare(b))
+                                                            .flatMap(([livestockType, diagnoses]) => {
+                                                                const sortedDiagnoses = Object.entries(diagnoses).sort(([a], [b]) => a.localeCompare(b));
+                                                                return sortedDiagnoses.map(([diagnosis, count], diagnosisIndex) => (
+                                                                    <TableRow key={`${livestockType}-${diagnosis}`}>
+                                                                        {diagnosisIndex === 0 && (
+                                                                            <TableCell rowSpan={Object.keys(diagnoses).length} className="align-top font-medium">
+                                                                                {livestockType}
+                                                                            </TableCell>
+                                                                        )}
+                                                                        <TableCell>{diagnosis}</TableCell>
+                                                                        <TableCell className="text-right font-medium">{count}</TableCell>
+                                                                    </TableRow>
+                                                                ));
+                                                            })
+                                                    ) : (
+                                                        <TableRow>
+                                                            <TableCell colSpan={3} className="text-center">Tidak ada kasus</TableCell>
+                                                        </TableRow>
+                                                    )}
+                                                </TableBody>
+                                            </Table>
+                                        </div>
+                                    </div>
+                                    <div className="overflow-x-auto">
+                                        <h3 className="font-semibold mb-2">Total Rekap Penggunaan Obat</h3>
+                                        <div className="rounded-md border">
+                                            <Table>
+                                                <TableHeader>
+                                                    <TableRow>
+                                                        <TableHead>Nama Obat</TableHead>
+                                                        <TableHead className="text-right w-[120px]">Total Dosis</TableHead>
+                                                    </TableRow>
+                                                </TableHeader>
+                                                <TableBody>
+                                                    {Object.keys(totalRecapData.medicines).length > 0 ? (
+                                                        Object.entries(totalRecapData.medicines)
+                                                            .sort(([, a], [, b]) => b.count - a.count)
+                                                            .map(([medicine, { count, unit }]) => (
+                                                                <TableRow key={medicine}>
+                                                                    <TableCell>{medicine}</TableCell>
+                                                                    <TableCell className="text-right font-medium">{`${formatDosage(count)} ${unit}`}</TableCell>
+                                                                </TableRow>
+                                                            ))
+                                                    ) : (
+                                                        <TableRow>
+                                                            <TableCell colSpan={2} className="text-center">Tidak ada penggunaan obat</TableCell>
+                                                        </TableRow>
+                                                    )}
+                                                </TableBody>
+                                            </Table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </AccordionContent>
+                        </AccordionItem>
+                    )}
                  </Accordion>
             ) : (
                 <Card>
@@ -413,3 +535,4 @@ export default function RekapPage() {
   );
 }
 
+    
