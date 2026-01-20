@@ -15,7 +15,7 @@ import { type HealthcareService, serviceSchema } from "@/lib/types";
 import { PasswordDialog } from "@/components/password-dialog";
 import { puskeswanList } from "@/lib/definitions";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, LabelList, Cell } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, LabelList, Cell, PieChart, Pie, Legend } from 'recharts';
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useFirebase } from "@/firebase";
 import { Input } from "@/components/ui/input";
@@ -164,6 +164,100 @@ const StatChart = ({ title, data, officerToPuskeswanMap, puskeswanColors, defaul
   );
 };
 
+const StatPieChart = ({ title, data, colors, defaultColor }: {
+  title: string;
+  data: StatItem[];
+  colors: { [key: string]: string };
+  defaultColor: string;
+}) => {
+  const isMobile = useIsMobile();
+  const total = useMemo(() => data.reduce((sum, item) => sum + item.count, 0), [data]);
+
+  const RADIAN = Math.PI / 180;
+  const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent }: any) => {
+    const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
+    const x = cx + radius * Math.cos(-midAngle * RADIAN);
+    const y = cy + radius * Math.sin(-midAngle * RADIAN);
+    
+    if (percent * 100 < 5) return null;
+
+    return (
+      <text
+        x={x}
+        y={y}
+        fill="white"
+        textAnchor="middle"
+        dominantBaseline="central"
+        className="text-xs font-bold"
+        style={{
+             textShadow: '0px 1px 2px rgba(0, 0, 0, 0.8)',
+        }}
+      >
+        {`${(percent * 100).toFixed(0)}%`}
+      </text>
+    );
+  };
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-lg text-left">{title}</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <ResponsiveContainer width="100%" height={isMobile ? 400 : 300}>
+            <PieChart>
+                <Pie
+                    data={data}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    label={renderCustomizedLabel}
+                    outerRadius={isMobile ? 100 : 110}
+                    innerRadius={isMobile ? 40: 50}
+                    dataKey="count"
+                    nameKey="name"
+                    animationDuration={1500}
+                >
+                    {data.map((entry) => (
+                        <Cell key={`cell-${entry.name}`} fill={colors[entry.name] || defaultColor} stroke={colors[entry.name]}/>
+                    ))}
+                </Pie>
+                <Tooltip
+                  content={({ active, payload }) => {
+                    if (active && payload && payload.length) {
+                      const item = payload[0];
+                      const percentage = total > 0 ? (((item.value as number) / total) * 100).toFixed(1) : 0;
+                      return (
+                        <div className="rounded-lg border bg-background p-2 shadow-sm text-sm">
+                          <span className="font-bold">{item.name}</span>
+                          <span className="text-muted-foreground ml-2">
+                            {`${item.value} (${percentage}%)`}
+                          </span>
+                        </div>
+                      );
+                    }
+                    return null;
+                  }}
+                />
+                <Legend 
+                  verticalAlign="bottom"
+                  layout={isMobile ? 'vertical' : 'horizontal'}
+                  align={isMobile ? 'left' : 'center'}
+                  wrapperStyle={{ 
+                    paddingTop: '20px',
+                    ...(isMobile && { paddingLeft: '20px' })
+                  }}
+                  iconSize={12}
+                  iconType="circle"
+                />
+            </PieChart>
+        </ResponsiveContainer>
+      </CardContent>
+    </Card>
+  );
+};
+
+
 function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
 
   if (services.length === 0) {
@@ -217,13 +311,11 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
           defaultColor={defaultColor}
           showAll={true}
         />
-        <StatChart 
+        <StatPieChart
           title="Statistik per Puskeswan"
           data={statsByPuskeswan}
-          officerToPuskeswanMap={officerToPuskeswanMap}
-          puskeswanColors={puskeswanColors}
+          colors={puskeswanColors}
           defaultColor={defaultColor}
-          showAll={true}
         />
         <StatChart 
           title="Statistik per Kasus/Penyakit" 
@@ -548,7 +640,7 @@ export default function ReportPage() {
             Statistik
           </TabsTrigger>
         </TabsList>
-        <div className="md:mt-6">
+        <div className="mt-6 md:mt-0">
           <TabsContent value="tabel" className="mt-6 md:mt-0">
             <ServiceTable
               services={filteredServices}
