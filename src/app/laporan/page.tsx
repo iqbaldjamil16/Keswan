@@ -227,10 +227,11 @@ const StatPieChart = ({ title, data, colors, defaultColor }: {
                     if (active && payload && payload.length) {
                       const item = payload[0];
                       const percentage = total > 0 ? (((item.value as number) / total) * 100).toFixed(1) : 0;
+                      const name = item.name as string;
                       return (
                         <div className="rounded-lg border bg-background p-2 shadow-sm text-sm">
-                          <span className="font-bold">{item.name}</span>
-                          <span className="text-muted-foreground ml-2">
+                          <span className="font-bold">{name}: </span>
+                          <span className="text-muted-foreground">
                             {`${item.value} (${percentage}%)`}
                           </span>
                         </div>
@@ -240,13 +241,9 @@ const StatPieChart = ({ title, data, colors, defaultColor }: {
                   }}
                 />
                 <Legend 
-                  verticalAlign="bottom"
-                  layout={isMobile ? 'vertical' : 'horizontal'}
-                  align={isMobile ? 'left' : 'center'}
-                  wrapperStyle={{ 
-                    paddingTop: '20px',
-                    ...(isMobile && { paddingLeft: '20px' })
-                  }}
+                  layout="vertical"
+                  verticalAlign="middle"
+                  align="right"
                   iconSize={12}
                   iconType="circle"
                 />
