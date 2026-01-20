@@ -180,7 +180,7 @@ const StatPieChart = ({ title, data, colors, defaultColor }: {
     const x = cx + radius * Math.cos(-midAngle * RADIAN);
     const y = cy + radius * Math.sin(-midAngle * RADIAN);
     
-    const sliceLabel = percent * 100 >= 5 ? (
+    const sliceLabel = (
       <text
         x={x}
         y={y}
@@ -192,7 +192,7 @@ const StatPieChart = ({ title, data, colors, defaultColor }: {
       >
         {value}
       </text>
-    ) : null;
+    );
 
     if (index === 0) {
       return (
@@ -269,15 +269,14 @@ const StatPieChart = ({ title, data, colors, defaultColor }: {
                 />
                 <Legend
                   verticalAlign={isMobile ? "bottom" : "middle"}
-                  align={isMobile ? "left" : "right"}
+                  align={isMobile ? "center" : "right"}
                   layout="vertical"
                   wrapperStyle={{
                     fontSize: '12px',
                     ...(isMobile ? {
                         paddingTop: '20px',
-                        paddingLeft: '20px'
                     } : {
-                        paddingLeft: '20px'
+                        paddingLeft: '20px',
                     })
                   }}
                   iconSize={12}
