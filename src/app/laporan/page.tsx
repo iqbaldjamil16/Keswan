@@ -242,9 +242,9 @@ const StatPieChart = ({ title, data, colors, defaultColor }: {
                   }}
                 />
                 <Legend 
-                  verticalAlign={isMobile ? "bottom" : "middle"}
+                  verticalAlign={isMobile ? "bottom" : "right"}
                   align={isMobile ? "center" : "right"}
-                  layout="vertical"
+                  layout={isMobile ? "horizontal" : "vertical"}
                   wrapperStyle={isMobile ? { paddingTop: '20px' } : {}}
                   iconSize={12}
                   iconType="circle"
@@ -671,5 +671,3 @@ export default function ReportPage() {
     </div>
   );
 }
-
-    
