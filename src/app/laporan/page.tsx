@@ -25,13 +25,11 @@ import { cn } from "@/lib/utils";
 interface StatItem {
   name: string;
   count: number;
-  percentage: number;
 }
 
 function calculateStats(services: HealthcareService[], groupBy: 'month' | 'officerName' | 'puskeswan' | 'diagnosis'): StatItem[] {
   if (services.length === 0) return [];
 
-  const total = services.length;
   const counts: { [key: string]: number } = {};
 
   services.forEach(service => {
@@ -48,7 +46,6 @@ function calculateStats(services: HealthcareService[], groupBy: 'month' | 'offic
       .map(([name, count]) => ({
           name,
           count,
-          percentage: (count / total) * 100,
       }))
       .sort((a, b) => b.count - a.count);
 }
@@ -152,6 +149,8 @@ const StatChart = ({ title, data, officerToPuskeswanMap, puskeswanColors, defaul
                       if (puskeswan) {
                         color = puskeswanColors[puskeswan] || defaultColor;
                       }
+                    } else if (title === 'Statistik per Puskeswan') {
+                      color = puskeswanColors[entry.name] || defaultColor;
                     } else if (title === 'Statistik per Kasus/Penyakit') {
                       color = '#006400';
                     }
@@ -182,6 +181,7 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
 
   const statsByMonth = calculateStats(services, 'month');
   const statsByOfficer = calculateStats(services, 'officerName');
+  const statsByPuskeswan = calculateStats(services, 'puskeswan');
   const statsByDiagnosis = calculateStats(services, 'diagnosis');
 
   const officerToPuskeswanMap: { [key: string]: string } = {};
@@ -212,6 +212,14 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
         <StatChart 
           title="Statistik per Petugas" 
           data={statsByOfficer} 
+          officerToPuskeswanMap={officerToPuskeswanMap}
+          puskeswanColors={puskeswanColors}
+          defaultColor={defaultColor}
+          showAll={true}
+        />
+        <StatChart 
+          title="Statistik per Puskeswan"
+          data={statsByPuskeswan}
           officerToPuskeswanMap={officerToPuskeswanMap}
           puskeswanColors={puskeswanColors}
           defaultColor={defaultColor}
@@ -568,6 +576,3 @@ export default function ReportPage() {
     </div>
   );
 }
-
-
-
