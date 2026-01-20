@@ -255,7 +255,7 @@ const StatPieChart = ({ title, data, colors, defaultColor }: {
           </ResponsiveContainer>
           {total > 0 && (
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <span className="text-3xl font-bold text-foreground -translate-y-4">
+              <span className="text-2xl font-bold text-foreground -translate-y-10">
                 {total}
               </span>
             </div>
@@ -716,3 +716,6 @@ export default function ReportPage() {
   );
 }
 
+
+
+    
