@@ -28,7 +28,7 @@ interface StatItem {
   count: number;
 }
 
-function calculateStats(services: HealthcareService[], groupBy: 'month' | 'officerName' | 'puskeswan' | 'diagnosis'): StatItem[] {
+function calculateStats(services: HealthcareService[], groupBy: 'month' | 'officerName' | 'puskeswan'): StatItem[] {
   if (services.length === 0) return [];
 
   const counts: { [key: string]: number } = {};
@@ -38,7 +38,7 @@ function calculateStats(services: HealthcareService[], groupBy: 'month' | 'offic
       if (groupBy === 'month') {
           key = format(new Date(service.date), 'MMMM yyyy', { locale: id });
       } else {
-          key = service[groupBy as keyof HealthcareService] as string;
+          key = service[groupBy as keyof Omit<HealthcareService, 'diagnosis'>] as string;
       }
       counts[key] = (counts[key] || 0) + service.livestockCount;
   });
@@ -149,7 +149,7 @@ const StatChart = ({ title, data, officerToPuskeswanMap, puskeswanColors, defaul
                       }
                     } else if (title === 'Statistik per Puskeswan') {
                       color = puskeswanColors[entry.name] || defaultColor;
-                    } else if (title === 'Statistik per Kasus/Penyakit') {
+                    } else if (title.startsWith('Statistik Kasus/Penyakit')) {
                       color = '#006400';
                     }
                     return <Cell key={`cell-${index}`} fill={color} />;
@@ -209,8 +209,8 @@ const StatPieChart = ({ title, data, colors, defaultColor }: {
                     cy="50%"
                     labelLine={false}
                     label={renderCustomizedLabel}
-                    outerRadius={isMobile ? 60 : 100}
-                    innerRadius={isMobile ? 25 : 40}
+                    outerRadius={isMobile ? 80 : 100}
+                    innerRadius={isMobile ? 30 : 40}
                     dataKey="count"
                     nameKey="name"
                     animationDuration={1500}
@@ -271,6 +271,15 @@ const StatPieChart = ({ title, data, colors, defaultColor }: {
   );
 };
 
+function getGenericLivestockType(type: string): string {
+    const lowerType = type.toLowerCase();
+    if (lowerType.startsWith('sapi')) return 'Sapi';
+    if (lowerType.startsWith('kambing')) return 'Kambing';
+    if (lowerType.startsWith('ayam')) return 'Ayam';
+    if (lowerType.startsWith('kucing')) return 'Kucing';
+    if (lowerType.startsWith('anjing')) return 'Anjing';
+    return type; // Return original if no specific group matches
+}
 
 function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
 
@@ -290,7 +299,38 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
   const statsByMonth = calculateStats(services, 'month');
   const statsByOfficer = calculateStats(services, 'officerName');
   const statsByPuskeswan = calculateStats(services, 'puskeswan');
-  const statsByDiagnosis = calculateStats(services, 'diagnosis');
+
+  const statsByDiagnosisAndAnimal: { [animalType: string]: { [diagnosis: string]: number } } = {};
+  services.forEach(service => {
+    const genericType = getGenericLivestockType(service.livestockType);
+    if (!statsByDiagnosisAndAnimal[genericType]) {
+        statsByDiagnosisAndAnimal[genericType] = {};
+    }
+    const diagnosis = service.diagnosis.trim();
+    statsByDiagnosisAndAnimal[genericType][diagnosis] = (statsByDiagnosisAndAnimal[genericType][diagnosis] || 0) + service.livestockCount;
+  });
+
+  const diagnosisCharts = Object.entries(statsByDiagnosisAndAnimal)
+    .sort(([animalA], [animalB]) => animalA.localeCompare(animalB))
+    .map(([animalType, diagnoses]) => {
+        const chartData: StatItem[] = Object.entries(diagnoses)
+            .map(([name, count]) => ({ name, count }))
+            .sort((a, b) => b.count - a.count);
+
+        if (chartData.length === 0) return null;
+
+        return (
+            <StatChart
+                key={animalType}
+                title={`Statistik Kasus/Penyakit - ${animalType}`}
+                data={chartData}
+                officerToPuskeswanMap={{}} 
+                puskeswanColors={{}}
+                defaultColor="#006400"
+                showAll={true}
+            />
+        );
+    }).filter(Boolean);
 
   const officerToPuskeswanMap: { [key: string]: string } = {};
   services.forEach(service => {
@@ -331,14 +371,7 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
           colors={puskeswanColors}
           defaultColor={defaultColor}
         />
-        <StatChart 
-          title="Statistik per Kasus/Penyakit" 
-          data={statsByDiagnosis} 
-          officerToPuskeswanMap={officerToPuskeswanMap}
-          puskeswanColors={puskeswanColors}
-          defaultColor={defaultColor}
-          showAll={true}
-        />
+        {diagnosisCharts}
     </div>
   );
 }
@@ -665,7 +698,7 @@ export default function ReportPage() {
                 isPending={isPending}
               />
             </TabsContent>
-            <TabsContent value="statistik">
+            <TabsContent value="statistik" className="p-0 md:p-6 md:pt-0">
                 <div className="px-6 pb-6">
                     <StatisticsDisplay services={filteredServices} />
                 </div>
@@ -684,3 +717,4 @@ export default function ReportPage() {
     </div>
   );
 }
+
