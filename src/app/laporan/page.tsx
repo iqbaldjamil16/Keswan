@@ -205,16 +205,21 @@ const StatPieChart = ({ title, data, colors, defaultColor }: {
         <CardTitle className="text-lg text-left">{title}</CardTitle>
       </CardHeader>
       <CardContent>
-        <ResponsiveContainer width="100%" height={isMobile ? 400 : 300}>
-            <PieChart margin={isMobile ? { bottom: 80 } : { right: 140 }}>
+        <ResponsiveContainer width="100%" height={300}>
+            <PieChart margin={{
+                top: isMobile ? 0 : 20,
+                right: isMobile ? 20 : 0,
+                bottom: isMobile ? 80 : 20,
+                left: isMobile ? 20 : 0,
+            }}>
                 <Pie
                     data={data}
                     cx="50%"
                     cy="50%"
                     labelLine={false}
                     label={renderCustomizedLabel}
-                    outerRadius={100}
-                    innerRadius={40}
+                    outerRadius={isMobile ? 80 : 100}
+                    innerRadius={isMobile ? 30 : 40}
                     dataKey="count"
                     nameKey="name"
                     animationDuration={1500}
@@ -242,11 +247,12 @@ const StatPieChart = ({ title, data, colors, defaultColor }: {
                   }}
                 />
                 <Legend 
-                  verticalAlign={isMobile ? "bottom" : "middle"}
-                  align={isMobile ? "left" : "right"}
-                  layout="vertical"
+                  verticalAlign={isMobile ? "bottom" : "right"}
+                  align={isMobile ? "left" : "center"}
+                  layout={isMobile ? "vertical" : "vertical"}
                   iconSize={12}
                   iconType="circle"
+                  wrapperStyle={isMobile ? {paddingLeft: '20px'} : {paddingRight: '20px'}}
                 />
             </PieChart>
         </ResponsiveContainer>
@@ -627,18 +633,20 @@ export default function ReportPage() {
         </CardContent>
       </Card>
 
-      <div>
+      <div className="md:card">
         <Tabs defaultValue="tabel" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="tabel">
-              <LayoutGrid className="mr-2 h-4 w-4" />
-              Tabel
-            </TabsTrigger>
-            <TabsTrigger value="statistik">
-              <BarChart2 className="mr-2 h-4 w-4" />
-              Statistik
-            </TabsTrigger>
-          </TabsList>
+            <CardContent className="p-0 md:p-6">
+                <TabsList className="grid w-full grid-cols-2">
+                    <TabsTrigger value="tabel">
+                    <LayoutGrid className="mr-2 h-4 w-4" />
+                    Tabel
+                    </TabsTrigger>
+                    <TabsTrigger value="statistik">
+                    <BarChart2 className="mr-2 h-4 w-4" />
+                    Statistik
+                    </TabsTrigger>
+                </TabsList>
+            </CardContent>
           <div className="mt-6">
             <TabsContent value="tabel">
               <ServiceTable
@@ -668,3 +676,5 @@ export default function ReportPage() {
     </div>
   );
 }
+
+    
