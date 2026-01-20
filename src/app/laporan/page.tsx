@@ -337,7 +337,7 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
   const puskeswanColors: { [key: string]: string } = {
     'Puskeswan Topoyo': '#00008B',
     'Puskeswan Tobadak': '#006400',
-    'Puskeswan Karossa': '#FF0000',
+    'Puskeswan Karossa': '#800080',
     'Puskeswan Budong-Budong': '#FFFF00',
     'Puskeswan Pangale': '#FF0000',
   };
@@ -715,3 +715,4 @@ export default function ReportPage() {
     </div>
   );
 }
+
