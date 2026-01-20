@@ -203,7 +203,7 @@ const StatPieChart = ({ title, data, colors, defaultColor }: {
             y={cy - 8}
             textAnchor="middle"
             dominantBaseline="middle"
-            className="text-2xl font-bold"
+            className="text-xl font-bold"
             fill="hsl(var(--foreground))"
           >
             {total}
@@ -239,8 +239,8 @@ const StatPieChart = ({ title, data, colors, defaultColor }: {
                     cy={isMobile ? "45%" : "50%"}
                     labelLine={false}
                     label={renderCustomizedLabel}
-                    outerRadius={isMobile ? 80 : 100}
-                    innerRadius={isMobile ? 35 : 40}
+                    outerRadius={isMobile ? 70 : 100}
+                    innerRadius={isMobile ? 30 : 40}
                     dataKey="count"
                     nameKey="name"
                     animationDuration={1500}
@@ -269,13 +269,13 @@ const StatPieChart = ({ title, data, colors, defaultColor }: {
                 />
                 <Legend
                   verticalAlign={isMobile ? "bottom" : "middle"}
-                  align={isMobile ? "center" : "right"}
-                  layout={isMobile ? "horizontal" : "vertical"}
+                  align={isMobile ? "left" : "right"}
+                  layout="vertical"
                   wrapperStyle={{
                     fontSize: '12px',
                     ...(isMobile ? {
                         paddingTop: '20px',
-                        textAlign: 'left'
+                        paddingLeft: '20px'
                     } : {
                         paddingLeft: '20px'
                     })
