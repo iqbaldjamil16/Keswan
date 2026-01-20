@@ -630,9 +630,9 @@ export default function ReportPage() {
         </CardHeader>
       </Card>
       
-      <Tabs defaultValue="tabel" className="w-full">
-        <Card>
-            <CardContent className="p-6 space-y-4">
+      <Card>
+        <Tabs defaultValue="tabel" className="w-full">
+            <CardContent className="p-6 pb-2 space-y-4">
                 <div className="grid grid-cols-2 md:flex md:justify-end gap-2">
                     <Select value={selectedMonth} onValueChange={setSelectedMonth}>
                     <SelectTrigger className="w-full">
@@ -696,8 +696,8 @@ export default function ReportPage() {
                     <StatisticsDisplay services={filteredServices} />
                 </div>
             </TabsContent>
-        </Card>
-      </Tabs>
+        </Tabs>
+      </Card>
       
       <Button
           variant="default"
@@ -710,5 +710,3 @@ export default function ReportPage() {
     </div>
   );
 }
-
-    
