@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useTransition, useEffect, useCallback, useMemo } from "react";
@@ -70,8 +71,8 @@ const StatChart = ({ title, data, officerToPuskeswanMap, puskeswanColors, defaul
   }, [data]); // Re-trigger if data changes
   
   const chartData = useMemo(() => showAll ? data : data.slice(0, 10), [data, showAll]);
-  const yAxisWidth = 180;
-  const rightMargin = 80;
+  const yAxisWidth = isMobile ? 120 : 180;
+  const rightMargin = isMobile ? 50 : 80;
 
   const barHeight = 28;
   const chartHeight = Math.max(150, chartData.length * barHeight);
@@ -96,7 +97,7 @@ const StatChart = ({ title, data, officerToPuskeswanMap, puskeswanColors, defaul
                 tickLine={false}
                 axisLine={false}
                 stroke="hsl(var(--muted-foreground))"
-                fontSize={12}
+                fontSize={isMobile ? 11 : 12}
                 interval={0}
                 width={yAxisWidth}
                 tickFormatter={(value) => value}
@@ -135,7 +136,7 @@ const StatChart = ({ title, data, officerToPuskeswanMap, puskeswanColors, defaul
                     isAnimationActive={false}
                     className="font-semibold"
                     fill="hsl(var(--foreground))"
-                    fontSize={12}
+                    fontSize={isMobile ? 11 : 12}
                 />}
                 {chartData.map((entry, index) => {
                     let color = defaultColor;
