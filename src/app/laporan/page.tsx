@@ -206,15 +206,15 @@ const StatPieChart = ({ title, data, colors, defaultColor }: {
       </CardHeader>
       <CardContent>
         <ResponsiveContainer width="100%" height={isMobile ? 400 : 300}>
-            <PieChart>
+            <PieChart margin={isMobile ? { bottom: 80 } : { right: 140 }}>
                 <Pie
                     data={data}
                     cx="50%"
-                    cy={isMobile ? "45%" : "50%"}
+                    cy="50%"
                     labelLine={false}
                     label={renderCustomizedLabel}
-                    outerRadius={isMobile ? 80 : 110}
-                    innerRadius={isMobile ? 30: 50}
+                    outerRadius={100}
+                    innerRadius={40}
                     dataKey="count"
                     nameKey="name"
                     animationDuration={1500}
@@ -247,7 +247,6 @@ const StatPieChart = ({ title, data, colors, defaultColor }: {
                   layout="vertical"
                   iconSize={12}
                   iconType="circle"
-                  wrapperStyle={isMobile ? { paddingTop: '20px', paddingLeft: '20px' } : {}}
                 />
             </PieChart>
         </ResponsiveContainer>
@@ -628,7 +627,7 @@ export default function ReportPage() {
         </CardContent>
       </Card>
 
-      <div className="md:card">
+      <div>
         <Tabs defaultValue="tabel" className="w-full">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="tabel">
