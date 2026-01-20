@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useTransition, useEffect, useCallback, useMemo } from "react";
@@ -15,7 +16,7 @@ import { type HealthcareService, serviceSchema } from "@/lib/types";
 import { PasswordDialog } from "@/components/password-dialog";
 import { puskeswanList } from "@/lib/definitions";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, LabelList, Cell, PieChart, Pie, Legend } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, LabelList, Cell, PieChart, Pie, Legend, Label } from 'recharts';
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useFirebase } from "@/firebase";
 import { Input } from "@/components/ui/input";
@@ -214,9 +215,13 @@ const StatPieChart = ({ title, data, colors, defaultColor }: {
                     nameKey="name"
                     animationDuration={1500}
                 >
-                    <text x="50%" y="50%" textAnchor="middle" dominantBaseline="middle" className="text-xl font-bold" fill="hsl(var(--foreground))" dy={-8}>
-                        {total}
-                    </text>
+                    <Label
+                        value={total}
+                        position="center"
+                        fill="hsl(var(--foreground))"
+                        className="text-2xl font-bold"
+                        dy={-5}
+                    />
                     {data.map((entry) => (
                         <Cell key={`cell-${entry.name}`} fill={colors[entry.name] || defaultColor} stroke={'hsl(var(--card))'} strokeWidth={2}/>
                     ))}
@@ -279,7 +284,7 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
                 <CardDescription>
                     Tidak ada data untuk ditampilkan statistiknya pada periode yang dipilih.
                 </CardDescription>
-            </Header>
+            </CardHeader>
         </Card>
       );
   }
@@ -625,74 +630,74 @@ export default function ReportPage() {
         </CardHeader>
       </Card>
       
-      <Card>
-        <Tabs defaultValue="tabel" className="w-full">
-            <CardContent className="p-6 space-y-4">
-                <div className="grid grid-cols-2 md:flex md:justify-end gap-2">
-                    <Select value={selectedMonth} onValueChange={setSelectedMonth}>
-                    <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Pilih Bulan" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="all-months">Semua Bulan</SelectItem>
-                        {months.map((month) => (
-                        <SelectItem key={month.value} value={month.value}>
-                            {month.label}
-                        </SelectItem>
-                        ))}
-                    </SelectContent>
-                    </Select>
-                    <Select value={selectedYear} onValueChange={setSelectedYear}>
-                    <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Pilih Tahun" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="all-years">Semua Tahun</SelectItem>
-                        {years.map((year) => (
-                        <SelectItem key={year} value={year}>
-                            {year}
-                        </SelectItem>
-                        ))}
-                    </SelectContent>
-                    </Select>
-                    <Input
-                    placeholder="Cari data..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full col-span-2 md:w-64"
-                    />
-                </div>
-                <div className="pt-4">
-                    <TabsList className="grid w-full grid-cols-2">
-                        <TabsTrigger value="tabel">
-                        <LayoutGrid className="mr-2 h-4 w-4" />
-                        Tabel
-                        </TabsTrigger>
-                        <TabsTrigger value="statistik">
-                        <BarChart2 className="mr-2 h-4 w-4" />
-                        Statistik
-                        </TabsTrigger>
-                    </TabsList>
-                </div>
-            </CardContent>
+      <Tabs defaultValue="tabel" className="w-full">
+        <Card className="pb-0">
+          <CardContent className="p-4 sm:p-6 pb-0">
+              <div className="grid grid-cols-2 md:flex md:justify-end gap-2">
+                  <Select value={selectedMonth} onValueChange={setSelectedMonth}>
+                  <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Pilih Bulan" />
+                  </SelectTrigger>
+                  <SelectContent>
+                      <SelectItem value="all-months">Semua Bulan</SelectItem>
+                      {months.map((month) => (
+                      <SelectItem key={month.value} value={month.value}>
+                          {month.label}
+                      </SelectItem>
+                      ))}
+                  </SelectContent>
+                  </Select>
+                  <Select value={selectedYear} onValueChange={setSelectedYear}>
+                  <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Pilih Tahun" />
+                  </SelectTrigger>
+                  <SelectContent>
+                      <SelectItem value="all-years">Semua Tahun</SelectItem>
+                      {years.map((year) => (
+                      <SelectItem key={year} value={year}>
+                          {year}
+                      </SelectItem>
+                      ))}
+                  </SelectContent>
+                  </Select>
+                  <Input
+                  placeholder="Cari data..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full col-span-2 md:w-64"
+                  />
+              </div>
+              <div className="pt-4">
+                  <TabsList className="grid w-full grid-cols-2">
+                      <TabsTrigger value="tabel">
+                      <LayoutGrid className="mr-2 h-4 w-4" />
+                      Tabel
+                      </TabsTrigger>
+                      <TabsTrigger value="statistik">
+                      <BarChart2 className="mr-2 h-4 w-4" />
+                      Statistik
+                      </TabsTrigger>
+                  </TabsList>
+              </div>
+          </CardContent>
 
-            <TabsContent value="tabel" className="p-0 md:p-6 md:pt-0">
-              <ServiceTable
-                services={filteredServices}
-                loading={loading && allServices.length === 0}
-                highlightedIds={highlightedIds}
-                searchTerm={searchTerm}
-                onDelete={handleLocalDelete}
-                isPending={isPending}
-              />
-            </TabsContent>
-            <TabsContent value="statistik" className="p-0 md:p-6 md:pt-0">
-                <div className="px-6 pb-6">
-                    <StatisticsDisplay services={filteredServices} />
-                </div>
-            </TabsContent>
-        </Tabs>
-      </Card>
+          <TabsContent value="tabel" className="p-0 md:p-6 md:pt-4">
+            <ServiceTable
+              services={filteredServices}
+              loading={loading && allServices.length === 0}
+              highlightedIds={highlightedIds}
+              searchTerm={searchTerm}
+              onDelete={handleLocalDelete}
+              isPending={isPending}
+            />
+          </TabsContent>
+          <TabsContent value="statistik" className="p-0 md:p-6 md:pt-4">
+              <div className="p-4 sm:p-0 sm:pb-6">
+                  <StatisticsDisplay services={filteredServices} />
+              </div>
+          </TabsContent>
+        </Card>
+      </Tabs>
       
       <Button
           variant="default"
