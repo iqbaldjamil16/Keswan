@@ -222,13 +222,6 @@ const StatPieChart = ({ title, data, colors, defaultColor }: {
                         className="text-xl font-bold"
                         dy={-8}
                     />
-                    <Label
-                        value="Total Ternak"
-                        position="center"
-                        fill="hsl(var(--muted-foreground))"
-                        className="text-xs"
-                        dy={12}
-                    />
                     {data.map((entry) => (
                         <Cell key={`cell-${entry.name}`} fill={colors[entry.name] || defaultColor} stroke={'hsl(var(--card))'} strokeWidth={2}/>
                     ))}
@@ -254,7 +247,7 @@ const StatPieChart = ({ title, data, colors, defaultColor }: {
                 <Legend
                   verticalAlign={isMobile ? "bottom" : "right"}
                   align={isMobile ? "center" : "left"}
-                  layout={isMobile ? 'vertical' : 'vertical'}
+                  layout={'vertical'}
                   wrapperStyle={{
                     fontSize: '12px',
                     paddingLeft: isMobile ? '0' : '20px',
@@ -718,3 +711,4 @@ export default function ReportPage() {
   );
 }
 
+    
