@@ -77,8 +77,8 @@ const StatChart = ({
   const rightMargin = isMobile ? 50 : 80;
 
   const isSpecialSizing = title === 'Statistik per Bulan' || title.includes('Kerbau');
-  const barHeight = isSpecialSizing ? 22 : 28;
-  const chartHeight = Math.max(isSpecialSizing ? 120 : 150, chartData.length * barHeight);
+  const barHeight = isSpecialSizing ? 20 : 28;
+  const chartHeight = Math.max(isSpecialSizing ? 100 : 150, chartData.length * barHeight);
 
   return (
     <Card>
@@ -129,7 +129,7 @@ const StatChart = ({
                   dataKey="count"
                   name="Jumlah Ternak"
                   animationDuration={2000}
-                  radius={[0, 8, 8, 0]}
+                  radius={[0, 4, 4, 0]}
                 >
                   <LabelList
                       dataKey="count"
@@ -802,10 +802,3 @@ export default function ReportPage() {
     
 
     
-
-
-
-
-
-
-
