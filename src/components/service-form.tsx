@@ -130,8 +130,10 @@ export function ServiceForm({ initialData, formType = 'keswan' }: { initialData?
 
     startTransition(async () => {
       try {
+        const { id, ...dataToSave } = values;
+        
         const serviceData = {
-          ...values,
+          ...dataToSave,
           date: Timestamp.fromDate(values.date),
           caseDevelopment: undefined,
         };
@@ -867,6 +869,7 @@ export function ServiceForm({ initialData, formType = 'keswan' }: { initialData?
     
 
     
+
 
 
 
