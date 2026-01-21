@@ -304,3 +304,14 @@ export const priorityOfficerList = [
     'drh. Stephani',
     'drh. Ketut Elok',
 ].sort();
+
+export const prioritySyndromeOptions = [
+  'Mati Meningkat Pada Unggas',
+  'Mati Mendadak',
+  'Gila Galak',
+  'Demam Pada Babi',
+  'Keguguran atau Sendi Bengkak',
+  'Pincang AirLiur dan Lepuh',
+  'Penyakit Luar Biasa',
+  'Keringat Berdarah',
+];
