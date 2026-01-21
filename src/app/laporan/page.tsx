@@ -76,8 +76,10 @@ const StatChart = ({
   const yAxisWidth = isMobile ? 120 : 180;
   const rightMargin = isMobile ? 50 : 80;
 
+  const isSpecialChart = title === "Statistik per Bulan" || title.includes("Kerbau");
   const barHeight = 28;
-  const chartHeight = Math.max(150, chartData.length * barHeight);
+  const chartHeight = isSpecialChart ? Math.max(150, chartData.length * (barHeight - 14)) : Math.max(150, chartData.length * barHeight);
+
 
   return (
     <Card>
@@ -170,6 +172,8 @@ const StatPieChart = ({ title, data, colors, defaultColor }: {
 }) => {
   const isMobile = useIsMobile();
   const total = useMemo(() => data.reduce((sum, item) => sum + item.count, 0), [data]);
+  const isPuskeswanChart = title === 'Statistik per Puskeswan';
+
 
   const RADIAN = Math.PI / 180;
   const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, value, percent, index }: any) => {
@@ -254,7 +258,10 @@ const StatPieChart = ({ title, data, colors, defaultColor }: {
               </PieChart>
           </ResponsiveContainer>
           {total > 0 && (
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <div 
+              className="absolute inset-0 flex items-center justify-center pointer-events-none"
+              style={isPuskeswanChart ? { transform: 'translateY(-20px)' } : {}}
+            >
               <span className="text-xl font-bold text-foreground">
                 {total}
               </span>
@@ -805,3 +812,6 @@ export default function ReportPage() {
     
 
 
+
+
+    
