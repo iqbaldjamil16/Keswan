@@ -42,15 +42,13 @@ export default function Home() {
                     <CardHeader>
                         <CardTitle className="text-2xl md:text-3xl font-bold tracking-tight font-headline">Laporan Prioritas</CardTitle>
                         <CardDescription className="text-muted-foreground pt-2 text-sm md:text-base">
-                            Fitur ini sedang dalam pengembangan.
+                            Input detail laporan prioritas.
                         </CardDescription>
                     </CardHeader>
-                    <CardContent>
-                        <p className="text-sm text-muted-foreground">
-                            Halaman untuk laporan prioritas akan tersedia di sini.
-                        </p>
-                    </CardContent>
                 </Card>
+                <div className="mt-6 md:mt-8">
+                    <ServiceForm />
+                </div>
             </TabsContent>
         </Tabs>
       </div>
