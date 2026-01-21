@@ -77,8 +77,8 @@ const StatChart = ({
   const rightMargin = isMobile ? 50 : 80;
 
   const isSpecialChart = title === "Statistik per Bulan" || title.includes("Kerbau");
-  const barHeight = 28;
-  const chartHeight = Math.max(150, chartData.length * barHeight);
+  const barHeight = isSpecialChart ? 28 : 28;
+  const chartHeight = Math.max(isSpecialChart ? 150 : 150, chartData.length * barHeight);
 
 
   return (
