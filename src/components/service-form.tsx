@@ -577,7 +577,12 @@ export function ServiceForm({ initialData, formType = 'keswan' }: { initialData?
               <CardContent className="p-4">
                 <div className="space-y-4">
                   <div className="flex flex-row items-center justify-between gap-2">
-                    <Label>Pengobatan</Label>
+                    <Label>
+                      Pengobatan
+                      <span className="ml-2 text-xs italic font-normal text-muted-foreground">
+                        (Pilih Lainnya Jika Jenis Obat &amp; Nama Obat Tidak Tercantum)
+                      </span>
+                    </Label>
                     <Button
                       type="button"
                       variant="default"
@@ -852,6 +857,7 @@ export function ServiceForm({ initialData, formType = 'keswan' }: { initialData?
     
 
     
+
 
 
 
