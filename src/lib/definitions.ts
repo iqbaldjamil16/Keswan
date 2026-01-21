@@ -291,3 +291,9 @@ export const medicineData = {
 export type MedicineType = keyof typeof medicineData;
 
 export const medicineTypes = Object.keys(medicineData) as MedicineType[];
+
+export const caseDevelopmentOptions = [
+  'Sembuh',
+  'Tidak Sembuh',
+  'Mati',
+];

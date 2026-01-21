@@ -24,6 +24,7 @@ export const serviceSchema = z.object({
   diagnosis: z.string().min(1, "Wajib diisi."),
   treatmentType: z.string().min(1, "Wajib diisi."),
   treatments: z.array(treatmentSchema).min(1, "Minimal satu pengobatan harus ditambahkan."),
+  caseDevelopment: z.string().optional(),
 });
 
 export type HealthcareService = z.infer<typeof serviceSchema>;

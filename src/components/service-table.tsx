@@ -219,6 +219,23 @@ function ServiceCard({
                 ))}
               </ul>
             </div>
+            {service.caseDevelopment && (
+              <div>
+                <div className="text-xs font-semibold text-muted-foreground">
+                  Perkembangan Kasus
+                </div>
+                <Badge 
+                  variant={
+                      service.caseDevelopment === 'Sembuh' ? 'default' : 
+                      service.caseDevelopment === 'Mati' ? 'destructive' : 
+                      'secondary'
+                  }
+                  className="mt-1"
+                >
+                  {service.caseDevelopment}
+                </Badge>
+              </div>
+            )}
           </CardContent>
           <CardFooter className="p-4 pt-0 justify-end gap-2">
             <PasswordDialog
@@ -405,7 +422,21 @@ export function ServiceTable({ services, loading, highlightedIds, searchTerm, on
                     </Badge>
                   </TableCell>
                   <TableCell className="align-top">
-                    {service.diagnosis}
+                    <div className="flex flex-col gap-1">
+                      <span>{service.diagnosis}</span>
+                      {service.caseDevelopment && (
+                          <Badge
+                              variant={
+                                  service.caseDevelopment === 'Sembuh' ? 'default' :
+                                  service.caseDevelopment === 'Mati' ? 'destructive' :
+                                  'secondary'
+                              }
+                              className="w-fit"
+                          >
+                              {service.caseDevelopment}
+                          </Badge>
+                      )}
+                    </div>
                   </TableCell>
                   <TableCell className="align-top">
                     <Accordion

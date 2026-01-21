@@ -12,7 +12,7 @@ import { doc, updateDoc, addDoc, collection, Timestamp, Firestore } from 'fireba
 
 import { cn } from "@/lib/utils";
 import { serviceSchema, type HealthcareService } from "@/lib/types";
-import { medicineData, medicineTypes, type MedicineType, livestockTypes, puskeswanList, treatmentTypes, dosageUnits, karossaDesaList, budongBudongDesaList, pangaleDesaList, tobadakDesaList, topoyoDesaList, budongBudongOfficerList, karossaOfficerList, pangaleOfficerList, tobadakOfficerList, topoyoOfficerList } from "@/lib/definitions";
+import { medicineData, medicineTypes, type MedicineType, livestockTypes, puskeswanList, treatmentTypes, dosageUnits, karossaDesaList, budongBudongDesaList, pangaleDesaList, tobadakDesaList, topoyoDesaList, budongBudongOfficerList, karossaOfficerList, pangaleOfficerList, tobadakOfficerList, topoyoOfficerList, caseDevelopmentOptions } from "@/lib/definitions";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -69,6 +69,7 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
       diagnosis: "",
       treatmentType: "",
       treatments: [{ medicineType: "", medicineName: "", dosageValue: 0, dosageUnit: "ml" }],
+      caseDevelopment: "",
     },
   });
   
@@ -682,6 +683,36 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
                     )
                   })}
                 </div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-4">
+                <FormField
+                  control={form.control}
+                  name="caseDevelopment"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Perkembangan Kasus</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                        value={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Pilih Perkembangan Kasus" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {caseDevelopmentOptions.map((option) => (
+                            <SelectItem key={option} value={option}>{option}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </CardContent>
             </Card>
           </div>
