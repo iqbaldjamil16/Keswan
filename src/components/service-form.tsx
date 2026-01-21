@@ -380,11 +380,11 @@ export function ServiceForm({ initialData, formType = 'keswan' }: { initialData?
                       <FormLabel>
                         ID Kasus iSIKHNAS
                         <span className="ml-2 text-xs italic font-normal text-muted-foreground">
-                          (Opsional, Dapat Diisi & Tidak, Dapatkan Kode Dari Isikhnas)
+                          (Opsional, Dapat Diisi &amp; Tidak, Dapatkan Kode Dari Isikhnas)
                         </span>
                       </FormLabel>
                       <FormControl>
-                        <Input placeholder="contoh : 53144622" {...field} />
+                        <Input placeholder="contoh : 53144622, Lewati Jika Tidak Mengisi Isikhnas" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -868,22 +868,4 @@ export function ServiceForm({ initialData, formType = 'keswan' }: { initialData?
     </Form>
   );
 }
-    
-
-    
-
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
     
