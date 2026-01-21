@@ -144,7 +144,6 @@ export function ServiceForm({ initialData, formType = 'keswan' }: { initialData?
               description: "Data pelayanan berhasil diperbarui!",
             });
             router.push('/laporan');
-            router.refresh();
         } else {
             const servicesCollection = collection(firestore, 'healthcareServices');
             const newDocRef = await addDoc(servicesCollection, serviceData);
@@ -158,8 +157,7 @@ export function ServiceForm({ initialData, formType = 'keswan' }: { initialData?
                 title: "Sukses",
                 description: "Data pelayanan berhasil disimpan!",
             });
-            router.push(`/laporan`);
-            router.refresh();
+            router.push('/laporan');
         }
       } catch (error: any) {
         console.error("Submit error:", error);
@@ -869,6 +867,7 @@ export function ServiceForm({ initialData, formType = 'keswan' }: { initialData?
     
 
     
+
 
 
 
