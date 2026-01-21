@@ -254,11 +254,7 @@ const StatPieChart = ({ title, data, colors, defaultColor }: {
               </PieChart>
           </ResponsiveContainer>
           {total > 0 && (
-            <div className={cn(
-              "absolute inset-0 flex items-center justify-center pointer-events-none",
-              (title.startsWith('Statistik Perkembangan Kasus') && title !== 'Statistik Perkembangan Kasus Prioritas') && '-translate-y-2',
-              title === 'Statistik per Puskeswan' && '-translate-y-8'
-            )}>
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
               <span className="text-xl font-bold text-foreground">
                 {total}
               </span>
@@ -807,4 +803,5 @@ export default function ReportPage() {
     
 
     
+
 
