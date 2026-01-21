@@ -449,9 +449,9 @@ export function ServiceForm({ initialData, formType = 'keswan' }: { initialData?
                   name="clinicalSymptoms"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Gejala Klinis</FormLabel>
+                      <FormLabel>Sindrom</FormLabel>
                       <FormControl>
-                        <Textarea placeholder="Gejala yang teramati" {...field} />
+                        <Textarea placeholder="Deskripsi sindrom" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

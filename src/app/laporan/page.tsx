@@ -255,7 +255,7 @@ const StatPieChart = ({ title, data, colors, defaultColor }: {
           </ResponsiveContainer>
           {total > 0 && (
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <span className="text-2xl font-bold text-foreground -translate-y-10">
+              <span className="text-xl font-bold text-foreground -translate-y-10">
                 {total}
               </span>
             </div>
@@ -545,7 +545,7 @@ export default function ReportPage() {
       });
   
       const allDataForSheet: any[] = [];
-      const headers = ['Tanggal', 'Nama Pemilik', 'Alamat Pemilik', 'Jenis Ternak', 'Gejala Klinis', 'Diagnosa', 'Jenis Penanganan', 'Obat yang Digunakan', 'Dosis', 'Jumlah Ternak'];
+      const headers = ['Tanggal', 'Nama Pemilik', 'Alamat Pemilik', 'Jenis Ternak', 'Sindrom', 'Diagnosa', 'Jenis Penanganan', 'Obat yang Digunakan', 'Dosis', 'Jumlah Ternak'];
       
       const officerNames = Object.keys(servicesByOfficer).sort();
 
@@ -561,7 +561,7 @@ export default function ReportPage() {
             'Nama Pemilik': service.ownerName,
             'Alamat Pemilik': service.ownerAddress,
             'Jenis Ternak': service.livestockType,
-            'Gejala Klinis': service.clinicalSymptoms,
+            'Sindrom': service.clinicalSymptoms,
             'Diagnosa': service.diagnosis,
             'Jenis Penanganan': service.treatmentType,
             'Obat yang Digunakan': service.treatments.map((t) => t.medicineName).join(', '),
