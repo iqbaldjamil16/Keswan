@@ -256,7 +256,7 @@ const StatPieChart = ({ title, data, colors, defaultColor }: {
           {total > 0 && (
             <div className={cn(
               "absolute inset-0 flex items-center justify-center pointer-events-none",
-              title === 'Statistik per Puskeswan' && '-translate-y-3'
+              title === 'Statistik per Puskeswan' && '-translate-y-5'
             )}>
               <span className="text-xl font-bold text-foreground">
                 {total}
@@ -819,5 +819,7 @@ export default function ReportPage() {
     
 
 
+
+    
 
     
