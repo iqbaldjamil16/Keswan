@@ -130,12 +130,11 @@ export function ServiceForm({ initialData, formType = 'keswan' }: { initialData?
 
     startTransition(async () => {
       try {
-        const { id, ...dataToSave } = values;
+        const { id, caseDevelopment, ...dataToSave } = values;
         
         const serviceData = {
           ...dataToSave,
           date: Timestamp.fromDate(values.date),
-          caseDevelopment: undefined,
         };
 
         if (isEditMode && initialData?.id) {
@@ -869,6 +868,7 @@ export function ServiceForm({ initialData, formType = 'keswan' }: { initialData?
     
 
     
+
 
 
 
