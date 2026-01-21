@@ -396,7 +396,12 @@ export function ServiceForm({ initialData, formType = 'keswan' }: { initialData?
                         name="livestockType"
                         render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Jenis Ternak</FormLabel>
+                            <FormLabel>
+                              Jenis Ternak
+                              <span className="ml-2 text-xs italic font-normal text-muted-foreground">
+                                (Pilih Lainnya Jika Jenis Ternak Tidak Tercantum)
+                              </span>
+                            </FormLabel>
                             {showManualLivestockType ? (
                               <FormControl>
                                 <Input 
@@ -857,6 +862,7 @@ export function ServiceForm({ initialData, formType = 'keswan' }: { initialData?
     
 
     
+
 
 
 
