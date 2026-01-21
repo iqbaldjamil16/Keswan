@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button";
 import { CornerUpLeft, Download, LayoutGrid, BarChart2 } from "lucide-react";
 import { type HealthcareService, serviceSchema } from "@/lib/types";
 import { PasswordDialog } from "@/components/password-dialog";
-import { puskeswanList } from "@/lib/definitions";
+import { puskeswanList, priorityDiagnosisOptions } from "@/lib/definitions";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, LabelList, Cell, PieChart, Pie, Legend } from 'recharts';
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -278,62 +278,89 @@ function getGenericLivestockType(type: string): string {
 }
 
 function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
-
   if (services.length === 0) {
-      return (
-        <Card>
-            <CardHeader>
-                <CardTitle className="text-left">Statistik Belum Tersedia</CardTitle>
-                <CardDescription>
-                    Tidak ada data untuk ditampilkan statistiknya pada periode yang dipilih.
-                </CardDescription>
-            </CardHeader>
-        </Card>
-      );
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-left">Statistik Belum Tersedia</CardTitle>
+          <CardDescription>
+            Tidak ada data untuk ditampilkan statistiknya pada periode yang
+            dipilih.
+          </CardDescription>
+        </CardHeader>
+      </Card>
+    );
   }
+
+  const priorityServices = services.filter((service) =>
+    priorityDiagnosisOptions.includes(service.diagnosis)
+  );
+  const keswanServices = services.filter(
+    (service) => !priorityDiagnosisOptions.includes(service.diagnosis)
+  );
 
   const statsByMonth = calculateStats(services, 'month');
   const statsByOfficer = calculateStats(services, 'officerName');
   const statsByPuskeswan = calculateStats(services, 'puskeswan');
 
-  const statsByDiagnosisAndAnimal: { [animalType: string]: { [diagnosis: string]: number } } = {};
-  services.forEach(service => {
+  const statsByDiagnosisAndAnimal: {
+    [animalType: string]: { [diagnosis: string]: number };
+  } = {};
+  keswanServices.forEach((service) => {
     const genericType = getGenericLivestockType(service.livestockType);
     if (!statsByDiagnosisAndAnimal[genericType]) {
-        statsByDiagnosisAndAnimal[genericType] = {};
+      statsByDiagnosisAndAnimal[genericType] = {};
     }
     const diagnosis = service.diagnosis.trim();
-    statsByDiagnosisAndAnimal[genericType][diagnosis] = (statsByDiagnosisAndAnimal[genericType][diagnosis] || 0) + service.livestockCount;
+    statsByDiagnosisAndAnimal[genericType][diagnosis] =
+      (statsByDiagnosisAndAnimal[genericType][diagnosis] || 0) +
+      service.livestockCount;
   });
 
   const diagnosisCharts = Object.entries(statsByDiagnosisAndAnimal)
     .sort(([animalA], [animalB]) => animalA.localeCompare(animalB))
     .map(([animalType, diagnoses]) => {
-        const chartData: StatItem[] = Object.entries(diagnoses)
-            .map(([name, count]) => ({ name, count }))
-            .sort((a, b) => b.count - a.count);
+      const chartData: StatItem[] = Object.entries(diagnoses)
+        .map(([name, count]) => ({ name, count }))
+        .sort((a, b) => b.count - a.count);
 
-        if (chartData.length === 0) return null;
+      if (chartData.length === 0) return null;
 
-        return (
-            <StatChart
-                key={animalType}
-                title={`Statistik Kasus/Penyakit - ${animalType}`}
-                data={chartData}
-                officerToPuskeswanMap={{}} 
-                puskeswanColors={{}}
-                defaultColor="#006400"
-                showAll={true}
-            />
-        );
-    }).filter(Boolean);
+      return (
+        <StatChart
+          key={animalType}
+          title={`Statistik Kasus/Penyakit - ${animalType}`}
+          data={chartData}
+          officerToPuskeswanMap={{}}
+          puskeswanColors={{}}
+          defaultColor="#006400"
+          showAll={true}
+        />
+      );
+    })
+    .filter(Boolean);
 
   const officerToPuskeswanMap: { [key: string]: string } = {};
-  services.forEach(service => {
-      if (service.officerName && service.puskeswan && !officerToPuskeswanMap[service.officerName]) {
-          officerToPuskeswanMap[service.officerName] = service.puskeswan;
-      }
+  services.forEach((service) => {
+    if (
+      service.officerName &&
+      service.puskeswan &&
+      !officerToPuskeswanMap[service.officerName]
+    ) {
+      officerToPuskeswanMap[service.officerName] = service.puskeswan;
+    }
   });
+
+  const priorityDiagnosisCounts: { [key: string]: number } = {};
+  priorityServices.forEach((service) => {
+    priorityDiagnosisCounts[service.diagnosis] =
+      (priorityDiagnosisCounts[service.diagnosis] || 0) + service.livestockCount;
+  });
+  const priorityDiagnosisStats: StatItem[] = Object.entries(
+    priorityDiagnosisCounts
+  )
+    .map(([name, count]) => ({ name, count }))
+    .sort((a, b) => b.count - a.count);
 
   const puskeswanColors: { [key: string]: string } = {
     'Puskeswan Topoyo': '#00008B',
@@ -344,30 +371,85 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
   };
   const defaultColor = '#808080';
 
+  const caseStatusColors = {
+    Sembuh: '#006400',
+    'Tidak Sembuh': '#FFFF00',
+    Mati: '#FF0000',
+  };
+  const defaultCaseStatusColor = '#808080';
+
+  function calculateCaseDevelopmentStats(
+    services: HealthcareService[]
+  ): StatItem[] {
+    const stats: { [key: string]: number } = {};
+    services.forEach((service) => {
+      if (service.caseDevelopments) {
+        service.caseDevelopments.forEach((dev) => {
+          if (dev.status) {
+            stats[dev.status] = (stats[dev.status] || 0) + dev.count;
+          }
+        });
+      }
+    });
+    return Object.entries(stats)
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count);
+  }
+
+  const keswanCaseDevelopmentStats = calculateCaseDevelopmentStats(keswanServices);
+  const priorityCaseDevelopmentStats =
+    calculateCaseDevelopmentStats(priorityServices);
+
   return (
     <div className="space-y-6">
-        <StatChart 
-          title="Statistik per Bulan" 
-          data={statsByMonth} 
-          officerToPuskeswanMap={officerToPuskeswanMap}
-          puskeswanColors={puskeswanColors}
-          defaultColor={defaultColor}
-        />
-        <StatChart 
-          title="Statistik per Petugas" 
-          data={statsByOfficer} 
-          officerToPuskeswanMap={officerToPuskeswanMap}
-          puskeswanColors={puskeswanColors}
-          defaultColor={defaultColor}
+      <StatChart
+        title="Statistik per Bulan"
+        data={statsByMonth}
+        officerToPuskeswanMap={officerToPuskeswanMap}
+        puskeswanColors={puskeswanColors}
+        defaultColor={defaultColor}
+      />
+      <StatChart
+        title="Statistik per Petugas"
+        data={statsByOfficer}
+        officerToPuskeswanMap={officerToPuskeswanMap}
+        puskeswanColors={puskeswanColors}
+        defaultColor={defaultColor}
+        showAll={true}
+      />
+      <StatPieChart
+        title="Statistik per Puskeswan"
+        data={statsByPuskeswan}
+        colors={puskeswanColors}
+        defaultColor={defaultColor}
+      />
+      {priorityDiagnosisStats.length > 0 && (
+        <StatChart
+          title="Statistik Kasus/Penyakit Prioritas"
+          data={priorityDiagnosisStats}
+          officerToPuskeswanMap={{}}
+          puskeswanColors={{}}
+          defaultColor="#B22222"
           showAll={true}
         />
+      )}
+      {keswanCaseDevelopmentStats.length > 0 && (
         <StatPieChart
-          title="Statistik per Puskeswan"
-          data={statsByPuskeswan}
-          colors={puskeswanColors}
-          defaultColor={defaultColor}
+          title="Statistik Perkembangan Kasus"
+          data={keswanCaseDevelopmentStats}
+          colors={caseStatusColors}
+          defaultColor={defaultCaseStatusColor}
         />
-        {diagnosisCharts}
+      )}
+      {priorityCaseDevelopmentStats.length > 0 && (
+        <StatPieChart
+          title="Statistik Perkembangan Kasus Prioritas"
+          data={priorityCaseDevelopmentStats}
+          colors={caseStatusColors}
+          defaultColor={defaultCaseStatusColor}
+        />
+      )}
+      {diagnosisCharts}
     </div>
   );
 }
