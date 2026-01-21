@@ -267,13 +267,14 @@ const StatPieChart = ({ title, data, colors, defaultColor }: {
 };
 
 function getGenericLivestockType(type: string): string {
-    const lowerType = type.toLowerCase();
+    const trimmedType = type.trim();
+    const lowerType = trimmedType.toLowerCase();
     if (lowerType.startsWith('sapi')) return 'Sapi';
     if (lowerType.startsWith('kambing')) return 'Kambing';
     if (lowerType.startsWith('ayam')) return 'Ayam';
     if (lowerType.startsWith('kucing')) return 'Kucing';
     if (lowerType.startsWith('anjing')) return 'Anjing';
-    return type; // Return original if no specific group matches
+    return trimmedType; // Return original but trimmed
 }
 
 function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
