@@ -78,7 +78,7 @@ const StatChart = ({
 
   const isSpecialChart = title === "Statistik per Bulan" || title.includes("Kerbau");
   const barHeight = 28;
-  const chartHeight = isSpecialChart ? Math.max(150, chartData.length * (barHeight - 14)) : Math.max(150, chartData.length * barHeight);
+  const chartHeight = Math.max(150, chartData.length * barHeight);
 
 
   return (
