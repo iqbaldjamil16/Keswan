@@ -50,6 +50,14 @@ export default function EditServicePage() {
       
         if (docSnap.exists()) {
           const data = docSnap.data();
+
+          if (data.caseDevelopment && !data.caseDevelopments) {
+            data.caseDevelopments = [{
+                status: data.caseDevelopment,
+                count: data.livestockCount
+            }];
+          }
+
           const serviceData = serviceSchema.parse({
             ...data,
             id: docSnap.id,

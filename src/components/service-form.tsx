@@ -12,7 +12,7 @@ import { doc, updateDoc, addDoc, collection, Timestamp, Firestore } from 'fireba
 
 import { cn } from "@/lib/utils";
 import { serviceSchema, type HealthcareService } from "@/lib/types";
-import { medicineData, medicineTypes, type MedicineType, livestockTypes, puskeswanList, treatmentTypes, dosageUnits, karossaDesaList, budongBudongDesaList, pangaleDesaList, tobadakDesaList, topoyoDesaList, budongBudongOfficerList, karossaOfficerList, pangaleOfficerList, tobadakOfficerList, topoyoOfficerList, caseDevelopmentOptions, priorityOfficerList, prioritySyndromeOptions, priorityDiagnosisOptions } from "@/lib/definitions";
+import { medicineData, medicineTypes, type MedicineType, livestockTypes, puskeswanList, treatmentTypes, dosageUnits, karossaDesaList, budongBudongDesaList, pangaleDesaList, tobadakDesaList, topoyoDesaList, budongBudongOfficerList, karossaOfficerList, pangaleOfficerList, tobadakOfficerList, topoyoOfficerList, caseStatusOptions, priorityOfficerList, prioritySyndromeOptions, priorityDiagnosisOptions } from "@/lib/definitions";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -56,6 +56,7 @@ export function ServiceForm({ initialData, formType = 'keswan' }: { initialData?
     defaultValues: initialData ? {
       ...initialData,
       date: initialData.date ? new Date(initialData.date) : new Date(),
+      caseDevelopments: initialData.caseDevelopments || [],
     } : {
       date: new Date(),
       puskeswan: "",
@@ -69,13 +70,18 @@ export function ServiceForm({ initialData, formType = 'keswan' }: { initialData?
       diagnosis: "",
       treatmentType: "",
       treatments: [{ medicineType: "", medicineName: "", dosageValue: 0, dosageUnit: "ml" }],
-      caseDevelopment: "",
+      caseDevelopments: [],
     },
   });
   
-  const { fields, append, remove } = useFieldArray({
+  const { fields: treatmentFields, append: appendTreatment, remove: removeTreatment } = useFieldArray({
     control: form.control,
     name: "treatments",
+  });
+
+  const { fields: caseDevelopmentFields, append: appendCaseDevelopment, remove: removeCaseDevelopment } = useFieldArray({
+    control: form.control,
+    name: "caseDevelopments",
   });
 
   const watchedPuskeswan = form.watch("puskeswan");
@@ -125,6 +131,7 @@ export function ServiceForm({ initialData, formType = 'keswan' }: { initialData?
         const serviceData = {
           ...values,
           date: Timestamp.fromDate(values.date),
+          caseDevelopment: undefined,
         };
 
         if (isEditMode && initialData?.id) {
@@ -569,14 +576,14 @@ export function ServiceForm({ initialData, formType = 'keswan' }: { initialData?
                       variant="default"
                       size="sm"
                       className="bg-accent text-accent-foreground hover:bg-accent/90"
-                      onClick={() => append({ medicineType: "", medicineName: "", dosageValue: 0, dosageUnit: "ml" }, { shouldFocus: false })}
+                      onClick={() => appendTreatment({ medicineType: "", medicineName: "", dosageValue: 0, dosageUnit: "ml" }, { shouldFocus: false })}
                     >
                       <PlusCircle className="mr-2 h-4 w-4" />
                       Tambah
                     </Button>
                   </div>
 
-                  {fields.map((item, index) => {
+                  {treatmentFields.map((item, index) => {
                     const selectedMedicineType = watchedTreatments?.[index]?.medicineType as MedicineType;
                     const medicineNameValue = form.watch(`treatments.${index}.medicineName`);
                     const isManualMedicineName = medicineNameValue === 'Lainnya';
@@ -587,13 +594,13 @@ export function ServiceForm({ initialData, formType = 'keswan' }: { initialData?
 
                     return (
                       <Card key={item.id} className="relative p-4 bg-card">
-                         {fields.length > 1 && (
+                         {treatmentFields.length > 1 && (
                             <Button
                                 type="button"
                                 variant="ghost"
                                 size="icon"
                                 className="absolute -top-1 -right-1 h-6 w-6"
-                                onClick={() => remove(index)}
+                                onClick={() => removeTreatment(index)}
                             >
                                 <Trash2 className="h-4 w-4 text-destructive" />
                             </Button>
@@ -742,34 +749,84 @@ export function ServiceForm({ initialData, formType = 'keswan' }: { initialData?
               </CardContent>
             </Card>
             <Card>
-              <CardContent className="p-4">
-                <FormField
-                  control={form.control}
-                  name="caseDevelopment"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Perkembangan Kasus</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                        value={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Pilih Perkembangan Kasus" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {caseDevelopmentOptions.map((option) => (
-                            <SelectItem key={option} value={option}>{option}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </CardContent>
+                <CardContent className="p-4">
+                    <div className="space-y-4">
+                    <div className="flex flex-row items-center justify-between gap-2">
+                        <Label>Perkembangan Kasus (Opsional)</Label>
+                        <Button
+                            type="button"
+                            variant="default"
+                            size="sm"
+                            className="bg-accent text-accent-foreground hover:bg-accent/90"
+                            onClick={() => appendCaseDevelopment({ status: "", count: 1 }, { shouldFocus: false })}
+                        >
+                            <PlusCircle className="mr-2 h-4 w-4" />
+                            Tambah
+                        </Button>
+                    </div>
+
+                    {caseDevelopmentFields.map((item, index) => (
+                        <Card key={item.id} className="relative p-4 bg-card">
+                        {caseDevelopmentFields.length > 0 && (
+                            <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            className="absolute -top-1 -right-1 h-6 w-6"
+                            onClick={() => removeCaseDevelopment(index)}
+                            >
+                            <Trash2 className="h-4 w-4 text-destructive" />
+                            </Button>
+                        )}
+                        <div className="grid grid-cols-2 gap-2">
+                            <FormField
+                            control={form.control}
+                            name={`caseDevelopments.${index}.count`}
+                            render={({ field }) => (
+                                <FormItem>
+                                <FormLabel>Jumlah</FormLabel>
+                                <FormControl>
+                                    <Input
+                                    type="number"
+                                    placeholder="Jumlah"
+                                    {...field}
+                                    onChange={e => field.onChange(e.target.value === '' ? '' : Number(e.target.value))}
+                                    />
+                                </FormControl>
+                                <FormMessage />
+                                </FormItem>
+                            )}
+                            />
+                            <FormField
+                            control={form.control}
+                            name={`caseDevelopments.${index}.status`}
+                            render={({ field }) => (
+                                <FormItem>
+                                <FormLabel>Keterangan</FormLabel>
+                                <Select onValueChange={field.onChange} value={field.value}>
+                                    <FormControl>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Pilih Status" />
+                                    </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                    {caseStatusOptions.map((option) => (
+                                        <SelectItem key={option} value={option}>
+                                        {option}
+                                        </SelectItem>
+                                    ))}
+                                    </SelectContent>
+                                </Select>
+                                <FormMessage />
+                                </FormItem>
+                            )}
+                            />
+                        </div>
+                        </Card>
+                    ))}
+                    <FormMessage>{form.formState.errors.caseDevelopments?.message}</FormMessage>
+                    </div>
+                </CardContent>
             </Card>
           </div>
         </div>
@@ -788,5 +845,6 @@ export function ServiceForm({ initialData, formType = 'keswan' }: { initialData?
     
 
     
+
 
 

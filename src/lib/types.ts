@@ -8,6 +8,12 @@ export const treatmentSchema = z.object({
   dosageUnit: z.string().min(1, "Wajib diisi."),
 });
 
+export const caseDevelopmentEntrySchema = z.object({
+  status: z.string().min(1, "Wajib diisi."),
+  count: z.coerce.number().min(1, "Jumlah harus minimal 1."),
+});
+
+
 export const serviceSchema = z.object({
   id: z.string().optional(),
   date: z.date({
@@ -25,9 +31,21 @@ export const serviceSchema = z.object({
   treatmentType: z.string().min(1, "Wajib diisi."),
   treatments: z.array(treatmentSchema).min(1, "Minimal satu pengobatan harus ditambahkan."),
   caseDevelopment: z.string().optional(),
+  caseDevelopments: z.array(caseDevelopmentEntrySchema).optional(),
+}).superRefine((data, ctx) => {
+  if (data.caseDevelopments && data.caseDevelopments.length > 0) {
+    const totalDevelopmentCount = data.caseDevelopments.reduce((sum, dev) => sum + dev.count, 0);
+    if (totalDevelopmentCount > data.livestockCount) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: `Total jumlah pada perkembangan kasus (${totalDevelopmentCount}) tidak boleh melebihi jumlah ternak (${data.livestockCount}).`,
+        path: ["caseDevelopments"],
+      });
+    }
+  }
 });
 
 export type HealthcareService = z.infer<typeof serviceSchema>;
 export type Treatment = z.infer<typeof treatmentSchema>;
-
+export type CaseDevelopmentEntry = z.infer<typeof caseDevelopmentEntrySchema>;
     
