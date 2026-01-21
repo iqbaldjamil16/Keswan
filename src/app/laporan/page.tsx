@@ -142,7 +142,7 @@ const StatChart = ({
                 />
                 <Bar dataKey="Sembuh" stackId="a" fill="#006400" name="Sembuh" />
                 <Bar dataKey="Tidak Sembuh" stackId="a" fill="#FFFF00" name="Tidak Sembuh" />
-                <Bar dataKey="Mati" stackId="a" fill="#FF0000" name="Mati">
+                <Bar dataKey="Mati" stackId="a" fill="#FF0000" name="Mati" radius={[0, 4, 4, 0]}>
                   <LabelList
                       dataKey="total"
                       position="right"
@@ -209,6 +209,7 @@ const StatChart = ({
                   name="Jumlah Ternak"
                   animationDuration={2000}
                   barSize={barHeight - 10}
+                  radius={[0, 4, 4, 0]}
                 >
                   <LabelList
                       dataKey="count"
@@ -931,4 +932,5 @@ export default function ReportPage() {
     
 
     
+
 
