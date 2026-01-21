@@ -77,16 +77,7 @@ const StatChart = ({
   showAll?: boolean;
 }) => {
   const isMobile = useIsMobile();
-  const [showLabel, setShowLabel] = useState(false);
   const isStacked = !!stackedData;
-
-  useEffect(() => {
-    // This timeout is a workaround to ensure labels appear after the bar animation.
-    const timer = setTimeout(() => {
-      setShowLabel(true);
-    }, 2000); // Duration should match animationDuration of the Bar
-    return () => clearTimeout(timer);
-  }, [data, stackedData]); // Re-trigger if data changes
 
   const chartData = useMemo(() => {
     const sourceData = isStacked ? stackedData : data;
@@ -168,15 +159,14 @@ const StatChart = ({
                   <Bar dataKey="Sembuh" stackId="a" fill="#006400" name="Sembuh" animationDuration={2000} barSize={barHeight - 10} />
                   <Bar dataKey="Tidak Sembuh" stackId="a" fill="#FFFF00" name="Tidak Sembuh" animationDuration={2000} barSize={barHeight - 10} />
                   <Bar dataKey="Mati" stackId="a" fill="#FF0000" name="Mati" animationDuration={2000} barSize={barHeight - 10}>
-                    {showLabel && <LabelList
+                    <LabelList
                         dataKey="total"
                         position="right"
                         offset={8}
-                        isAnimationActive={false}
                         className="font-semibold"
                         fill="hsl(var(--foreground))"
                         fontSize={isMobile ? 11 : 12}
-                    />}
+                    />
                   </Bar>
                 </>
               ) : (
@@ -186,15 +176,14 @@ const StatChart = ({
                   animationDuration={2000}
                   barSize={barHeight - 10}
                 >
-                  {showLabel && <LabelList
+                  <LabelList
                       dataKey="count"
                       position="right"
                       offset={8}
-                      isAnimationActive={false}
                       className="font-semibold"
                       fill="hsl(var(--foreground))"
                       fontSize={isMobile ? 11 : 12}
-                  />}
+                  />
                   {(chartData as StatItem[]).map((entry, index) => {
                       let color = defaultColor || '#808080';
                       if (title === 'Statistik per Bulan') {
