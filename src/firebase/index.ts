@@ -3,7 +3,7 @@
 import { firebaseConfig } from '@/firebase/config';
 import { initializeApp, getApps, getApp, FirebaseApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
-import { getFirestore } from 'firebase/firestore'
+import { initializeFirestore, memoryLocalCache, type Firestore } from 'firebase/firestore'
 
 // IMPORTANT: DO NOT MODIFY THIS FUNCTION
 export function initializeFirebase() {
@@ -32,11 +32,19 @@ export function initializeFirebase() {
   return getSdks(getApp());
 }
 
+let firestoreInstance: Firestore | null = null;
+
 export function getSdks(firebaseApp: FirebaseApp) {
+  if (!firestoreInstance) {
+    firestoreInstance = initializeFirestore(firebaseApp, {
+      localCache: memoryLocalCache(),
+      experimentalForceLongPolling: true,
+    });
+  }
   return {
     firebaseApp,
     auth: getAuth(firebaseApp),
-    firestore: getFirestore(firebaseApp)
+    firestore: firestoreInstance,
   };
 }
 
