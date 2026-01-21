@@ -28,6 +28,14 @@ interface StatItem {
   count: number;
 }
 
+interface StackedStatItem {
+  name: string;
+  Sembuh: number;
+  'Tidak Sembuh': number;
+  Mati: number;
+  total: number;
+}
+
 function calculateStats(services: HealthcareService[], groupBy: 'month' | 'officerName' | 'puskeswan'): StatItem[] {
   if (services.length === 0) return [];
 
@@ -51,16 +59,26 @@ function calculateStats(services: HealthcareService[], groupBy: 'month' | 'offic
       .sort((a, b) => b.count - a.count);
 }
 
-const StatChart = ({ title, data, officerToPuskeswanMap, puskeswanColors, defaultColor, showAll = false }: { 
-  title: string; 
-  data: StatItem[];
-  officerToPuskeswanMap: { [key: string]: string };
-  puskeswanColors: { [key: string]: string };
-  defaultColor: string;
+const StatChart = ({
+  title,
+  data,
+  stackedData,
+  officerToPuskeswanMap,
+  puskeswanColors,
+  defaultColor,
+  showAll = false,
+}: {
+  title: string;
+  data?: StatItem[];
+  stackedData?: StackedStatItem[];
+  officerToPuskeswanMap?: { [key: string]: string };
+  puskeswanColors?: { [key: string]: string };
+  defaultColor?: string;
   showAll?: boolean;
 }) => {
   const isMobile = useIsMobile();
   const [showLabel, setShowLabel] = useState(false);
+  const isStacked = !!stackedData;
 
   useEffect(() => {
     // This timeout is a workaround to ensure labels appear after the bar animation.
@@ -68,9 +86,14 @@ const StatChart = ({ title, data, officerToPuskeswanMap, puskeswanColors, defaul
       setShowLabel(true);
     }, 2000); // Duration should match animationDuration of the Bar
     return () => clearTimeout(timer);
-  }, [data]); // Re-trigger if data changes
-  
-  const chartData = useMemo(() => showAll ? data : data.slice(0, 10), [data, showAll]);
+  }, [data, stackedData]); // Re-trigger if data changes
+
+  const chartData = useMemo(() => {
+    const sourceData = isStacked ? stackedData : data;
+    if (!sourceData) return [];
+    return showAll ? sourceData : sourceData.slice(0, 10)
+  }, [data, stackedData, showAll, isStacked]);
+
   const yAxisWidth = isMobile ? 120 : 180;
   const rightMargin = isMobile ? 50 : 80;
 
@@ -107,6 +130,24 @@ const StatChart = ({ title, data, officerToPuskeswanMap, puskeswanColors, defaul
                 cursor={{ fill: "hsl(var(--muted))" }}
                 content={({ active, payload, label }) => {
                   if (active && payload && payload.length) {
+                    if (isStacked) {
+                      const total = payload.reduce((sum, item) => sum + (item.value as number), 0);
+                      return (
+                        <div className="rounded-lg border bg-background p-2 shadow-sm text-sm">
+                          <p className="font-bold mb-2">{label}</p>
+                          {payload.slice().reverse().map((p, i) => (
+                            <div key={i} className="flex items-center justify-between">
+                              <div className="flex items-center">
+                                <div className="w-2 h-2 rounded-full mr-2" style={{ backgroundColor: p.color }}></div>
+                                <span>{p.name}:</span>
+                              </div>
+                              <span className="font-medium ml-4">{p.value}</span>
+                            </div>
+                          ))}
+                          <p className="font-bold mt-2 pt-2 border-t">Total: {total}</p>
+                        </div>
+                      );
+                    }
                     return (
                       <div
                         className="rounded-lg border bg-background p-2 shadow-sm text-sm"
@@ -122,39 +163,55 @@ const StatChart = ({ title, data, officerToPuskeswanMap, puskeswanColors, defaul
                   return null;
                 }}
               />
-              <Bar
-                dataKey="count"
-                name="Jumlah Ternak"
-                radius={[0, 4, 4, 0]}
-                animationDuration={2000}
-                barSize={barHeight - 10}
-              >
-                {showLabel && <LabelList
-                    dataKey="count"
-                    position="right"
-                    offset={8}
-                    isAnimationActive={false}
-                    className="font-semibold"
-                    fill="hsl(var(--foreground))"
-                    fontSize={isMobile ? 11 : 12}
-                />}
-                {chartData.map((entry, index) => {
-                    let color = defaultColor;
-                    if (title === 'Statistik per Bulan') {
-                        color = '#FA8072';
-                    } else if (title === 'Statistik per Petugas') {
-                      const puskeswan = officerToPuskeswanMap[entry.name];
-                      if (puskeswan) {
-                        color = puskeswanColors[puskeswan] || defaultColor;
+              {isStacked ? (
+                <>
+                  <Bar dataKey="Sembuh" stackId="a" fill="#006400" name="Sembuh" animationDuration={2000} barSize={barHeight - 10} />
+                  <Bar dataKey="Tidak Sembuh" stackId="a" fill="#FFFF00" name="Tidak Sembuh" animationDuration={2000} barSize={barHeight - 10} />
+                  <Bar dataKey="Mati" stackId="a" fill="#FF0000" name="Mati" radius={[0, 4, 4, 0]} animationDuration={2000} barSize={barHeight - 10}>
+                    {showLabel && <LabelList
+                        dataKey="total"
+                        position="right"
+                        offset={8}
+                        isAnimationActive={false}
+                        className="font-semibold"
+                        fill="hsl(var(--foreground))"
+                        fontSize={isMobile ? 11 : 12}
+                    />}
+                  </Bar>
+                </>
+              ) : (
+                <Bar
+                  dataKey="count"
+                  name="Jumlah Ternak"
+                  radius={[0, 4, 4, 0]}
+                  animationDuration={2000}
+                  barSize={barHeight - 10}
+                >
+                  {showLabel && <LabelList
+                      dataKey="count"
+                      position="right"
+                      offset={8}
+                      isAnimationActive={false}
+                      className="font-semibold"
+                      fill="hsl(var(--foreground))"
+                      fontSize={isMobile ? 11 : 12}
+                  />}
+                  {(chartData as StatItem[]).map((entry, index) => {
+                      let color = defaultColor || '#808080';
+                      if (title === 'Statistik per Bulan') {
+                          color = '#FA8072';
+                      } else if (title === 'Statistik per Petugas') {
+                        const puskeswan = officerToPuskeswanMap?.[entry.name];
+                        if (puskeswan) {
+                          color = puskeswanColors?.[puskeswan] || color;
+                        }
+                      } else if (title === 'Statistik per Puskeswan') {
+                        color = puskeswanColors?.[entry.name] || color;
                       }
-                    } else if (title === 'Statistik per Puskeswan') {
-                      color = puskeswanColors[entry.name] || defaultColor;
-                    } else if (title.startsWith('Statistik Kasus/Penyakit')) {
-                      color = '#006400';
-                    }
-                    return <Cell key={`cell-${index}`} fill={color} />;
-                  })}
-              </Bar>
+                      return <Cell key={`cell-${index}`} fill={color} />;
+                    })}
+                </Bar>
+              )}
             </BarChart>
           </ResponsiveContainer>
       </CardContent>
@@ -256,7 +313,7 @@ const StatPieChart = ({ title, data, colors, defaultColor }: {
           {total > 0 && (
             <div className={cn(
               "absolute inset-0 flex items-center justify-center pointer-events-none",
-              title === 'Statistik per Puskeswan' && '-translate-y-10',
+              title === 'Statistik per Puskeswan' && '-translate-y-12',
               title.startsWith('Statistik Perkembangan Kasus') && '-translate-y-2'
             )}>
               <span className="text-xl font-bold text-foreground">
@@ -308,7 +365,9 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
   const statsByPuskeswan = calculateStats(services, 'puskeswan');
 
   const statsByDiagnosisAndAnimal: {
-    [animalType: string]: { [diagnosis: string]: number };
+    [animalType: string]: {
+      [diagnosis: string]: { Sembuh: number; 'Tidak Sembuh': number; Mati: number; };
+    };
   } = {};
   keswanServices.forEach((service) => {
     const genericType = getGenericLivestockType(service.livestockType);
@@ -316,17 +375,35 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
       statsByDiagnosisAndAnimal[genericType] = {};
     }
     const diagnosis = service.diagnosis.trim();
-    statsByDiagnosisAndAnimal[genericType][diagnosis] =
-      (statsByDiagnosisAndAnimal[genericType][diagnosis] || 0) +
-      service.livestockCount;
+    if (!statsByDiagnosisAndAnimal[genericType][diagnosis]) {
+      statsByDiagnosisAndAnimal[genericType][diagnosis] = { Sembuh: 0, 'Tidak Sembuh': 0, Mati: 0 };
+    }
+    
+    if (service.caseDevelopments) {
+        service.caseDevelopments.forEach(dev => {
+            if (dev.status && Object.keys(statsByDiagnosisAndAnimal[genericType][diagnosis]).includes(dev.status)) {
+                statsByDiagnosisAndAnimal[genericType][diagnosis][dev.status as 'Sembuh' | 'Tidak Sembuh' | 'Mati'] += dev.count;
+            }
+        });
+    }
   });
 
   const diagnosisCharts = Object.entries(statsByDiagnosisAndAnimal)
     .sort(([animalA], [animalB]) => animalA.localeCompare(animalB))
     .map(([animalType, diagnoses]) => {
-      const chartData: StatItem[] = Object.entries(diagnoses)
-        .map(([name, count]) => ({ name, count }))
-        .sort((a, b) => b.count - a.count);
+      const chartData: StackedStatItem[] = Object.entries(diagnoses)
+        .map(([name, counts]) => {
+          const total = (counts.Sembuh || 0) + (counts['Tidak Sembuh'] || 0) + (counts.Mati || 0);
+          return {
+            name,
+            Sembuh: counts.Sembuh || 0,
+            'Tidak Sembuh': counts['Tidak Sembuh'] || 0,
+            Mati: counts.Mati || 0,
+            total,
+          };
+        })
+        .filter(item => item.total > 0)
+        .sort((a, b) => b.total - a.total);
 
       if (chartData.length === 0) return null;
 
@@ -334,10 +411,7 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
         <StatChart
           key={animalType}
           title={`Statistik Kasus/Penyakit - ${animalType}`}
-          data={chartData}
-          officerToPuskeswanMap={{}}
-          puskeswanColors={{}}
-          defaultColor="#006400"
+          stackedData={chartData}
           showAll={true}
         />
       );
@@ -355,16 +429,37 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
     }
   });
 
-  const priorityDiagnosisCounts: { [key: string]: number } = {};
+  const priorityDiagnosisCounts: { [diagnosis: string]: { Sembuh: number; 'Tidak Sembuh': number; Mati: number; } } = {};
   priorityServices.forEach((service) => {
-    priorityDiagnosisCounts[service.diagnosis] =
-      (priorityDiagnosisCounts[service.diagnosis] || 0) + service.livestockCount;
+    const diagnosis = service.diagnosis.trim();
+    if (!priorityDiagnosisCounts[diagnosis]) {
+        priorityDiagnosisCounts[diagnosis] = { Sembuh: 0, 'Tidak Sembuh': 0, Mati: 0 };
+    }
+    if (service.caseDevelopments) {
+        service.caseDevelopments.forEach(dev => {
+            if (dev.status && Object.keys(priorityDiagnosisCounts[diagnosis]).includes(dev.status)) {
+                priorityDiagnosisCounts[diagnosis][dev.status as 'Sembuh' | 'Tidak Sembuh' | 'Mati'] += dev.count;
+            }
+        });
+    }
   });
-  const priorityDiagnosisStats: StatItem[] = Object.entries(
+
+  const priorityDiagnosisStats: StackedStatItem[] = Object.entries(
     priorityDiagnosisCounts
   )
-    .map(([name, count]) => ({ name, count }))
-    .sort((a, b) => b.count - a.count);
+    .map(([name, counts]) => {
+      const total = (counts.Sembuh || 0) + (counts['Tidak Sembuh'] || 0) + (counts.Mati || 0);
+      return {
+        name,
+        Sembuh: counts.Sembuh || 0,
+        'Tidak Sembuh': counts['Tidak Sembuh'] || 0,
+        Mati: counts.Mati || 0,
+        total,
+      };
+    })
+    .filter(item => item.total > 0)
+    .sort((a, b) => b.total - a.total);
+
 
   const puskeswanColors: { [key: string]: string } = {
     'Puskeswan Topoyo': '#00008B',
@@ -430,10 +525,7 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
       {priorityDiagnosisStats.length > 0 && (
         <StatChart
           title="Statistik Kasus/Penyakit Prioritas"
-          data={priorityDiagnosisStats}
-          officerToPuskeswanMap={{}}
-          puskeswanColors={{}}
-          defaultColor="#B22222"
+          stackedData={priorityDiagnosisStats}
           showAll={true}
         />
       )}
@@ -820,6 +912,8 @@ export default function ReportPage() {
     
 
 
+
+    
 
     
 
