@@ -156,9 +156,9 @@ const StatChart = ({
               />
               {isStacked ? (
                 <>
-                  <Bar dataKey="Sembuh" stackId="a" fill="#006400" name="Sembuh" animationDuration={2000} barSize={barHeight - 10} />
-                  <Bar dataKey="Tidak Sembuh" stackId="a" fill="#FFFF00" name="Tidak Sembuh" animationDuration={2000} barSize={barHeight - 10} />
-                  <Bar dataKey="Mati" stackId="a" fill="#FF0000" name="Mati" animationDuration={2000} barSize={barHeight - 10}>
+                  <Bar dataKey="Sembuh" stackId="a" fill="#006400" name="Sembuh" animationDuration={2000} />
+                  <Bar dataKey="Tidak Sembuh" stackId="a" fill="#FFFF00" name="Tidak Sembuh" animationDuration={2000} />
+                  <Bar dataKey="Mati" stackId="a" fill="#FF0000" name="Mati" animationDuration={2000}>
                     <LabelList
                         dataKey="total"
                         position="right"
