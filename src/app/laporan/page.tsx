@@ -254,7 +254,10 @@ const StatPieChart = ({ title, data, colors, defaultColor }: {
               </PieChart>
           </ResponsiveContainer>
           {total > 0 && (
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <div className={cn(
+              "absolute inset-0 flex items-center justify-center pointer-events-none",
+              title === 'Statistik per Puskeswan' && '-translate-y-3'
+            )}>
               <span className="text-xl font-bold text-foreground">
                 {total}
               </span>
@@ -815,3 +818,6 @@ export default function ReportPage() {
 
     
 
+
+
+    
