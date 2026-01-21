@@ -56,7 +56,9 @@ export function ServiceForm({ initialData, formType = 'keswan' }: { initialData?
     defaultValues: initialData ? {
       ...initialData,
       date: initialData.date ? new Date(initialData.date) : new Date(),
-      caseDevelopments: initialData.caseDevelopments || [],
+      caseDevelopments: (initialData.caseDevelopments && initialData.caseDevelopments.length > 0)
+        ? initialData.caseDevelopments
+        : [{ status: "", count: initialData.livestockCount || 1 }],
     } : {
       date: new Date(),
       puskeswan: "",
@@ -70,7 +72,7 @@ export function ServiceForm({ initialData, formType = 'keswan' }: { initialData?
       diagnosis: "",
       treatmentType: "",
       treatments: [{ medicineType: "", medicineName: "", dosageValue: 0, dosageUnit: "ml" }],
-      caseDevelopments: [],
+      caseDevelopments: [{ status: "", count: 1 }],
     },
   });
   
@@ -752,7 +754,7 @@ export function ServiceForm({ initialData, formType = 'keswan' }: { initialData?
                 <CardContent className="p-4">
                     <div className="space-y-4">
                     <div className="flex flex-row items-center justify-between gap-2">
-                        <Label>Perkembangan Kasus (Opsional)</Label>
+                        <Label>Perkembangan Kasus</Label>
                         <Button
                             type="button"
                             variant="default"
@@ -767,7 +769,7 @@ export function ServiceForm({ initialData, formType = 'keswan' }: { initialData?
 
                     {caseDevelopmentFields.map((item, index) => (
                         <Card key={item.id} className="relative p-4 bg-card">
-                        {caseDevelopmentFields.length > 0 && (
+                        {caseDevelopmentFields.length > 1 && (
                             <Button
                             type="button"
                             variant="ghost"
@@ -845,6 +847,7 @@ export function ServiceForm({ initialData, formType = 'keswan' }: { initialData?
     
 
     
+
 
 
 
