@@ -449,7 +449,7 @@ export function ServiceForm({ initialData, formType = 'keswan' }: { initialData?
                   name="clinicalSymptoms"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Sindrom</FormLabel>
+                      <FormLabel>{formType === 'keswan' ? 'Gejala Klinis' : 'Sindrom'}</FormLabel>
                       {formType === 'priority' ? (
                         <Select
                           onValueChange={field.onChange}
@@ -468,7 +468,7 @@ export function ServiceForm({ initialData, formType = 'keswan' }: { initialData?
                         </Select>
                       ) : (
                         <FormControl>
-                          <Textarea placeholder="Deskripsi sindrom" {...field} />
+                          <Textarea placeholder="Deskripsi gejala klinis" {...field} />
                         </FormControl>
                       )}
                       <FormMessage />
@@ -788,4 +788,5 @@ export function ServiceForm({ initialData, formType = 'keswan' }: { initialData?
     
 
     
+
 
