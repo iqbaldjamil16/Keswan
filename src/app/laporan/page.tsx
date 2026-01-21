@@ -76,13 +76,8 @@ const StatChart = ({
   const yAxisWidth = isMobile ? 120 : 180;
   const rightMargin = isMobile ? 50 : 80;
 
-  let barHeight = 28;
-  let minChartHeight = 150;
-
-  if (title === 'Statistik per Bulan' || title === 'Statistik Kasus/Penyakit - Kerbau') {
-    barHeight = 20;
-    minChartHeight = 120;
-  }
+  const barHeight = 28;
+  const minChartHeight = 150;
   const chartHeight = Math.max(minChartHeight, chartData.length * barHeight);
 
 
@@ -826,3 +821,4 @@ export default function ReportPage() {
     
 
     
+
