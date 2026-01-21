@@ -377,7 +377,12 @@ export function ServiceForm({ initialData, formType = 'keswan' }: { initialData?
                   name="caseId"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>ID Kasus iSIKHNAS (Opsional)</FormLabel>
+                      <FormLabel>
+                        ID Kasus iSIKHNAS
+                        <span className="ml-2 text-xs italic font-normal text-muted-foreground">
+                          (Opsional, Dapat Diisi & Tidak, Dapatkan Kode Dari Isikhnas)
+                        </span>
+                      </FormLabel>
                       <FormControl>
                         <Input placeholder="contoh : 53144622" {...field} />
                       </FormControl>
@@ -879,3 +884,6 @@ export function ServiceForm({ initialData, formType = 'keswan' }: { initialData?
 
 
 
+
+
+    
