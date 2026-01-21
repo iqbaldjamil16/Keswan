@@ -190,6 +190,14 @@ function ServiceCard({
                 {service.ownerAddress}
               </p>
             </div>
+            {service.caseId && (
+              <div>
+                <div className="text-xs font-semibold text-muted-foreground">
+                  ID iSIKHNAS
+                </div>
+                <p className="text-sm">{service.caseId}</p>
+              </div>
+            )}
             <div>
               <div className="text-xs font-semibold text-muted-foreground">
                 Ternak
@@ -437,6 +445,11 @@ export function ServiceTable({ services, loading, highlightedIds, searchTerm, on
                     <div className="text-xs text-muted-foreground">
                       {service.ownerAddress}
                     </div>
+                    {service.caseId && (
+                        <div className="text-xs text-muted-foreground pt-1">
+                          ID: {service.caseId}
+                        </div>
+                    )}
                   </TableCell>
                   <TableCell className="align-top">
                     <Badge variant="secondary">
@@ -545,5 +558,7 @@ export function ServiceTable({ services, loading, highlightedIds, searchTerm, on
 }
 
 
+
+    
 
     
