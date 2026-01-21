@@ -77,8 +77,8 @@ const StatChart = ({
   const rightMargin = isMobile ? 50 : 80;
 
   const isSpecialSizing = title === 'Statistik per Bulan' || title.includes('Kerbau');
-  const barHeight = isSpecialSizing ? 20 : 28;
-  const chartHeight = Math.max(isSpecialSizing ? 100 : 150, chartData.length * barHeight);
+  const barHeight = isSpecialSizing ? 16 : 28;
+  const chartHeight = Math.max(isSpecialSizing ? 80 : 150, chartData.length * barHeight);
 
   return (
     <Card>
@@ -802,3 +802,4 @@ export default function ReportPage() {
     
 
     
+
