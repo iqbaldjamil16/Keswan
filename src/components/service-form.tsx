@@ -528,7 +528,12 @@ export function ServiceForm({ initialData, formType = 'keswan' }: { initialData?
                   name="treatmentType"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Jenis Penanganan</FormLabel>
+                      <FormLabel>
+                        Jenis Penanganan
+                        <span className="ml-2 text-xs italic font-normal text-muted-foreground">
+                          (Pilih Lainnya Jika Lebih Dari 1 Penanganan)
+                        </span>
+                      </FormLabel>
                       {showManualTreatmentType ? (
                         <FormControl>
                           <Input
@@ -847,6 +852,7 @@ export function ServiceForm({ initialData, formType = 'keswan' }: { initialData?
     
 
     
+
 
 
 
