@@ -167,7 +167,7 @@ const StatChart = ({
                 <>
                   <Bar dataKey="Sembuh" stackId="a" fill="#006400" name="Sembuh" animationDuration={2000} barSize={barHeight - 10} />
                   <Bar dataKey="Tidak Sembuh" stackId="a" fill="#FFFF00" name="Tidak Sembuh" animationDuration={2000} barSize={barHeight - 10} />
-                  <Bar dataKey="Mati" stackId="a" fill="#FF0000" name="Mati" radius={[0, 4, 4, 0]} animationDuration={2000} barSize={barHeight - 10}>
+                  <Bar dataKey="Mati" stackId="a" fill="#FF0000" name="Mati" animationDuration={2000} barSize={barHeight - 10}>
                     {showLabel && <LabelList
                         dataKey="total"
                         position="right"
@@ -183,7 +183,6 @@ const StatChart = ({
                 <Bar
                   dataKey="count"
                   name="Jumlah Ternak"
-                  radius={[0, 4, 4, 0]}
                   animationDuration={2000}
                   barSize={barHeight - 10}
                 >
@@ -314,7 +313,7 @@ const StatPieChart = ({ title, data, colors, defaultColor }: {
             <div className={cn(
               "absolute inset-0 flex items-center justify-center pointer-events-none",
               title === 'Statistik per Puskeswan' && '-translate-y-12',
-              title.startsWith('Statistik Perkembangan Kasus') && '-translate-y-2'
+              (title.startsWith('Statistik Perkembangan Kasus') && title !== 'Statistik Perkembangan Kasus Prioritas') && '-translate-y-2'
             )}>
               <span className="text-xl font-bold text-foreground">
                 {total}
@@ -370,7 +369,7 @@ function StatisticsDisplay({ services }: { services: HealthcareService[] }) {
     };
   } = {};
   keswanServices.forEach((service) => {
-    const genericType = getGenericLivestockType(service.livestockType);
+    const genericType = getGenericLivestockType(service.livestockType.trim());
     if (!statsByDiagnosisAndAnimal[genericType]) {
       statsByDiagnosisAndAnimal[genericType] = {};
     }
@@ -906,19 +905,5 @@ export default function ReportPage() {
     </div>
   );
 }
-
-
-
-    
-
-
-
-    
-
-    
-
-    
-
-    
 
     
