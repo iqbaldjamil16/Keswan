@@ -82,7 +82,7 @@ const StatChart = ({
   const chartData = useMemo(() => {
     const sourceData = isStacked ? stackedData : data;
     if (!sourceData) return [];
-    return showAll ? sourceData : sourceData.slice(0, 10)
+    return showAll ? sourceData : sourceData.slice(0, 10);
   }, [data, stackedData, showAll, isStacked]);
 
   const yAxisWidth = isMobile ? 120 : 180;
@@ -91,6 +91,73 @@ const StatChart = ({
   const barHeight = 28;
   const chartHeight = Math.max(150, chartData.length * barHeight);
 
+  if (isStacked) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg text-left">{title}</CardTitle>
+        </CardHeader>
+        <CardContent className="pr-0 sm:pr-4">
+            <ResponsiveContainer width="100%" height={chartHeight}>
+              <BarChart
+                data={chartData}
+                layout="vertical"
+                margin={{ top: 5, right: rightMargin, left: 0, bottom: 5 }}
+              >
+                <XAxis type="number" hide />
+                <YAxis
+                  type="category"
+                  dataKey="name"
+                  tickLine={false}
+                  axisLine={false}
+                  stroke="hsl(var(--muted-foreground))"
+                  fontSize={isMobile ? 11 : 12}
+                  interval={0}
+                  width={yAxisWidth}
+                  tick={{ fontWeight: 'bold' }}
+                />
+                <Tooltip
+                  cursor={{ fill: "hsl(var(--muted))" }}
+                  content={({ active, payload, label }) => {
+                    if (active && payload && payload.length) {
+                      const total = payload.reduce((sum, item) => sum + (item.value as number), 0);
+                      return (
+                        <div className="rounded-lg border bg-background p-2 shadow-sm text-sm">
+                          <p className="font-bold mb-2">{label}</p>
+                          {payload.slice().reverse().map((p, i) => (
+                            <div key={i} className="flex items-center justify-between">
+                              <div className="flex items-center">
+                                <div className="w-2 h-2 rounded-full mr-2" style={{ backgroundColor: p.color }}></div>
+                                <span>{p.name}:</span>
+                              </div>
+                              <span className="font-medium ml-4">{p.value}</span>
+                            </div>
+                          ))}
+                          <p className="font-bold mt-2 pt-2 border-t">Total: {total}</p>
+                        </div>
+                      );
+                    }
+                    return null;
+                  }}
+                />
+                <Bar dataKey="Sembuh" stackId="a" fill="#006400" name="Sembuh" />
+                <Bar dataKey="Tidak Sembuh" stackId="a" fill="#FFFF00" name="Tidak Sembuh" />
+                <Bar dataKey="Mati" stackId="a" fill="#FF0000" name="Mati">
+                  <LabelList
+                      dataKey="total"
+                      position="right"
+                      offset={8}
+                      className="font-semibold"
+                      fill="hsl(var(--foreground))"
+                      fontSize={isMobile ? 11 : 12}
+                  />
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card>
@@ -121,24 +188,6 @@ const StatChart = ({
                 cursor={{ fill: "hsl(var(--muted))" }}
                 content={({ active, payload, label }) => {
                   if (active && payload && payload.length) {
-                    if (isStacked) {
-                      const total = payload.reduce((sum, item) => sum + (item.value as number), 0);
-                      return (
-                        <div className="rounded-lg border bg-background p-2 shadow-sm text-sm">
-                          <p className="font-bold mb-2">{label}</p>
-                          {payload.slice().reverse().map((p, i) => (
-                            <div key={i} className="flex items-center justify-between">
-                              <div className="flex items-center">
-                                <div className="w-2 h-2 rounded-full mr-2" style={{ backgroundColor: p.color }}></div>
-                                <span>{p.name}:</span>
-                              </div>
-                              <span className="font-medium ml-4">{p.value}</span>
-                            </div>
-                          ))}
-                          <p className="font-bold mt-2 pt-2 border-t">Total: {total}</p>
-                        </div>
-                      );
-                    }
                     return (
                       <div
                         className="rounded-lg border bg-background p-2 shadow-sm text-sm"
@@ -154,22 +203,7 @@ const StatChart = ({
                   return null;
                 }}
               />
-              {isStacked ? (
-                <>
-                  <Bar dataKey="Sembuh" stackId="a" fill="#006400" name="Sembuh" animationDuration={2000} />
-                  <Bar dataKey="Tidak Sembuh" stackId="a" fill="#FFFF00" name="Tidak Sembuh" animationDuration={2000} />
-                  <Bar dataKey="Mati" stackId="a" fill="#FF0000" name="Mati" animationDuration={2000}>
-                    <LabelList
-                        dataKey="total"
-                        position="right"
-                        offset={8}
-                        className="font-semibold"
-                        fill="hsl(var(--foreground))"
-                        fontSize={isMobile ? 11 : 12}
-                    />
-                  </Bar>
-                </>
-              ) : (
+              
                 <Bar
                   dataKey="count"
                   name="Jumlah Ternak"
@@ -199,7 +233,6 @@ const StatChart = ({
                       return <Cell key={`cell-${index}`} fill={color} />;
                     })}
                 </Bar>
-              )}
             </BarChart>
           </ResponsiveContainer>
       </CardContent>
@@ -898,3 +931,4 @@ export default function ReportPage() {
     
 
     
+
