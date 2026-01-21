@@ -384,7 +384,7 @@ export function ServiceForm({ initialData, formType = 'keswan' }: { initialData?
                         </span>
                       </FormLabel>
                       <FormControl>
-                        <Input placeholder="contoh : 53144622, Lewati Jika Tidak Mengisi Isikhnas" {...field} />
+                        <Input placeholder="contoh : 53144622" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
