@@ -76,8 +76,8 @@ const StatChart = ({
   const yAxisWidth = isMobile ? 120 : 180;
   const rightMargin = isMobile ? 50 : 80;
 
-  const barHeight = title.includes("Kerbau") ? 28 : (title.includes("Statistik per Bulan") ? 28 : 28);
-  const minChartHeight = title.includes("Kerbau") ? 150 : (title.includes("Statistik per Bulan") ? 150 : 150);
+  const barHeight = (title.includes("Kerbau") || title.includes("Statistik per Bulan")) ? 20 : 28;
+  const minChartHeight = (title.includes("Kerbau") || title.includes("Statistik per Bulan")) ? 120 : 150;
   const chartHeight = Math.max(minChartHeight, chartData.length * barHeight);
 
 
@@ -824,5 +824,7 @@ export default function ReportPage() {
 
 
 
+
+    
 
     
