@@ -12,7 +12,7 @@ import { doc, updateDoc, addDoc, collection, Timestamp, Firestore } from 'fireba
 
 import { cn } from "@/lib/utils";
 import { serviceSchema, type HealthcareService } from "@/lib/types";
-import { medicineData, medicineTypes, type MedicineType, livestockTypes, puskeswanList, treatmentTypes, dosageUnits, karossaDesaList, budongBudongDesaList, pangaleDesaList, tobadakDesaList, topoyoDesaList, budongBudongOfficerList, karossaOfficerList, pangaleOfficerList, tobadakOfficerList, topoyoOfficerList, caseDevelopmentOptions, priorityOfficerList, prioritySyndromeOptions } from "@/lib/definitions";
+import { medicineData, medicineTypes, type MedicineType, livestockTypes, puskeswanList, treatmentTypes, dosageUnits, karossaDesaList, budongBudongDesaList, pangaleDesaList, tobadakDesaList, topoyoDesaList, budongBudongOfficerList, karossaOfficerList, pangaleOfficerList, tobadakOfficerList, topoyoOfficerList, caseDevelopmentOptions, priorityOfficerList, prioritySyndromeOptions, priorityDiagnosisOptions } from "@/lib/definitions";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -485,9 +485,27 @@ export function ServiceForm({ initialData, formType = 'keswan' }: { initialData?
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Diagnosa</FormLabel>
-                      <FormControl>
-                        <Textarea placeholder="Diagnosa penyakit" {...field} className="min-h-[60px]" />
-                      </FormControl>
+                      {formType === 'priority' ? (
+                        <Select
+                          onValueChange={field.onChange}
+                          value={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Pilih Diagnosa Prioritas" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {priorityDiagnosisOptions.map((option) => (
+                              <SelectItem key={option} value={option}>{option}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      ) : (
+                        <FormControl>
+                            <Textarea placeholder="Diagnosa penyakit" {...field} className="min-h-[60px]" />
+                        </FormControl>
+                      )}
                       <FormMessage />
                     </FormItem>
                   )}
@@ -770,3 +788,4 @@ export function ServiceForm({ initialData, formType = 'keswan' }: { initialData?
     
 
     
+

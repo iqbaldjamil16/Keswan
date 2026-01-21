@@ -315,3 +315,14 @@ export const prioritySyndromeOptions = [
   'Penyakit Luar Biasa',
   'Keringat Berdarah',
 ];
+
+export const priorityDiagnosisOptions = [
+  'Flu Burung',
+  'Rabies',
+  'Brucellosis',
+  'Penyakit Mulut dan Kuku (PMK)',
+  'Jembrana',
+  'Lumpy Skin Disease (LSD)',
+  'African Swine Fever (ASF)',
+  'Anthrax',
+].sort();
