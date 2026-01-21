@@ -128,7 +128,7 @@ const StatChart = ({
                   dataKey="count"
                   name="Jumlah Ternak"
                   animationDuration={2000}
-                  radius={[0, 4, 4, 0]}
+                  radius={[0, 8, 8, 0]}
                 >
                   <LabelList
                       dataKey="count"
@@ -801,6 +801,7 @@ export default function ReportPage() {
     
 
     
+
 
 
 
