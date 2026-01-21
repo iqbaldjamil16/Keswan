@@ -77,7 +77,13 @@ const StatChart = ({
   const rightMargin = isMobile ? 50 : 80;
 
   let barHeight = 28;
-  const chartHeight = Math.max(150, chartData.length * barHeight);
+  let minChartHeight = 150;
+
+  if (title === 'Statistik per Bulan' || title === 'Statistik Kasus/Penyakit - Kerbau') {
+    barHeight = 20;
+    minChartHeight = 120;
+  }
+  const chartHeight = Math.max(minChartHeight, chartData.length * barHeight);
 
 
   return (
@@ -259,7 +265,7 @@ const StatPieChart = ({ title, data, colors, defaultColor }: {
           {total > 0 && (
             <div 
               className="absolute inset-0 flex items-center justify-center pointer-events-none"
-              style={isPuskeswanChart ? { transform: 'translateY(-48px)' } : {}}
+              style={isPuskeswanChart ? { transform: 'translateY(-24px)' } : {}}
             >
               <span className="text-xl font-bold text-foreground">
                 {total}
@@ -812,6 +818,8 @@ export default function ReportPage() {
 
 
 
+
+    
 
     
 
