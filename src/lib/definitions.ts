@@ -297,3 +297,10 @@ export const caseDevelopmentOptions = [
   'Tidak Sembuh',
   'Mati',
 ];
+
+export const priorityOfficerList = [
+    'drh. M Ishak',
+    'drh. Iqbal Djamil',
+    'drh. Stephani',
+    'drh. Ketut Elok',
+].sort();

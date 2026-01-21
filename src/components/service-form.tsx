@@ -12,7 +12,7 @@ import { doc, updateDoc, addDoc, collection, Timestamp, Firestore } from 'fireba
 
 import { cn } from "@/lib/utils";
 import { serviceSchema, type HealthcareService } from "@/lib/types";
-import { medicineData, medicineTypes, type MedicineType, livestockTypes, puskeswanList, treatmentTypes, dosageUnits, karossaDesaList, budongBudongDesaList, pangaleDesaList, tobadakDesaList, topoyoDesaList, budongBudongOfficerList, karossaOfficerList, pangaleOfficerList, tobadakOfficerList, topoyoOfficerList, caseDevelopmentOptions } from "@/lib/definitions";
+import { medicineData, medicineTypes, type MedicineType, livestockTypes, puskeswanList, treatmentTypes, dosageUnits, karossaDesaList, budongBudongDesaList, pangaleDesaList, tobadakDesaList, topoyoDesaList, budongBudongOfficerList, karossaOfficerList, pangaleOfficerList, tobadakOfficerList, topoyoOfficerList, caseDevelopmentOptions, priorityOfficerList } from "@/lib/definitions";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -38,7 +38,7 @@ import { Label } from "@/components/ui/label";
 import { useFirebase } from "@/firebase";
 
 
-export function ServiceForm({ initialData }: { initialData?: HealthcareService }) {
+export function ServiceForm({ initialData, formType = 'keswan' }: { initialData?: HealthcareService, formType?: 'keswan' | 'priority' }) {
   const [isPending, startTransition] = useTransition();
   const { toast } = useToast();
   const { firestore } = useFirebase();
@@ -241,37 +241,57 @@ export function ServiceForm({ initialData }: { initialData?: HealthcareService }
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Nama Petugas</FormLabel>
-                      {isOfficerSelection && !showManualOfficerName ? (
+                      {formType === 'priority' ? (
                         <Select
-                          onValueChange={(value) => {
-                            if (value === 'Lainnya') {
-                              setShowManualOfficerName(true);
-                              field.onChange('');
-                            } else {
-                              field.onChange(value);
-                            }
-                          }}
-                          value={field.value}
+                            onValueChange={field.onChange}
+                            value={field.value}
                         >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Pilih Nama Petugas" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {officerList.map((officer) => (
-                              <SelectItem key={officer} value={officer}>{officer}</SelectItem>
-                            ))}
-                          </SelectContent>
+                            <FormControl>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Pilih Nama Petugas" />
+                                </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                                {priorityOfficerList.map((officer) => (
+                                    <SelectItem key={officer} value={officer}>{officer}</SelectItem>
+                                ))}
+                            </SelectContent>
                         </Select>
                       ) : (
-                        <FormControl>
-                          <Input 
-                            placeholder="Nama Petugas" 
-                            {...field} 
-                            value={(showManualOfficerName && field.value === 'Lainnya') ? '' : field.value}
-                          />
-                        </FormControl>
+                        <>
+                          {isOfficerSelection && !showManualOfficerName ? (
+                            <Select
+                              onValueChange={(value) => {
+                                if (value === 'Lainnya') {
+                                  setShowManualOfficerName(true);
+                                  field.onChange('');
+                                } else {
+                                  field.onChange(value);
+                                }
+                              }}
+                              value={field.value}
+                            >
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Pilih Nama Petugas" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                {officerList.map((officer) => (
+                                  <SelectItem key={officer} value={officer}>{officer}</SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          ) : (
+                            <FormControl>
+                              <Input 
+                                placeholder="Nama Petugas" 
+                                {...field} 
+                                value={(showManualOfficerName && field.value === 'Lainnya') ? '' : field.value}
+                              />
+                            </FormControl>
+                          )}
+                        </>
                       )}
                       <FormMessage />
                     </FormItem>

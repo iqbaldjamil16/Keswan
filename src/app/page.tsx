@@ -34,7 +34,7 @@ export default function Home() {
                 </CardHeader>
                 </Card>
                 <div className="mt-6 md:mt-8">
-                <ServiceForm />
+                <ServiceForm formType="keswan" />
                 </div>
             </TabsContent>
             <TabsContent value="prioritas" className="mt-6 md:mt-8">
@@ -47,7 +47,7 @@ export default function Home() {
                     </CardHeader>
                 </Card>
                 <div className="mt-6 md:mt-8">
-                    <ServiceForm />
+                    <ServiceForm formType="priority" />
                 </div>
             </TabsContent>
         </Tabs>
