@@ -51,10 +51,14 @@ export default function EditServicePage() {
         if (docSnap.exists()) {
           const data = docSnap.data();
 
-          if (data.caseDevelopment && !data.caseDevelopments) {
+          if (!data.caseDevelopments || data.caseDevelopments.length === 0) {
+            let status = 'Sembuh';
+            if (data.caseDevelopment && typeof data.caseDevelopment === 'string' && data.caseDevelopment.length > 0) {
+              status = data.caseDevelopment;
+            }
             data.caseDevelopments = [{
-                status: data.caseDevelopment,
-                count: data.livestockCount
+              status: status,
+              count: data.livestockCount || 1,
             }];
           }
 

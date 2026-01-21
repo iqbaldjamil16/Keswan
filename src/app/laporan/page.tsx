@@ -427,6 +427,18 @@ export default function ReportPage() {
           if (data.officerName && data.officerName.toLowerCase().includes('basuki')) {
             data.officerName = 'Basuki Budianto';
           }
+          
+          if (!data.caseDevelopments || data.caseDevelopments.length === 0) {
+            let status = 'Sembuh';
+            if (data.caseDevelopment && typeof data.caseDevelopment === 'string' && data.caseDevelopment.length > 0) {
+              status = data.caseDevelopment;
+            }
+            data.caseDevelopments = [{
+              status: status,
+              count: data.livestockCount || 1,
+            }];
+          }
+          
           const service = serviceSchema.parse({
             ...data,
             id: doc.id,
