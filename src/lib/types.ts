@@ -23,7 +23,15 @@ export const serviceSchema = z.object({
   officerName: z.string().min(1, "Wajib diisi."),
   ownerName: z.string().min(1, "Wajib diisi."),
   ownerAddress: z.string().min(1, "Wajib diisi."),
-  caseId: z.string().optional().default(''),
+  caseId: z.string().optional().default('').refine(
+    (val) => {
+      if (!val) return true; // Allow empty string
+      return /^\d{8,10}$/.test(val);
+    },
+    {
+      message: "ID Kasus iSIKHNAS harus terdiri dari 8 hingga 10 angka.",
+    }
+  ),
   livestockType: z.string().min(1, "Wajib diisi."),
   livestockCount: z.coerce.number().min(1, "Jumlah ternak harus minimal 1."),
   clinicalSymptoms: z.string().min(1, "Wajib diisi."),
