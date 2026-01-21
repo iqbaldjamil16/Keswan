@@ -76,9 +76,8 @@ const StatChart = ({
   const yAxisWidth = isMobile ? 120 : 180;
   const rightMargin = isMobile ? 50 : 80;
 
-  const isSpecialChart = title === "Statistik per Bulan" || title.includes("Kerbau");
-  const barHeight = isSpecialChart ? 28 : 28;
-  const chartHeight = Math.max(isSpecialChart ? 150 : 150, chartData.length * barHeight);
+  const barHeight = 28;
+  const chartHeight = Math.max(150, chartData.length * barHeight);
 
 
   return (
@@ -260,7 +259,7 @@ const StatPieChart = ({ title, data, colors, defaultColor }: {
           {total > 0 && (
             <div 
               className="absolute inset-0 flex items-center justify-center pointer-events-none"
-              style={isPuskeswanChart ? { transform: 'translateY(-30px)' } : {}}
+              style={isPuskeswanChart ? { transform: 'translateY(-22px)' } : {}}
             >
               <span className="text-xl font-bold text-foreground">
                 {total}
