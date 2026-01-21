@@ -641,7 +641,6 @@ export default function ReportPage() {
         allDataForSheet.push({ 'Nama Petugas': officerName }); 
         allDataForSheet.push(Object.fromEntries(headers.map(h => [h, h])));
 
-        const officerServices = servicesByOfficer[officerName];
         const data = officerServices.map((service) => ({
             'Tanggal': format(new Date(service.date), 'dd-MM-yyyy'),
             'Nama Pemilik': service.ownerName,
@@ -795,7 +794,7 @@ export default function ReportPage() {
           variant="default"
           className="fixed bottom-6 left-6 h-14 w-14 rounded-full shadow-lg"
           aria-label="Kembali ke halaman utama"
-          onClick={() => router.back()}
+          onClick={() => router.push('/')}
         >
           <CornerUpLeft className="h-7 w-7" />
         </Button>
@@ -829,5 +828,6 @@ export default function ReportPage() {
     
 
     
+
 
 

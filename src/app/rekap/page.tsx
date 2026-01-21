@@ -574,7 +574,7 @@ export default function RekapPage() {
           variant="default"
           className="fixed bottom-6 left-6 h-14 w-14 rounded-full shadow-lg"
           aria-label="Kembali ke halaman utama"
-          onClick={() => router.back()}
+          onClick={() => router.push('/')}
         >
           <CornerUpLeft className="h-7 w-7" />
         </Button>
