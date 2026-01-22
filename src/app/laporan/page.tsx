@@ -641,7 +641,7 @@ export default function ReportPage() {
         allDataForSheet.push({ 'Nama Petugas': officerName }); 
         allDataForSheet.push(Object.fromEntries(headers.map(h => [h, h])));
 
-        const data = officerServices.map((service) => ({
+        const data = servicesByOfficer[officerName].map((service) => ({
             'Tanggal': format(new Date(service.date), 'dd-MM-yyyy'),
             'Nama Pemilik': service.ownerName,
             'Alamat Pemilik': service.ownerAddress,
@@ -828,6 +828,7 @@ export default function ReportPage() {
     
 
     
+
 
 
 
