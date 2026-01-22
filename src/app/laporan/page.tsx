@@ -4,9 +4,9 @@
 import { useState, useTransition, useEffect, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import * as XLSX from 'xlsx';
-import { getYear, getMonth, format, subYears } from "date-fns";
+import { getYear, getMonth, format, subYears, startOfMonth, endOfMonth } from "date-fns";
 import { id } from 'date-fns/locale';
-import { collection, query, orderBy, getDocs, Timestamp } from 'firebase/firestore';
+import { collection, query, orderBy, getDocs, Timestamp, where } from 'firebase/firestore';
 
 import { ServiceTable } from "@/components/service-table";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
@@ -454,12 +454,12 @@ const months = Array.from({ length: 12 }, (_, i) => ({
 export default function ReportPage() {
   const router = useRouter();
   const { firestore } = useFirebase();
-  const [allServices, setAllServices] = useState<HealthcareService[]>([]);
+  const [services, setServices] = useState<HealthcareService[]>([]);
   const [filteredServices, setFilteredServices] = useState<HealthcareService[]>([]);
   const [loading, setLoading] = useState(true);
   const [isPending, startTransition] = useTransition();
-  const [selectedMonth, setSelectedMonth] = useState<string>('');
-  const [selectedYear, setSelectedYear] = useState<string>('');
+  const [selectedMonth, setSelectedMonth] = useState<string>(getMonth(new Date()).toString());
+  const [selectedYear, setSelectedYear] = useState<string>(getYear(new Date()).toString());
   const [searchTerm, setSearchTerm] = useState('');
   const [highlightedIds, setHighlightedIds] = useState<string[]>([]);
 
@@ -486,13 +486,31 @@ export default function ReportPage() {
     return () => clearInterval(interval);
   }, []);
 
-  const loadAllServices = useCallback(async () => {
+  const loadServices = useCallback(async (yearStr: string, monthStr: string) => {
     if (!firestore) return;
     setLoading(true);
-    try {
-      const servicesCollection = collection(firestore, 'healthcareServices');
-      const q = query(servicesCollection, orderBy('date', 'desc'));
 
+    const year = yearStr === 'all-years' || yearStr === '' ? null : parseInt(yearStr, 10);
+    const month = monthStr === 'all-months' || monthStr === '' ? null : parseInt(monthStr, 10);
+
+    const servicesCollection = collection(firestore, 'healthcareServices');
+    const queryConstraints = [orderBy('date', 'desc')];
+
+    if (year !== null && month !== null) {
+        const startDate = startOfMonth(new Date(year, month));
+        const endDate = endOfMonth(new Date(year, month));
+        queryConstraints.push(where('date', '>=', startDate));
+        queryConstraints.push(where('date', '<=', endDate));
+    } else if (year !== null) {
+        const startDate = new Date(year, 0, 1);
+        const endDate = new Date(year, 11, 31, 23, 59, 59);
+        queryConstraints.push(where('date', '>=', startDate));
+        queryConstraints.push(where('date', '<=', endDate));
+    }
+
+    const q = query(servicesCollection, ...queryConstraints);
+
+    try {
       const querySnapshot = await getDocs(q);
       const fetchedServices: HealthcareService[] = [];
       querySnapshot.forEach((doc) => {
@@ -523,41 +541,24 @@ export default function ReportPage() {
           console.error('Validation error parsing service data:', e);
         }
       });
-      setAllServices(fetchedServices);
+      setServices(fetchedServices);
     } catch (error) {
       console.error('Failed to fetch services:', error);
-      setAllServices([]);
+      setServices([]);
     } finally {
       setLoading(false);
     }
   }, [firestore]);
 
   useEffect(() => {
-    loadAllServices();
-  }, [loadAllServices]);
+    startTransition(() => {
+        loadServices(selectedYear, selectedMonth);
+    });
+  }, [loadServices, selectedYear, selectedMonth]);
 
   useEffect(() => {
     startTransition(() => {
-      let servicesToFilter = allServices;
-
-      const year =
-        selectedYear === 'all-years' || selectedYear === ''
-          ? null
-          : parseInt(selectedYear, 10);
-      const month =
-        selectedMonth === 'all-months' || selectedMonth === ''
-          ? null
-          : parseInt(selectedMonth, 10);
-
-      if (year || month !== null) {
-        servicesToFilter = allServices.filter((service) => {
-          const serviceDate = new Date(service.date);
-          const isYearMatch = year ? getYear(serviceDate) === year : true;
-          const isMonthMatch =
-            month !== null ? getMonth(serviceDate) === month : true;
-          return isYearMatch && isMonthMatch;
-        });
-      }
+      let servicesToFilter = services;
 
       const lowercasedFilter = searchTerm.toLowerCase();
       if (lowercasedFilter) {
@@ -590,10 +591,10 @@ export default function ReportPage() {
 
       setFilteredServices(servicesToFilter);
     });
-  }, [selectedMonth, selectedYear, searchTerm, allServices, highlightedIds]);
+  }, [searchTerm, services, highlightedIds]);
 
   const handleLocalDelete = (serviceId: string) => {
-    setAllServices((currentServices) =>
+    setServices((currentServices) =>
       currentServices.filter((s) => s.id !== serviceId)
     );
      const newEntries = JSON.parse(localStorage.getItem('newEntries') || '[]');
@@ -677,13 +678,11 @@ export default function ReportPage() {
     });
   
     const monthLabel =
-      selectedMonth === 'all-months'
+      selectedMonth === 'all-months' || selectedMonth === ''
         ? 'SemuaBulan'
         : months.find((m) => m.value === selectedMonth)?.label || 'SemuaBulan';
     const yearLabel =
-      selectedYear === 'all-years'
-        ? 'SemuaTahun'
-        : selectedYear === ''
+      selectedYear === 'all-years' || selectedYear === ''
         ? getYear(new Date()).toString()
         : selectedYear;
   
@@ -775,7 +774,7 @@ export default function ReportPage() {
           <TabsContent value="tabel" className="md:pt-4">
             <ServiceTable
               services={filteredServices}
-              loading={loading && allServices.length === 0}
+              loading={loading && services.length === 0}
               highlightedIds={highlightedIds}
               searchTerm={searchTerm}
               onDelete={handleLocalDelete}
@@ -828,6 +827,7 @@ export default function ReportPage() {
     
 
     
+
 
 
 

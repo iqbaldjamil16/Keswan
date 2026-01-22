@@ -131,28 +131,22 @@ export default function RekapPage() {
         const year = yearStr === 'all-years' ? null : parseInt(yearStr, 10);
         const month = monthStr === 'all-months' || monthStr === '' ? null : parseInt(monthStr, 10);
 
-        let q;
         const servicesCollection = collection(firestore, 'healthcareServices');
+        const queryConstraints = [orderBy('date', 'desc')];
 
         if (year !== null && month !== null) {
             const startDate = startOfMonth(new Date(year, month));
             const endDate = endOfMonth(new Date(year, month));
-            q = query(
-                servicesCollection, 
-                where('date', '>=', startDate),
-                where('date', '<=', endDate),
-            );
+            queryConstraints.push(where('date', '>=', startDate));
+            queryConstraints.push(where('date', '<=', endDate));
         } else if (year !== null) {
             const startDate = new Date(year, 0, 1);
             const endDate = new Date(year, 11, 31, 23, 59, 59);
-             q = query(
-                servicesCollection, 
-                where('date', '>=', startDate),
-                where('date', '<=', endDate),
-            );
-        } else {
-             q = query(servicesCollection, orderBy('date', 'desc'));
+            queryConstraints.push(where('date', '>=', startDate));
+            queryConstraints.push(where('date', '<=', endDate));
         }
+
+        const q = query(servicesCollection, ...queryConstraints);
 
         try {
           const querySnapshot = await getDocs(q);
