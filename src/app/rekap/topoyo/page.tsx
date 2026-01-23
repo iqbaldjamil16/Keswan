@@ -7,6 +7,7 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
+  CardDescription
 } from "@/components/ui/card";
 import { type HealthcareService, serviceSchema } from "@/lib/types";
 import {
@@ -34,6 +35,8 @@ import { cn } from "@/lib/utils";
 import { collection, query, where, getDocs, orderBy, Timestamp } from 'firebase/firestore';
 import { useFirebase } from "@/firebase";
 import { PasswordDialog } from "@/components/password-dialog";
+import { ServiceTable } from "@/components/service-table";
+import { Input } from "@/components/ui/input";
 
 interface RecapData {
     medicines: { [medicineName: string]: { count: number, unit: string } };
@@ -110,6 +113,33 @@ export default function RekapTopoyoPage() {
     const { firestore } = useFirebase();
     const router = useRouter();
 
+    const [searchTerm, setSearchTerm] = useState('');
+    const [filteredServices, setFilteredServices] = useState<HealthcareService[]>([]);
+    const [highlightedIds, setHighlightedIds] = useState<string[]>([]);
+
+    useEffect(() => {
+        const updateHighlighted = () => {
+          const storedEntries = JSON.parse(localStorage.getItem('newEntries') || '[]');
+          const now = Date.now();
+          const oneHour = 3600 * 1000;
+          
+          const validEntries = storedEntries.filter(
+            (entry: { id: string, timestamp: number }) => (now - entry.timestamp) < oneHour
+          );
+    
+          if (validEntries.length !== storedEntries.length) {
+            localStorage.setItem('newEntries', JSON.stringify(validEntries));
+          }
+          
+          setHighlightedIds(validEntries.map((entry: { id: string }) => entry.id));
+        };
+    
+        updateHighlighted();
+        const interval = setInterval(updateHighlighted, 60000);
+    
+        return () => clearInterval(interval);
+    }, []);
+
     const loadServices = useCallback(async (yearStr: string, monthStr: string) => {
         if (!firestore) return;
         setLoading(true);
@@ -172,11 +202,60 @@ export default function RekapTopoyoPage() {
         }
       }, [firestore]);
     
-      useEffect(() => {
+    useEffect(() => {
         startTransition(() => {
             loadServices(selectedYear, selectedMonth);
         });
-      }, [loadServices, selectedYear, selectedMonth]);
+    }, [loadServices, selectedYear, selectedMonth]);
+
+    useEffect(() => {
+        startTransition(() => {
+          let servicesToFilter = services;
+    
+          const lowercasedFilter = searchTerm.toLowerCase();
+          if (lowercasedFilter) {
+            servicesToFilter = servicesToFilter.filter((service) => {
+              const ownerName = service.ownerName.toLowerCase();
+              const officerName = service.officerName.toLowerCase();
+              const puskeswan = service.puskeswan.toLowerCase();
+              const diagnosis = service.diagnosis.toLowerCase();
+              const livestockType = service.livestockType.toLowerCase();
+              const formattedDate = format(new Date(service.date), 'dd MMM yyyy', {
+                locale: id,
+              }).toLowerCase();
+    
+              return (
+                ownerName.includes(lowercasedFilter) ||
+                officerName.includes(lowercasedFilter) ||
+                puskeswan.includes(lowercasedFilter) ||
+                diagnosis.includes(lowercasedFilter) ||
+                livestockType.includes(lowercasedFilter) ||
+                formattedDate.includes(lowercasedFilter)
+              );
+            });
+          }
+          
+          if (highlightedIds.length > 0) {
+            const highlightedItems = servicesToFilter.filter(s => s.id! && highlightedIds.includes(s.id));
+            const restItems = servicesToFilter.filter(s => !s.id || !highlightedIds.includes(s.id));
+            servicesToFilter = [...highlightedItems, ...restItems];
+          }
+    
+          setFilteredServices(servicesToFilter);
+        });
+    }, [searchTerm, services, highlightedIds]);
+
+    const handleLocalDelete = (serviceId: string) => {
+        setServices((currentServices) =>
+          currentServices.filter((s) => s.id !== serviceId)
+        );
+         const newEntries = JSON.parse(localStorage.getItem('newEntries') || '[]');
+         const updatedEntries = newEntries.filter((entry: {id: string}) => entry.id !== serviceId);
+         if(newEntries.length !== updatedEntries.length) {
+           localStorage.setItem('newEntries', JSON.stringify(updatedEntries));
+           setHighlightedIds(updatedEntries.map((e: {id: string}) => e.id));
+         }
+    };
 
     const handleMonthChange = (month: string) => {
         setSelectedMonth(month);
@@ -255,121 +334,145 @@ export default function RekapTopoyoPage() {
 
   return (
     <div className="container px-4 sm:px-8 py-4 md:py-8">
-       <div className="max-w-4xl mx-auto">
-        <h1 className="text-2xl md:text-3xl font-bold tracking-tight font-headline">Rekap Puskeswan Topoyo</h1>
-        <p className="text-muted-foreground mt-2 text-sm md:text-base">
-          Ringkasan penggunaan obat dan kasus yang ditangani di Puskeswan Topoyo.
-        </p>
+       <div className="max-w-4xl mx-auto space-y-6">
+        <div>
+            <h1 className="text-2xl md:text-3xl font-bold tracking-tight font-headline">Rekap Puskeswan Topoyo</h1>
+            <p className="text-muted-foreground mt-2 text-sm md:text-base">
+            Ringkasan penggunaan obat, kasus, dan detail inputan di Puskeswan Topoyo.
+            </p>
+        </div>
 
-        <div className="mt-6 md:mt-8">
-            <div className="flex flex-col sm:flex-row gap-4 mb-6">
-                <Select value={selectedMonth} onValueChange={handleMonthChange}>
-                    <SelectTrigger className="w-full sm:w-[180px]">
-                        <SelectValue placeholder="Pilih Bulan" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="all-months">Semua Bulan</SelectItem>
-                        {months.map(month => (
-                        <SelectItem key={month.value} value={month.value}>{month.label}</SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
-                <Select value={selectedYear} onValueChange={handleYearChange}>
-                    <SelectTrigger className="w-full sm:w-[120px]">
-                        <SelectValue placeholder="Pilih Tahun" />
-                    </SelectTrigger>
-                    <SelectContent>
-                         <SelectItem value="all-years">Semua Tahun</SelectItem>
-                        {years.map(year => (
-                        <SelectItem key={year} value={year}>{year}</SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
-            </div>
-            {(loading || isPending) && !hasData ? (
-              <RecapSkeleton />
-            ) : hasData ? (
-                <Card className={cn("border rounded-lg bg-card", isPending && "opacity-50")}>
-                    <CardHeader className="px-4 sm:px-6 py-4">
-                        <CardTitle className="text-lg font-bold">Puskeswan Topoyo</CardTitle>
-                    </CardHeader>
-                    <CardContent className="px-4 sm:px-6 pb-6">
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                            <div className="overflow-x-auto">
-                                <h3 className="font-semibold mb-2">Rekap Kasus/Diagnosa</h3>
-                                <div className="rounded-md border">
-                                    <Table>
-                                        <TableHeader>
-                                            <TableRow>
-                                                <TableHead>Desa</TableHead>
-                                                <TableHead>Jenis Hewan</TableHead>
-                                                <TableHead>Diagnosa</TableHead>
-                                                <TableHead className="text-right w-[80px]">Jumlah</TableHead>
-                                            </TableRow>
-                                        </TableHeader>
-                                        <TableBody>
-                                        {Object.keys(recapData.cases).length > 0 ? Object.keys(recapData.cases).sort().map((desa) => 
-                                            Object.entries(recapData.cases[desa]).flatMap(([livestockType, diagnoses], livestockIndex) => 
-                                                Object.entries(diagnoses).map(([diagnosis, count], diagnosisIndex) => (
-                                                    <TableRow key={`${desa}-${livestockType}-${diagnosis}`}>
-                                                        {livestockIndex === 0 && diagnosisIndex === 0 && (
-                                                            <TableCell rowSpan={Object.values(recapData.cases[desa]).reduce((total, d) => total + Object.keys(d).length, 0)} className="align-top font-medium">{desa}</TableCell>
-                                                        )}
-                                                        {diagnosisIndex === 0 && (
-                                                            <TableCell rowSpan={Object.keys(diagnoses).length} className="align-top">{livestockType}</TableCell>
-                                                        )}
-                                                        <TableCell>{diagnosis}</TableCell>
-                                                        <TableCell className="text-right font-medium">{count}</TableCell>
-                                                    </TableRow>
-                                                ))
-                                            )
-                                        ) : (
-                                            <TableRow><TableCell colSpan={4} className="text-center">Tidak ada kasus</TableCell></TableRow>
-                                        )}
-                                        </TableBody>
-                                    </Table>
-                                </div>
-                            </div>
-                            <div className="overflow-x-auto">
-                                <h3 className="font-semibold mb-2">Rekap Penggunaan Obat</h3>
-                                 <div className="rounded-md border">
-                                    <Table>
-                                        <TableHeader>
-                                            <TableRow><TableHead>Nama Obat</TableHead><TableHead className="text-right w-[120px]">Total Dosis</TableHead></TableRow>
-                                        </TableHeader>
-                                        <TableBody>
-                                            {Object.keys(recapData.medicines).length > 0 ? Object.entries(recapData.medicines).sort(([, a], [, b]) => b.count - a.count).map(([medicine, {count, unit}]) => (
-                                                 <TableRow key={medicine}><TableCell>{medicine}</TableCell><TableCell className="text-right font-medium">{`${formatDosage(count)} ${unit}`}</TableCell></TableRow>
-                                            )) : (
-                                                <TableRow><TableCell colSpan={2} className="text-center">Tidak ada penggunaan obat</TableCell></TableRow>
-                                            )}
-                                        </TableBody>
-                                    </Table>
-                                </div>
+        <div className="flex flex-col sm:flex-row gap-4">
+            <Select value={selectedMonth} onValueChange={handleMonthChange}>
+                <SelectTrigger className="w-full sm:w-[180px]">
+                    <SelectValue placeholder="Pilih Bulan" />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="all-months">Semua Bulan</SelectItem>
+                    {months.map(month => (
+                    <SelectItem key={month.value} value={month.value}>{month.label}</SelectItem>
+                    ))}
+                </SelectContent>
+            </Select>
+            <Select value={selectedYear} onValueChange={handleYearChange}>
+                <SelectTrigger className="w-full sm:w-[120px]">
+                    <SelectValue placeholder="Pilih Tahun" />
+                </SelectTrigger>
+                <SelectContent>
+                        <SelectItem value="all-years">Semua Tahun</SelectItem>
+                    {years.map(year => (
+                    <SelectItem key={year} value={year}>{year}</SelectItem>
+                    ))}
+                </SelectContent>
+            </Select>
+        </div>
+        {(loading || isPending) && !hasData ? (
+            <RecapSkeleton />
+        ) : hasData ? (
+            <Card className={cn("border rounded-lg bg-card", isPending && "opacity-50")}>
+                <CardHeader className="px-4 sm:px-6 py-4">
+                    <CardTitle className="text-lg font-bold">Ringkasan Rekapitulasi</CardTitle>
+                </CardHeader>
+                <CardContent className="px-4 sm:px-6 pb-6">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <div className="overflow-x-auto">
+                            <h3 className="font-semibold mb-2">Rekap Kasus/Diagnosa</h3>
+                            <div className="rounded-md border">
+                                <Table>
+                                    <TableHeader>
+                                        <TableRow>
+                                            <TableHead>Desa</TableHead>
+                                            <TableHead>Jenis Hewan</TableHead>
+                                            <TableHead>Diagnosa</TableHead>
+                                            <TableHead className="text-right w-[80px]">Jumlah</TableHead>
+                                        </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                    {Object.keys(recapData.cases).length > 0 ? Object.keys(recapData.cases).sort().map((desa) => 
+                                        Object.entries(recapData.cases[desa]).flatMap(([livestockType, diagnoses], livestockIndex) => 
+                                            Object.entries(diagnoses).map(([diagnosis, count], diagnosisIndex) => (
+                                                <TableRow key={`${desa}-${livestockType}-${diagnosis}`}>
+                                                    {livestockIndex === 0 && diagnosisIndex === 0 && (
+                                                        <TableCell rowSpan={Object.values(recapData.cases[desa]).reduce((total, d) => total + Object.keys(d).length, 0)} className="align-top font-medium">{desa}</TableCell>
+                                                    )}
+                                                    {diagnosisIndex === 0 && (
+                                                        <TableCell rowSpan={Object.keys(diagnoses).length} className="align-top">{livestockType}</TableCell>
+                                                    )}
+                                                    <TableCell>{diagnosis}</TableCell>
+                                                    <TableCell className="text-right font-medium">{count}</TableCell>
+                                                </TableRow>
+                                            ))
+                                        )
+                                    ) : (
+                                        <TableRow><TableCell colSpan={4} className="text-center">Tidak ada kasus</TableCell></TableRow>
+                                    )}
+                                    </TableBody>
+                                </Table>
                             </div>
                         </div>
-                    </CardContent>
-                </Card>
-            ) : (
-                <Card>
-                    <CardHeader><CardTitle>Data Kosong</CardTitle></CardHeader>
-                    <CardContent><p>Tidak ada data untuk periode yang dipilih.</p></CardContent>
-                </Card>
-            )}
-             <div className="flex justify-end mt-8">
-                <PasswordDialog
-                    title="Akses Terbatas"
-                    description="Silakan masukkan kata sandi untuk mengunduh rekap."
-                    onSuccess={handleDownload}
-                    trigger={
-                        <Button disabled={loading || !hasData || isPending}>
-                            <Download className="mr-2 h-4 w-4" />
-                            Unduh Rekap
-                        </Button>
-                    }
-                />
-            </div>
+                        <div className="overflow-x-auto">
+                            <h3 className="font-semibold mb-2">Rekap Penggunaan Obat</h3>
+                                <div className="rounded-md border">
+                                <Table>
+                                    <TableHeader>
+                                        <TableRow><TableHead>Nama Obat</TableHead><TableHead className="text-right w-[120px]">Total Dosis</TableHead></TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {Object.keys(recapData.medicines).length > 0 ? Object.entries(recapData.medicines).sort(([, a], [, b]) => b.count - a.count).map(([medicine, {count, unit}]) => (
+                                                <TableRow key={medicine}><TableCell>{medicine}</TableCell><TableCell className="text-right font-medium">{`${formatDosage(count)} ${unit}`}</TableCell></TableRow>
+                                        )) : (
+                                            <TableRow><TableCell colSpan={2} className="text-center">Tidak ada penggunaan obat</TableCell></TableRow>
+                                        )}
+                                    </TableBody>
+                                </Table>
+                            </div>
+                        </div>
+                    </div>
+                </CardContent>
+            </Card>
+        ) : (
+            <Card>
+                <CardHeader><CardTitle>Data Kosong</CardTitle></CardHeader>
+                <CardContent><p>Tidak ada data untuk periode yang dipilih.</p></CardContent>
+            </Card>
+        )}
+            <div className="flex justify-end">
+            <PasswordDialog
+                title="Akses Terbatas"
+                description="Silakan masukkan kata sandi untuk mengunduh rekap."
+                onSuccess={handleDownload}
+                trigger={
+                    <Button disabled={loading || !hasData || isPending}>
+                        <Download className="mr-2 h-4 w-4" />
+                        Unduh Rekap
+                    </Button>
+                }
+            />
         </div>
+        <Card>
+            <CardHeader>
+                <CardTitle>Data Inputan Petugas</CardTitle>
+                <CardDescription>Detail semua inputan untuk Puskeswan Topoyo.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <div className="flex justify-end mb-4">
+                    <Input
+                        placeholder="Cari data..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="w-full md:w-64"
+                    />
+                </div>
+                <ServiceTable
+                    services={filteredServices}
+                    loading={loading && services.length === 0}
+                    highlightedIds={highlightedIds}
+                    searchTerm={searchTerm}
+                    onDelete={handleLocalDelete}
+                    isPending={isPending}
+                />
+            </CardContent>
+        </Card>
       </div>
        <Button variant="default" className="fixed bottom-6 left-6 h-14 w-14 rounded-full shadow-lg" aria-label="Kembali ke halaman utama" onClick={() => router.push('/')}>
           <CornerUpLeft className="h-7 w-7" />
