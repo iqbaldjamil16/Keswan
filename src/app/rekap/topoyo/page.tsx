@@ -119,7 +119,6 @@ export default function RekapTopoyoPage() {
 
         const servicesCollection = collection(firestore, 'healthcareServices');
         const queryConstraints: any[] = [
-            where('puskeswan', '==', 'Puskeswan Topoyo'),
             orderBy('date', 'desc')
         ];
 
@@ -139,7 +138,7 @@ export default function RekapTopoyoPage() {
 
         try {
           const querySnapshot = await getDocs(q);
-          const fetchedServices: HealthcareService[] = [];
+          const allFetchedServices: HealthcareService[] = [];
           querySnapshot.forEach((doc) => {
               const data = doc.data();
               try {
@@ -158,12 +157,13 @@ export default function RekapTopoyoPage() {
                       id: doc.id,
                       date: (data.date as Timestamp).toDate(),
                   });
-                  fetchedServices.push(service);
+                  allFetchedServices.push(service);
               } catch (e) {
                   console.error("Validation error parsing service data:", e);
               }
           });
-          setServices(fetchedServices);
+          const topoyoServices = allFetchedServices.filter(s => s.puskeswan === 'Puskeswan Topoyo');
+          setServices(topoyoServices);
         } catch (error) {
           console.error("Failed to fetch services:", error);
           setServices([]);
