@@ -396,6 +396,32 @@ export default function RekapTopoyoPage() {
                 </SelectContent>
             </Select>
         </div>
+        
+        <Card>
+            <CardHeader>
+                <CardTitle>Data Inputan Petugas</CardTitle>
+                <CardDescription>Detail semua inputan untuk Puskeswan Topoyo.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <div className="flex justify-end mb-4">
+                    <Input
+                        placeholder="Cari data..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="w-full md:w-64"
+                    />
+                </div>
+                <ServiceTable
+                    services={filteredServices}
+                    loading={loading && services.length === 0}
+                    highlightedIds={highlightedIds}
+                    searchTerm={searchTerm}
+                    onDelete={handleLocalDelete}
+                    isPending={isPending}
+                />
+            </CardContent>
+        </Card>
+
         {(loading || isPending) && !hasData ? (
             <RecapSkeleton />
         ) : hasData ? (
@@ -466,7 +492,7 @@ export default function RekapTopoyoPage() {
                 <CardContent><p>Tidak ada data untuk periode yang dipilih.</p></CardContent>
             </Card>
         )}
-            <div className="flex justify-end">
+        <div className="flex justify-end">
             <PasswordDialog
                 title="Akses Terbatas"
                 description="Silakan masukkan kata sandi untuk mengunduh rekap."
@@ -479,30 +505,6 @@ export default function RekapTopoyoPage() {
                 }
             />
         </div>
-        <Card>
-            <CardHeader>
-                <CardTitle>Data Inputan Petugas</CardTitle>
-                <CardDescription>Detail semua inputan untuk Puskeswan Topoyo.</CardDescription>
-            </CardHeader>
-            <CardContent>
-                <div className="flex justify-end mb-4">
-                    <Input
-                        placeholder="Cari data..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full md:w-64"
-                    />
-                </div>
-                <ServiceTable
-                    services={filteredServices}
-                    loading={loading && services.length === 0}
-                    highlightedIds={highlightedIds}
-                    searchTerm={searchTerm}
-                    onDelete={handleLocalDelete}
-                    isPending={isPending}
-                />
-            </CardContent>
-        </Card>
       </div>
        <Button variant="default" className="fixed bottom-6 left-6 h-14 w-14 rounded-full shadow-lg" aria-label="Kembali ke halaman utama" onClick={() => router.push('/')}>
           <CornerUpLeft className="h-7 w-7" />
