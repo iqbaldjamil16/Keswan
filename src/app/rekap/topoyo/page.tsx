@@ -278,15 +278,47 @@ export default function RekapTopoyoPage() {
 
     const handleDownload = () => {
         const wb = XLSX.utils.book_new();
-    
+
+        // 1. Group services by officer
+        const servicesByOfficer: { [key: string]: HealthcareService[] } = {};
+        services.forEach(service => {
+            if (!servicesByOfficer[service.officerName]) {
+                servicesByOfficer[service.officerName] = [];
+            }
+            servicesByOfficer[service.officerName].push(service);
+        });
+
+        // 2. Create a sheet for each officer
+        const officerNames = Object.keys(servicesByOfficer).sort();
+        officerNames.forEach(officerName => {
+            const officerServices = servicesByOfficer[officerName].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+            
+            const data = officerServices.map((service) => ({
+              'Tanggal': format(new Date(service.date), 'dd-MM-yyyy'),
+              'Nama Pemilik': service.ownerName,
+              'Alamat Pemilik': service.ownerAddress,
+              'Jenis Ternak': service.livestockType,
+              'Sindrom': service.clinicalSymptoms,
+              'Diagnosa': service.diagnosis,
+              'Jenis Penanganan': service.treatmentType,
+              'Obat yang Digunakan': service.treatments.map((t) => t.medicineName).join(', '),
+              'Dosis': service.treatments.map((t) => `${t.dosageValue} ${t.dosageUnit}`).join(', '),
+              'Jumlah Ternak': service.livestockCount,
+              'ID Isikhnas': service.caseId,
+            }));
+
+            const ws = XLSX.utils.json_to_sheet(data);
+            const sheetName = officerName.replace(/[/\\?*:[\]]/g, '').substring(0, 31);
+            XLSX.utils.book_append_sheet(wb, ws, sheetName);
+        });
+
         const monthLabel = selectedMonth === 'all-months' 
             ? 'Semua Bulan' 
             : months.find(m => m.value === selectedMonth)?.label || '';
-    
         const data = recapData;
-        if (data) {
-            // Rekap Kasus
-            const diagnosisHeader = [{ 'Rekap Kasus/Diagnosa': '' }];
+
+        // 3. Create "Rekap Kasus Topoyo" sheet
+        if (data && Object.keys(data.cases).length > 0) {
             const diagnosisDataForSheet = Object.entries(data.cases).flatMap(([desa, livestockData]) => {
                 return Object.entries(livestockData).flatMap(([livestockType, diagnoses]) => {
                     return Object.entries(diagnoses).map(([diagnosis, count]) => ({
@@ -305,8 +337,12 @@ export default function RekapTopoyoPage() {
                 return a['Diagnosa'].localeCompare(b['Diagnosa']);
             });
 
-            // Rekap Obat
-            const medicineHeader = [{ 'Rekap Obat': '' }];
+            const wsKasus = XLSX.utils.json_to_sheet(diagnosisDataForSheet);
+            XLSX.utils.book_append_sheet(wb, wsKasus, "Rekap Kasus Topoyo");
+        }
+
+        // 4. Create "Rekap Obat Topoyo" sheet
+        if (data && Object.keys(data.medicines).length > 0) {
             const medicineDataForSheet = Object.entries(data.medicines)
                 .sort(([a], [b]) => a.localeCompare(b))
                 .map(([medicineName, { count, unit }]) => ({
@@ -314,17 +350,11 @@ export default function RekapTopoyoPage() {
                     'Nama Obat': medicineName,
                     'Total Dosis': `${formatDosage(count)} ${unit}`,
             }));
-            
-            const ws = XLSX.utils.json_to_sheet(diagnosisHeader, { skipHeader: true });
-            XLSX.utils.sheet_add_json(ws, diagnosisDataForSheet, { origin: 'A2' });
-            XLSX.utils.sheet_add_json(ws, [{}, {}], { origin: -1, skipHeader: true });
-            XLSX.utils.sheet_add_json(ws, medicineHeader, { origin: -1, skipHeader: true });
-            XLSX.utils.sheet_add_json(ws, medicineDataForSheet, { origin: -1 });
-            
-            const sheetName = 'Topoyo'.replace(/[/\\?*:[\]]/g, "");
-            XLSX.utils.book_append_sheet(wb, ws, sheetName.substring(0, 31));
+            const wsObat = XLSX.utils.json_to_sheet(medicineDataForSheet);
+            XLSX.utils.book_append_sheet(wb, wsObat, "Rekap Obat Topoyo");
         }
     
+        // 5. Write the file
         const yearLabel = selectedYear === 'all-years' ? 'SemuaTahun' : selectedYear;
         const filenameMonthLabel = selectedMonth === 'all-months' ? 'SemuaBulan' : months.find(m => m.value === selectedMonth)?.label || 'Bulan';
         XLSX.writeFile(wb, `rekap_topoyo_${filenameMonthLabel}_${yearLabel}.xlsx`);
