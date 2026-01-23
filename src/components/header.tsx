@@ -1,4 +1,3 @@
-
 "use client";
 
 import Link from 'next/link';
@@ -14,6 +13,7 @@ import { ActivationDialog } from './activation-dialog';
 const navItems = [
   { href: '/', label: 'Input Data' },
   { href: '/rekap', label: 'Rekap Obat & Kasus' },
+  { href: '/rekap/topoyo', label: 'Rekap Puskeswan Topoyo' },
 ];
 
 function NavContent({ onLinkClick }: { onLinkClick: () => void }) {
