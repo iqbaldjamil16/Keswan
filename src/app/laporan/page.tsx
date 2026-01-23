@@ -607,22 +607,20 @@ export default function ReportPage() {
 
   const handleDownload = () => {
     const wb = XLSX.utils.book_new();
-  
+
     puskeswanList.forEach((puskeswan) => {
       const servicesByPuskeswan = filteredServices.filter(
-        (s) => s.puskeswan === puskeswan
+        (s) => s.puskeswan === puskeswan && !priorityDiagnosisOptions.includes(s.diagnosis)
       );
-  
+
       if (servicesByPuskeswan.length === 0) return;
-  
+
       const sortedServices = servicesByPuskeswan.sort((a, b) => {
         const officerComparison = a.officerName.localeCompare(b.officerName);
-        if (officerComparison !== 0) {
-          return officerComparison;
-        }
+        if (officerComparison !== 0) return officerComparison;
         return new Date(a.date).getTime() - new Date(b.date).getTime();
       });
-  
+
       const servicesByOfficer: { [key: string]: HealthcareService[] } = {};
       sortedServices.forEach(service => {
         if (!servicesByOfficer[service.officerName]) {
@@ -630,38 +628,33 @@ export default function ReportPage() {
         }
         servicesByOfficer[service.officerName].push(service);
       });
-  
+
       const allDataForSheet: any[] = [];
       const headers = ['Tanggal', 'Nama Pemilik', 'Alamat Pemilik', 'Jenis Ternak', 'Sindrom', 'Diagnosa', 'Jenis Penanganan', 'Obat yang Digunakan', 'Dosis', 'Jumlah Ternak', 'ID Isikhnas'];
-      
       const officerNames = Object.keys(servicesByOfficer).sort();
 
       officerNames.forEach(officerName => {
         allDataForSheet.push({});
         allDataForSheet.push({});
-        allDataForSheet.push({ 'Nama Petugas': officerName }); 
+        allDataForSheet.push({ 'Nama Petugas': officerName });
         allDataForSheet.push(Object.fromEntries(headers.map(h => [h, h])));
-
         const data = servicesByOfficer[officerName].map((service) => ({
-            'Tanggal': format(new Date(service.date), 'dd-MM-yyyy'),
-            'Nama Pemilik': service.ownerName,
-            'Alamat Pemilik': service.ownerAddress,
-            'Jenis Ternak': service.livestockType,
-            'Sindrom': service.clinicalSymptoms,
-            'Diagnosa': service.diagnosis,
-            'Jenis Penanganan': service.treatmentType,
-            'Obat yang Digunakan': service.treatments.map((t) => t.medicineName).join(', '),
-            'Dosis': service.treatments.map((t) => `${t.dosageValue} ${t.dosageUnit}`).join(', '),
-            'Jumlah Ternak': service.livestockCount,
-            'ID Isikhnas': service.caseId,
+          'Tanggal': format(new Date(service.date), 'dd-MM-yyyy'),
+          'Nama Pemilik': service.ownerName,
+          'Alamat Pemilik': service.ownerAddress,
+          'Jenis Ternak': service.livestockType,
+          'Sindrom': service.clinicalSymptoms,
+          'Diagnosa': service.diagnosis,
+          'Jenis Penanganan': service.treatmentType,
+          'Obat yang Digunakan': service.treatments.map((t) => t.medicineName).join(', '),
+          'Dosis': service.treatments.map((t) => `${t.dosageValue} ${t.dosageUnit}`).join(', '),
+          'Jumlah Ternak': service.livestockCount,
+          'ID Isikhnas': service.caseId,
         }));
         allDataForSheet.push(...data);
       });
 
-      const sheetName = puskeswan
-        .replace('Puskeswan ', '')
-        .replace(/[/\\?*:[\]]/g, ''); 
-
+      const sheetName = puskeswan.replace('Puskeswan ', '').replace(/[/\\?*:[\]]/g, '');
       const ws = XLSX.utils.json_to_sheet(allDataForSheet, { skipHeader: true });
 
       const columnWidths = headers.map((header) => {
@@ -670,12 +663,67 @@ export default function ReportPage() {
           const cellLength = cellValue ? String(cellValue).length : 0;
           return Math.max(max, cellLength);
         }, header.length);
-        return { wch: maxLength + 2 }; 
+        return { wch: maxLength + 2 };
       });
       ws['!cols'] = columnWidths;
-      
       XLSX.utils.book_append_sheet(wb, ws, sheetName.substring(0, 31));
     });
+
+    const priorityServices = filteredServices.filter(s => priorityDiagnosisOptions.includes(s.diagnosis));
+    if (priorityServices.length > 0) {
+      const sortedServices = priorityServices.sort((a, b) => {
+        const officerComparison = a.officerName.localeCompare(b.officerName);
+        if (officerComparison !== 0) return officerComparison;
+        return new Date(a.date).getTime() - new Date(b.date).getTime();
+      });
+
+      const servicesByOfficer: { [key: string]: HealthcareService[] } = {};
+      sortedServices.forEach(service => {
+        if (!servicesByOfficer[service.officerName]) {
+          servicesByOfficer[service.officerName] = [];
+        }
+        servicesByOfficer[service.officerName].push(service);
+      });
+
+      const allDataForSheet: any[] = [];
+      const headers = ['Tanggal', 'Nama Pemilik', 'Alamat Pemilik', 'Jenis Ternak', 'Sindrom', 'Diagnosa', 'Jenis Penanganan', 'Obat yang Digunakan', 'Dosis', 'Jumlah Ternak', 'ID Isikhnas'];
+      const officerNames = Object.keys(servicesByOfficer).sort();
+
+      officerNames.forEach(officerName => {
+        allDataForSheet.push({});
+        allDataForSheet.push({});
+        allDataForSheet.push({ 'Nama Petugas': officerName });
+        allDataForSheet.push(Object.fromEntries(headers.map(h => [h, h])));
+        const data = servicesByOfficer[officerName].map((service) => ({
+          'Tanggal': format(new Date(service.date), 'dd-MM-yyyy'),
+          'Nama Pemilik': service.ownerName,
+          'Alamat Pemilik': service.ownerAddress,
+          'Jenis Ternak': service.livestockType,
+          'Sindrom': service.clinicalSymptoms,
+          'Diagnosa': service.diagnosis,
+          'Jenis Penanganan': service.treatmentType,
+          'Obat yang Digunakan': service.treatments.map((t) => t.medicineName).join(', '),
+          'Dosis': service.treatments.map((t) => `${t.dosageValue} ${t.dosageUnit}`).join(', '),
+          'Jumlah Ternak': service.livestockCount,
+          'ID Isikhnas': service.caseId,
+        }));
+        allDataForSheet.push(...data);
+      });
+
+      const sheetName = 'Laporan Prioritas';
+      const ws = XLSX.utils.json_to_sheet(allDataForSheet, { skipHeader: true });
+
+      const columnWidths = headers.map((header) => {
+        const allValues = allDataForSheet.map(row => row[header]).filter(Boolean);
+        const maxLength = allValues.reduce((max, cellValue) => {
+          const cellLength = cellValue ? String(cellValue).length : 0;
+          return Math.max(max, cellLength);
+        }, header.length);
+        return { wch: maxLength + 2 };
+      });
+      ws['!cols'] = columnWidths;
+      XLSX.utils.book_append_sheet(wb, ws, sheetName);
+    }
   
     const monthLabel =
       selectedMonth === 'all-months' || selectedMonth === ''
@@ -709,7 +757,7 @@ export default function ReportPage() {
                 description="Silakan masukkan kata sandi untuk mengunduh laporan."
                 onSuccess={handleDownload}
                 trigger={
-                  <Button disabled={filteredServices.length === 0}>
+                  <Button disabled={loading || filteredServices.length === 0 || isPending}>
                     <Download className="mr-2 h-5 w-5" />
                     Unduh Laporan
                   </Button>
@@ -827,6 +875,7 @@ export default function ReportPage() {
     
 
     
+
 
 
 
