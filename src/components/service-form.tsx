@@ -585,23 +585,13 @@ export function ServiceForm({ initialData, formType = 'keswan' }: { initialData?
             <Card>
               <CardContent className="p-4">
                 <div className="space-y-4">
-                  <div className="flex flex-row items-center justify-between gap-2">
+                  <div>
                     <Label>
                       Pengobatan
                       <span className="ml-2 text-xs italic font-normal text-muted-foreground">
                         (Pilih Lainnya Jika Jenis Obat &amp; Nama Obat Tidak Tercantum)
                       </span>
                     </Label>
-                    <Button
-                      type="button"
-                      variant="default"
-                      size="sm"
-                      className="bg-accent text-accent-foreground hover:bg-accent/90"
-                      onClick={() => appendTreatment({ medicineType: "", medicineName: "", dosageValue: 0, dosageUnit: "ml" }, { shouldFocus: false })}
-                    >
-                      <PlusCircle className="mr-2 h-4 w-4" />
-                      Tambah
-                    </Button>
                   </div>
 
                   {treatmentFields.map((item, index) => {
@@ -766,13 +756,25 @@ export function ServiceForm({ initialData, formType = 'keswan' }: { initialData?
                       </Card>
                     )
                   })}
+                  <div className="flex justify-start">
+                    <Button
+                      type="button"
+                      variant="default"
+                      size="sm"
+                      className="bg-accent text-accent-foreground hover:bg-accent/90"
+                      onClick={() => appendTreatment({ medicineType: "", medicineName: "", dosageValue: 0, dosageUnit: "ml" }, { shouldFocus: false })}
+                    >
+                      <PlusCircle className="mr-2 h-4 w-4" />
+                      Tambah
+                    </Button>
+                  </div>
                 </div>
               </CardContent>
             </Card>
             <Card>
                 <CardContent className="p-4">
                     <div className="space-y-4">
-                    <div className="flex flex-row items-center justify-between gap-2">
+                    <div>
                         <Label>
                           Perkembangan Kasus
                           {formType === 'keswan' && (
@@ -781,16 +783,6 @@ export function ServiceForm({ initialData, formType = 'keswan' }: { initialData?
                             </span>
                           )}
                         </Label>
-                        <Button
-                            type="button"
-                            variant="default"
-                            size="sm"
-                            className="bg-accent text-accent-foreground hover:bg-accent/90"
-                            onClick={() => appendCaseDevelopment({ status: "", count: 1 }, { shouldFocus: false })}
-                        >
-                            <PlusCircle className="mr-2 h-4 w-4" />
-                            Tambah
-                        </Button>
                     </div>
 
                     {caseDevelopmentFields.map((item, index) => (
@@ -852,6 +844,18 @@ export function ServiceForm({ initialData, formType = 'keswan' }: { initialData?
                         </div>
                         </Card>
                     ))}
+                    <div className="flex justify-start">
+                        <Button
+                            type="button"
+                            variant="default"
+                            size="sm"
+                            className="bg-accent text-accent-foreground hover:bg-accent/90"
+                            onClick={() => appendCaseDevelopment({ status: "", count: 1 }, { shouldFocus: false })}
+                        >
+                            <PlusCircle className="mr-2 h-4 w-4" />
+                            Tambah
+                        </Button>
+                    </div>
                     <FormMessage>{form.formState.errors.caseDevelopments?.message}</FormMessage>
                     </div>
                 </CardContent>
