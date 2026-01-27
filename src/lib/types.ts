@@ -1,4 +1,3 @@
-
 import { z } from 'zod';
 
 export const treatmentSchema = z.object({
@@ -39,7 +38,7 @@ export const serviceSchema = z.object({
   treatmentType: z.string().min(1, "Wajib diisi."),
   treatments: z.array(treatmentSchema).min(1, "Minimal satu pengobatan harus ditambahkan."),
   caseDevelopment: z.string().optional(),
-  caseDevelopments: z.array(caseDevelopmentEntrySchema).min(1, "Minimal satu perkembangan kasus wajib ditambahkan."),
+  caseDevelopments: z.array(caseDevelopmentEntrySchema).min(1, "Minimal satu perkembangan kasus wajib ditambahkan.").optional(),
 }).superRefine((data, ctx) => {
   if (data.caseDevelopments && data.caseDevelopments.length > 0) {
     const totalDevelopmentCount = data.caseDevelopments.reduce((sum, dev) => sum + dev.count, 0);
