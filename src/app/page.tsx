@@ -31,6 +31,11 @@ export default function Home() {
                     <CardDescription className="text-muted-foreground pt-2 text-sm md:text-base">
                     Input detail pelayanan yang telah dilakukan
                     </CardDescription>
+                    <div>
+                        <a href="https://keswan-pearl.vercel.app/" target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 italic underline text-sm">
+                            https://keswan-pearl.vercel.app/
+                        </a>
+                    </div>
                 </CardHeader>
                 </Card>
                 <div className="mt-6 md:mt-8">
