@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useTransition, useEffect, useCallback, useMemo, lazy, Suspense } from "react";
@@ -239,7 +240,7 @@ export default function ReportPage() {
       });
 
       const allDataForSheet: any[] = [];
-      const headers = ['Tanggal', 'Nama Pemilik', 'Alamat Pemilik', 'Jenis Ternak', 'Sindrom', 'Diagnosa', 'Jenis Penanganan', 'Obat yang Digunakan', 'Dosis', 'Jumlah Ternak', 'ID Isikhnas'];
+      const headers = ['Tanggal', 'Nama Pemilik', 'Alamat Pemilik', 'Jenis Ternak', 'Sindrom', 'Diagnosa', 'Jenis Penanganan', 'Obat yang Digunakan', 'Dosis', 'Jumlah Ternak', 'ID Isikhnas', 'Perkembangan Kasus'];
       const officerNames = Object.keys(servicesByOfficer).sort();
 
       officerNames.forEach(officerName => {
@@ -247,19 +248,27 @@ export default function ReportPage() {
         allDataForSheet.push({});
         allDataForSheet.push({ 'Nama Petugas': officerName });
         allDataForSheet.push(Object.fromEntries(headers.map(h => [h, h])));
-        const data = servicesByOfficer[officerName].map((service) => ({
-          'Tanggal': format(new Date(service.date), 'dd-MM-yyyy'),
-          'Nama Pemilik': service.ownerName,
-          'Alamat Pemilik': service.ownerAddress,
-          'Jenis Ternak': service.livestockType,
-          'Sindrom': service.clinicalSymptoms,
-          'Diagnosa': service.diagnosis,
-          'Jenis Penanganan': service.treatmentType,
-          'Obat yang Digunakan': service.treatments.map((t) => t.medicineName).join(', '),
-          'Dosis': service.treatments.map((t) => `${t.dosageValue} ${t.dosageUnit}`).join(', '),
-          'Jumlah Ternak': service.livestockCount,
-          'ID Isikhnas': service.caseId,
-        }));
+        const data = servicesByOfficer[officerName].map((service) => {
+          const caseDevelopmentText = (service.caseDevelopments || [])
+              .filter(dev => dev.status && dev.count > 0)
+              .map(dev => `${dev.status} (${dev.count})`)
+              .join(', ');
+
+          return {
+            'Tanggal': format(new Date(service.date), 'dd-MM-yyyy'),
+            'Nama Pemilik': service.ownerName,
+            'Alamat Pemilik': service.ownerAddress,
+            'Jenis Ternak': service.livestockType,
+            'Sindrom': service.clinicalSymptoms,
+            'Diagnosa': service.diagnosis,
+            'Jenis Penanganan': service.treatmentType,
+            'Obat yang Digunakan': service.treatments.map((t) => t.medicineName).join(', '),
+            'Dosis': service.treatments.map((t) => `${t.dosageValue} ${t.dosageUnit}`).join(', '),
+            'Jumlah Ternak': service.livestockCount,
+            'ID Isikhnas': service.caseId,
+            'Perkembangan Kasus': caseDevelopmentText,
+          };
+        });
         allDataForSheet.push(...data);
       });
 
@@ -295,7 +304,7 @@ export default function ReportPage() {
       });
 
       const allDataForSheet: any[] = [];
-      const headers = ['Tanggal', 'Nama Pemilik', 'Alamat Pemilik', 'Jenis Ternak', 'Sindrom', 'Diagnosa', 'Jenis Penanganan', 'Obat yang Digunakan', 'Dosis', 'Jumlah Ternak', 'ID Isikhnas'];
+      const headers = ['Tanggal', 'Nama Pemilik', 'Alamat Pemilik', 'Jenis Ternak', 'Sindrom', 'Diagnosa', 'Jenis Penanganan', 'Obat yang Digunakan', 'Dosis', 'Jumlah Ternak', 'ID Isikhnas', 'Perkembangan Kasus'];
       const officerNames = Object.keys(servicesByOfficer).sort();
 
       officerNames.forEach(officerName => {
@@ -303,19 +312,27 @@ export default function ReportPage() {
         allDataForSheet.push({});
         allDataForSheet.push({ 'Nama Petugas': officerName });
         allDataForSheet.push(Object.fromEntries(headers.map(h => [h, h])));
-        const data = servicesByOfficer[officerName].map((service) => ({
-          'Tanggal': format(new Date(service.date), 'dd-MM-yyyy'),
-          'Nama Pemilik': service.ownerName,
-          'Alamat Pemilik': service.ownerAddress,
-          'Jenis Ternak': service.livestockType,
-          'Sindrom': service.clinicalSymptoms,
-          'Diagnosa': service.diagnosis,
-          'Jenis Penanganan': service.treatmentType,
-          'Obat yang Digunakan': service.treatments.map((t) => t.medicineName).join(', '),
-          'Dosis': service.treatments.map((t) => `${t.dosageValue} ${t.dosageUnit}`).join(', '),
-          'Jumlah Ternak': service.livestockCount,
-          'ID Isikhnas': service.caseId,
-        }));
+        const data = servicesByOfficer[officerName].map((service) => {
+          const caseDevelopmentText = (service.caseDevelopments || [])
+            .filter(dev => dev.status && dev.count > 0)
+            .map(dev => `${dev.status} (${dev.count})`)
+            .join(', ');
+
+          return {
+            'Tanggal': format(new Date(service.date), 'dd-MM-yyyy'),
+            'Nama Pemilik': service.ownerName,
+            'Alamat Pemilik': service.ownerAddress,
+            'Jenis Ternak': service.livestockType,
+            'Sindrom': service.clinicalSymptoms,
+            'Diagnosa': service.diagnosis,
+            'Jenis Penanganan': service.treatmentType,
+            'Obat yang Digunakan': service.treatments.map((t) => t.medicineName).join(', '),
+            'Dosis': service.treatments.map((t) => `${t.dosageValue} ${t.dosageUnit}`).join(', '),
+            'Jumlah Ternak': service.livestockCount,
+            'ID Isikhnas': service.caseId,
+            'Perkembangan Kasus': caseDevelopmentText,
+          };
+        });
         allDataForSheet.push(...data);
       });
 
