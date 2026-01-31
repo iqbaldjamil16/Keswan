@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useRouter } from 'next/navigation';
@@ -36,6 +37,17 @@ export default function DocsPage() {
         querySnapshot.forEach((doc) => {
             const data = doc.data();
              try {
+                if (!data.caseDevelopments || data.caseDevelopments.length === 0) {
+                  let status = 'Sembuh';
+                  if (data.caseDevelopment && typeof data.caseDevelopment === 'string' && data.caseDevelopment.length > 0) {
+                    status = data.caseDevelopment;
+                  }
+                  data.caseDevelopments = [{
+                    status: status,
+                    count: data.livestockCount || 1,
+                  }];
+                }
+
                 const service = serviceSchema.parse({
                     ...data,
                     id: doc.id,
@@ -53,10 +65,9 @@ export default function DocsPage() {
             return;
         }
 
-        // Sort services by date from oldest to newest
         services.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
-        const doc = new jsPDF();
+        const doc = new jsPDF({ orientation: 'landscape' });
         
         doc.setFontSize(18);
         doc.text('Laporan Pelayanan Kesehatan Hewan', 14, 22);
@@ -64,18 +75,28 @@ export default function DocsPage() {
         doc.text('Petugas: drh. Iqbal Djamil', 14, 30);
 
         if (services.length > 0) {
-          const tableColumn = ["Tanggal", "Pemilik", "Alamat", "Ternak", "Diagnosa", "Pengobatan"];
+          const tableColumn = ["Tanggal", "Puskeswan", "Pemilik", "Alamat", "ID Kasus", "Ternak", "Gejala Klinis", "Diagnosa", "Penanganan", "Pengobatan", "Perkembangan Kasus"];
           const tableRows: any[][] = [];
 
           services.forEach(service => {
               const treatments = service.treatments.map(t => `${t.medicineName} (${t.dosageValue} ${t.dosageUnit})`).join('\n');
+              const caseDevelopmentText = (service.caseDevelopments || [])
+                .filter(dev => dev.status && dev.count > 0)
+                .map(dev => `${dev.status} (${dev.count})`)
+                .join(', ');
+
               const serviceData = [
-                  format(new Date(service.date), 'dd MMM yyyy', { locale: id }),
+                  format(new Date(service.date), 'dd-MM-yyyy', { locale: id }),
+                  service.puskeswan,
                   service.ownerName,
                   service.ownerAddress,
+                  service.caseId || '-',
                   `${service.livestockType} (${service.livestockCount})`,
+                  service.clinicalSymptoms,
                   service.diagnosis,
+                  service.treatmentType,
                   treatments,
+                  caseDevelopmentText || (service.caseDevelopment || '-'),
               ];
               tableRows.push(serviceData);
           });
@@ -84,6 +105,8 @@ export default function DocsPage() {
               head: [tableColumn],
               body: tableRows,
               startY: 35,
+              styles: { fontSize: 8, cellPadding: 2 },
+              headStyles: { fillColor: [34, 197, 94] }
           });
         } else {
           doc.setFontSize(11);
