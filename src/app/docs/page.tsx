@@ -69,8 +69,12 @@ export default function DocsPage() {
 
         const doc = new jsPDF({ orientation: 'landscape' });
         
+        const pageWidth = doc.internal.pageSize.getWidth();
         doc.setFontSize(18);
-        doc.text('Laporan Pelayanan Kesehatan Hewan', 14, 22);
+        doc.setFont(undefined, 'bold');
+        doc.text('Laporan Pelayanan Kesehatan Hewan', pageWidth / 2, 22, { align: 'center' });
+        doc.setFont(undefined, 'normal');
+        
         doc.setFontSize(11);
         doc.text('Petugas: drh. Iqbal Djamil', 14, 30);
 
