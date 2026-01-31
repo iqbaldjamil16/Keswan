@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useRouter } from 'next/navigation';
@@ -89,6 +88,9 @@ export default function DocsPage() {
             toast({ title: 'Info', description: 'Tidak ada data pelayanan untuk drh. Iqbal Djamil.' });
             return;
         }
+
+        // Sort services by date from oldest to newest
+        services.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
         const doc = new jsPDF();
         
