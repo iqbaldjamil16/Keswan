@@ -107,7 +107,7 @@ export default function DocsPage() {
               body: tableRows,
               startY: 35,
               styles: { fontSize: 8, cellPadding: 2 },
-              headStyles: { fillColor: [34, 197, 94] }
+              headStyles: { fillColor: [38, 89, 43] }
           });
         } else {
           doc.setFontSize(11);
