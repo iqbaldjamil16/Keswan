@@ -105,6 +105,8 @@ export default function DocsPage() {
               ];
               tableRows.push(serviceData);
           });
+          
+          const totalLivestock = services.reduce((sum, service) => sum + service.livestockCount, 0);
 
           autoTable(doc, {
               head: [tableColumn],
@@ -113,6 +115,12 @@ export default function DocsPage() {
               styles: { fontSize: 8, cellPadding: 2, textColor: [0, 0, 0] },
               headStyles: { fillColor: [38, 89, 43], textColor: [255, 255, 255], fontSize: 9, halign: 'center' }
           });
+          
+          const finalY = (doc as any).lastAutoTable.finalY;
+          const totalText = `Total Data: ${services.length} - Total Pelayanan Keswan: ${totalLivestock} Ekor`;
+          doc.setFontSize(10);
+          doc.text(totalText, 14, finalY + 10);
+
         } else {
           doc.setFontSize(11);
           doc.text('Tidak ada data pelayanan tabel untuk periode ini.', 14, 40);
