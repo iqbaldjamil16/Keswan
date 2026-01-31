@@ -1,13 +1,10 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useForm } from 'react-hook-form';
-import { z } from 'zod';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { CornerUpLeft, Download } from 'lucide-react';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { CornerUpLeft, Download, Loader2 } from 'lucide-react';
+import { FormControl, FormItem, FormLabel } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
@@ -20,42 +17,47 @@ import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
 import { useState } from 'react';
 
-const docFormSchema = z.object({
-  officerName: z.string().min(1, 'Nama petugas harus diisi.'),
-  servicePhoto: z.any().optional(),
-});
-
-type DocFormValues = z.infer<typeof docFormSchema>;
-
-const officerList = ['drh. Iqbal Djamil'];
-
 export default function DocsPage() {
   const router = useRouter();
   const { toast } = useToast();
   const { firestore } = useFirebase();
   const [isGenerating, setIsGenerating] = useState(false);
+  const [servicePhotoUrl, setServicePhotoUrl] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
 
-  const form = useForm<DocFormValues>({
-    resolver: zodResolver(docFormSchema),
-    defaultValues: {
-      officerName: '',
-    },
-  });
-
-  function onSubmit(data: DocFormValues) {
-    console.log(data);
-    if (data.servicePhoto) {
-        toast({
-            title: 'Informasi Terkirim',
-            description: 'Data dan foto telah dicatat (simulasi). PDF tidak akan menyertakan foto ini.',
-        });
-    } else {
-        toast({
-            title: 'Informasi Terkirim',
-            description: 'Data telah dicatat (simulasi).',
-        });
+  const handlePhotoSelect = (file: File | undefined) => {
+    if (!file) {
+      setServicePhotoUrl(null);
+      return;
     }
-  }
+    if (!file.type.startsWith('image/')) {
+      toast({
+        variant: 'destructive',
+        title: 'File Tidak Valid',
+        description: 'Silakan pilih file gambar (jpg, png, dll).',
+      });
+      return;
+    }
+    setIsUploading(true);
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setServicePhotoUrl(reader.result as string);
+      setIsUploading(false);
+      toast({
+        title: 'Foto Siap',
+        description: 'Foto telah dimuat dan siap untuk ditambahkan ke PDF.',
+      });
+    };
+    reader.onerror = () => {
+      setIsUploading(false);
+      toast({
+        variant: 'destructive',
+        title: 'Gagal Memuat Foto',
+        description: 'Terjadi kesalahan saat membaca file gambar.',
+      });
+    };
+    reader.readAsDataURL(file);
+  };
 
   const handleGeneratePdf = async () => {
     if (!firestore) {
@@ -84,8 +86,9 @@ export default function DocsPage() {
             }
         });
 
-        if (services.length === 0) {
-            toast({ title: 'Info', description: 'Tidak ada data pelayanan untuk drh. Iqbal Djamil.' });
+        if (services.length === 0 && !servicePhotoUrl) {
+            toast({ title: 'Info', description: 'Tidak ada data pelayanan atau foto untuk drh. Iqbal Djamil.' });
+            setIsGenerating(false);
             return;
         }
 
@@ -99,27 +102,61 @@ export default function DocsPage() {
         doc.setFontSize(11);
         doc.text('Petugas: drh. Iqbal Djamil', 14, 30);
 
-        const tableColumn = ["Tanggal", "Pemilik", "Alamat", "Ternak", "Diagnosa", "Pengobatan"];
-        const tableRows: any[][] = [];
+        if (services.length > 0) {
+          const tableColumn = ["Tanggal", "Pemilik", "Alamat", "Ternak", "Diagnosa", "Pengobatan"];
+          const tableRows: any[][] = [];
 
-        services.forEach(service => {
-            const treatments = service.treatments.map(t => `${t.medicineName} (${t.dosageValue} ${t.dosageUnit})`).join('\n');
-            const serviceData = [
-                format(new Date(service.date), 'dd MMM yyyy', { locale: id }),
-                service.ownerName,
-                service.ownerAddress,
-                `${service.livestockType} (${service.livestockCount})`,
-                service.diagnosis,
-                treatments,
-            ];
-            tableRows.push(serviceData);
-        });
+          services.forEach(service => {
+              const treatments = service.treatments.map(t => `${t.medicineName} (${t.dosageValue} ${t.dosageUnit})`).join('\n');
+              const serviceData = [
+                  format(new Date(service.date), 'dd MMM yyyy', { locale: id }),
+                  service.ownerName,
+                  service.ownerAddress,
+                  `${service.livestockType} (${service.livestockCount})`,
+                  service.diagnosis,
+                  treatments,
+              ];
+              tableRows.push(serviceData);
+          });
 
-        autoTable(doc, {
-            head: [tableColumn],
-            body: tableRows,
-            startY: 35,
-        });
+          autoTable(doc, {
+              head: [tableColumn],
+              body: tableRows,
+              startY: 35,
+          });
+        } else {
+          doc.setFontSize(11);
+          doc.text('Tidak ada data pelayanan tabel untuk periode ini.', 14, 40);
+        }
+
+        if (servicePhotoUrl) {
+          if (services.length > 0) {
+            doc.addPage();
+          }
+          doc.setFontSize(14);
+          doc.text('Lampiran Foto Pelayanan', 14, 22);
+          try {
+            const imgProps = doc.getImageProperties(servicePhotoUrl);
+            const pdfWidth = doc.internal.pageSize.getWidth();
+            const pdfHeight = doc.internal.pageSize.getHeight();
+            const margin = 14;
+            const maxWidth = pdfWidth - margin * 2;
+            const maxHeight = pdfHeight - margin * 4;
+            
+            const ratio = Math.min(maxWidth / imgProps.width, maxHeight / imgProps.height);
+    
+            const imgWidth = imgProps.width * ratio;
+            const imgHeight = imgProps.height * ratio;
+    
+            const x = (pdfWidth - imgWidth) / 2;
+            const y = 35;
+            
+            doc.addImage(servicePhotoUrl, imgProps.format.toUpperCase(), x, y, imgWidth, imgHeight);
+          } catch (e) {
+            console.error("Gagal menambahkan gambar ke PDF:", e);
+            toast({ variant: 'destructive', title: 'Gagal', description: 'Gagal menambahkan gambar ke PDF. Pastikan format gambar didukung.' });
+          }
+        }
 
         doc.save('laporan-drh-iqbal-djamil.pdf');
 
@@ -137,10 +174,10 @@ export default function DocsPage() {
         <Card>
           <CardHeader>
             <CardTitle className="text-2xl md:text-3xl font-bold tracking-tight font-headline">
-              Dokumentasi Aplikasi
+              Dokumentasi & Unduh PDF
             </CardTitle>
             <CardDescription className="text-muted-foreground pt-2 text-sm md:text-base">
-              Panduan penggunaan dan informasi mengenai aplikasi Manajemen Pelayanan Kesehatan Hewan.
+              Gunakan fitur di bawah untuk melampirkan foto dan mengunduh laporan PDF khusus.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -150,61 +187,59 @@ export default function DocsPage() {
 
         <Card>
             <CardHeader>
-                <CardTitle>Form Tambahan</CardTitle>
-                <CardDescription>Kolom isian sesuai permintaan.</CardDescription>
+                <CardTitle>Upload Foto</CardTitle>
+                <CardDescription>Upload foto pelayanan untuk dilampirkan di PDF.</CardDescription>
             </CardHeader>
             <CardContent>
-                <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                        <FormField
-                            control={form.control}
-                            name="officerName"
-                            render={({ field }) => (
-                                <FormItem>
-                                <FormLabel>Nama Petugas</FormLabel>
-                                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                    <FormControl>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Pilih Nama Petugas" />
-                                    </SelectTrigger>
-                                    </FormControl>
-                                    <SelectContent>
-                                    {officerList.map((officer) => (
-                                        <SelectItem key={officer} value={officer}>
-                                        {officer}
-                                        </SelectItem>
-                                    ))}
-                                    </SelectContent>
-                                </Select>
-                                <FormMessage />
-                                </FormItem>
-                            )}
-                        />
+              <div className="space-y-6">
+                <FormItem>
+                  <FormLabel>Nama Petugas</FormLabel>
+                  <Select value="drh. Iqbal Djamil" disabled>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="drh. Iqbal Djamil">
+                        drh. Iqbal Djamil
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </FormItem>
 
-                        <FormField
-                            control={form.control}
-                            name="servicePhoto"
-                            render={({ field: { onChange, onBlur, name, ref } }) => (
-                                <FormItem>
-                                <FormLabel>Upload Foto Pelayanan</FormLabel>
-                                <FormControl>
-                                    <Input 
-                                      type="file" 
-                                      accept="image/*"
-                                      name={name}
-                                      ref={ref}
-                                      onBlur={onBlur}
-                                      onChange={(e) => onChange(e.target.files?.[0])}
-                                    />
-                                </FormControl>
-                                <FormMessage />
-                                </FormItem>
-                            )}
-                        />
+                <FormItem>
+                  <FormLabel>File Foto Pelayanan</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => handlePhotoSelect(e.target.files?.[0])}
+                      disabled={isUploading || isGenerating}
+                    />
+                  </FormControl>
+                </FormItem>
 
-                        <Button type="submit">Kirim</Button>
-                    </form>
-                </Form>
+                {isUploading && (
+                  <div className="flex items-center text-sm text-muted-foreground">
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Memuat foto...
+                  </div>
+                )}
+
+                {servicePhotoUrl && !isUploading && (
+                  <div>
+                    <p className="text-sm font-medium text-green-600">
+                      Foto berhasil dimuat.
+                    </p>
+                    <img
+                      src={servicePhotoUrl}
+                      alt="Preview"
+                      className="mt-2 rounded-md border max-h-48 w-auto"
+                    />
+                  </div>
+                )}
+              </div>
             </CardContent>
         </Card>
 
@@ -215,10 +250,10 @@ export default function DocsPage() {
             </CardHeader>
             <CardContent>
                 <Button onClick={handleGeneratePdf} disabled={isGenerating}>
-                    {isGenerating ? 'Membuat PDF...' : <><Download className="mr-2 h-4 w-4" /> Unduh Laporan PDF</>}
+                    {isGenerating ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Membuat PDF...</> : <><Download className="mr-2 h-4 w-4" /> Unduh Laporan PDF</>}
                 </Button>
                 <p className="text-xs text-muted-foreground mt-2">
-                    Catatan: Fitur ini tidak akan menyertakan foto yang diunggah dari form di atas karena unggahan tersebut hanya simulasi.
+                    Catatan: Foto yang diunggah akan disertakan dalam PDF, namun tidak disimpan permanen. Jika Anda memuat ulang halaman, foto harus diunggah kembali.
                 </p>
             </CardContent>
         </Card>
