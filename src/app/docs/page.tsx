@@ -120,7 +120,9 @@ export default function DocsPage() {
           const finalY = (doc as any).lastAutoTable.finalY;
           const totalText = `Total Data: ${services.length} - Total Pelayanan Keswan: ${totalLivestock} Ekor`;
           doc.setFontSize(10);
+          doc.setFont(undefined, 'bold');
           doc.text(totalText, 14, finalY + 10);
+          doc.setFont(undefined, 'normal');
 
         } else {
           doc.setFontSize(11);
