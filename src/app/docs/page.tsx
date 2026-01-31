@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { CornerUpLeft, Download, Loader2 } from 'lucide-react';
-import { FormControl, FormItem, FormLabel } from '@/components/ui/form';
+import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
@@ -192,33 +192,30 @@ export default function DocsPage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-6">
-                <FormItem>
-                  <FormLabel>Nama Petugas</FormLabel>
+                <div className="space-y-2">
+                  <Label>Nama Petugas</Label>
                   <Select value="drh. Iqbal Djamil" disabled>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                    </FormControl>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="drh. Iqbal Djamil">
                         drh. Iqbal Djamil
                       </SelectItem>
                     </SelectContent>
                   </Select>
-                </FormItem>
+                </div>
 
-                <FormItem>
-                  <FormLabel>File Foto Pelayanan</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => handlePhotoSelect(e.target.files?.[0])}
-                      disabled={isUploading || isGenerating}
-                    />
-                  </FormControl>
-                </FormItem>
+                <div className="space-y-2">
+                  <Label htmlFor="photo-upload">File Foto Pelayanan</Label>
+                  <Input
+                    id="photo-upload"
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => handlePhotoSelect(e.target.files?.[0])}
+                    disabled={isUploading || isGenerating}
+                  />
+                </div>
 
                 {isUploading && (
                   <div className="flex items-center text-sm text-muted-foreground">
