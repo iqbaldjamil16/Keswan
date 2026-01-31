@@ -73,10 +73,11 @@ export default function DocsPage() {
         doc.setFontSize(18);
         doc.setFont(undefined, 'bold');
         doc.text('Laporan Pelayanan Kesehatan Hewan', pageWidth / 2, 22, { align: 'center' });
-        doc.setFont(undefined, 'normal');
         
         doc.setFontSize(11);
+        doc.setFont(undefined, 'bold');
         doc.text('Petugas: drh. Iqbal Djamil', 14, 30);
+        doc.setFont(undefined, 'normal');
 
         if (services.length > 0) {
           const tableColumn = ["No.", "Tanggal", "Puskeswan", "Pemilik", "Alamat", "ID Kasus", "Ternak", "Gejala Klinis", "Diagnosa", "Penanganan", "Pengobatan", "Perkembangan Kasus"];
