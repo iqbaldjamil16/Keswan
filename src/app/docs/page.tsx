@@ -114,7 +114,11 @@ export default function DocsPage() {
               body: tableRows,
               startY: 35,
               styles: { fontSize: 8, cellPadding: 2, textColor: [0, 0, 0] },
-              headStyles: { fillColor: [38, 89, 43], textColor: [255, 255, 255], fontSize: 9, halign: 'center' }
+              headStyles: { fillColor: [38, 89, 43], textColor: [255, 255, 255], fontSize: 9, halign: 'center' },
+              columnStyles: {
+                5: { halign: 'left' },
+                11: { halign: 'left' },
+              }
           });
           
           const finalY = (doc as any).lastAutoTable.finalY;
