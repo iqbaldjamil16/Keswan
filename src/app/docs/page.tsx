@@ -106,7 +106,7 @@ export default function DocsPage() {
               head: [tableColumn],
               body: tableRows,
               startY: 35,
-              styles: { fontSize: 8, cellPadding: 2 },
+              styles: { fontSize: 8, cellPadding: 2, textColor: [0, 0, 0] },
               headStyles: { fillColor: [38, 89, 43] }
           });
         } else {
