@@ -75,10 +75,10 @@ export default function DocsPage() {
         doc.text('Petugas: drh. Iqbal Djamil', 14, 30);
 
         if (services.length > 0) {
-          const tableColumn = ["Tanggal", "Puskeswan", "Pemilik", "Alamat", "ID Kasus", "Ternak", "Gejala Klinis", "Diagnosa", "Penanganan", "Pengobatan", "Perkembangan Kasus"];
+          const tableColumn = ["No.", "Tanggal", "Puskeswan", "Pemilik", "Alamat", "ID Kasus", "Ternak", "Gejala Klinis", "Diagnosa", "Penanganan", "Pengobatan", "Perkembangan Kasus"];
           const tableRows: any[][] = [];
 
-          services.forEach(service => {
+          services.forEach((service, index) => {
               const treatments = service.treatments.map(t => `${t.medicineName} (${t.dosageValue} ${t.dosageUnit})`).join('\n');
               const caseDevelopmentText = (service.caseDevelopments || [])
                 .filter(dev => dev.status && dev.count > 0)
@@ -86,6 +86,7 @@ export default function DocsPage() {
                 .join(', ');
 
               const serviceData = [
+                  index + 1,
                   format(new Date(service.date), 'dd-MM-yyyy', { locale: id }),
                   service.puskeswan,
                   service.ownerName,
