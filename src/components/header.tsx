@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from 'next/link';
@@ -14,6 +15,7 @@ const navItems = [
   { href: '/', label: 'Input Data' },
   { href: '/rekap', label: 'Rekap Obat & Kasus' },
   { href: '/rekap/topoyo', label: 'Rekap Puskeswan Topoyo' },
+  { href: '/docs', label: 'Dokumentasi' },
 ];
 
 function NavContent({ onLinkClick }: { onLinkClick: () => void }) {
@@ -124,7 +126,7 @@ export function Header() {
                   <PanelLeft className="h-6 w-6" />
                   <span className="sr-only">Buka Menu</span>
                 </Button>
-                <SheetContent side="left" className="w-[200px]">
+                <SheetContent side="left" className="w-[250px]">
                   <NavContent onLinkClick={() => setIsSheetOpen(false)} />
                 </SheetContent>
               </Sheet>
