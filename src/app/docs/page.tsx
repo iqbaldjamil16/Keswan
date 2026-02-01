@@ -78,6 +78,8 @@ export default function DocsPage() {
         doc.setFont(undefined, 'bold');
         doc.text('Petugas: drh. Iqbal Djamil', 14, 30);
         doc.setFont(undefined, 'normal');
+        doc.text('Kecamatan : Topoyo', 14, 36);
+        doc.text('Bulan : Januari 2026', 14, 42);
 
         if (services.length > 0) {
           const tableColumn = ["No.", "Tanggal", "Puskeswan", "Pemilik", "Alamat", "ID Kasus", "Ternak", "Gejala Klinis", "Diagnosa", "Penanganan", "Pengobatan", "Perkembangan Kasus"];
@@ -112,7 +114,7 @@ export default function DocsPage() {
           autoTable(doc, {
               head: [tableColumn],
               body: tableRows,
-              startY: 35,
+              startY: 47,
               styles: { fontSize: 8, cellPadding: 2, textColor: [0, 0, 0] },
               headStyles: { fillColor: [38, 89, 43], textColor: [255, 255, 255], fontSize: 9, halign: 'center', valign: 'middle' },
               columnStyles: {
@@ -130,7 +132,7 @@ export default function DocsPage() {
 
         } else {
           doc.setFontSize(11);
-          doc.text('Tidak ada data pelayanan tabel untuk periode ini.', 14, 40);
+          doc.text('Tidak ada data pelayanan tabel untuk periode ini.', 14, 50);
         }
 
         doc.save('laporan-drh-iqbal-djamil.pdf');
