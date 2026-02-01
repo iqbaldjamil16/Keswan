@@ -11,15 +11,24 @@ import autoTable from 'jspdf-autotable';
 import { useFirebase } from '@/firebase';
 import { collection, getDocs, query, where, Timestamp } from 'firebase/firestore';
 import { type HealthcareService, serviceSchema } from '@/lib/types';
-import { format } from 'date-fns';
+import { format, getMonth, getYear, subYears, startOfMonth, endOfMonth } from 'date-fns';
 import { id } from 'date-fns/locale';
 import { useState } from 'react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
+const years = Array.from({ length: 5 }, (_, i) => getYear(subYears(new Date(), i)).toString());
+const months = Array.from({ length: 12 }, (_, i) => ({
+  value: i.toString(),
+  label: new Date(0, i).toLocaleString('id-ID', { month: 'long' })
+}));
 
 export default function DocsPage() {
   const router = useRouter();
   const { toast } = useToast();
   const { firestore } = useFirebase();
   const [isGenerating, setIsGenerating] = useState(false);
+  const [selectedMonth, setSelectedMonth] = useState<string>(getMonth(new Date()).toString());
+  const [selectedYear, setSelectedYear] = useState<string>(getYear(new Date()).toString());
 
   const handleGeneratePdf = async () => {
     if (!firestore) {
@@ -30,7 +39,25 @@ export default function DocsPage() {
 
     try {
         const servicesCollection = collection(firestore, 'healthcareServices');
-        const q = query(servicesCollection, where('officerName', '==', 'drh. Iqbal Djamil'));
+        
+        const year = selectedYear === 'all-years' ? null : parseInt(selectedYear, 10);
+        const month = selectedMonth === 'all-months' ? null : parseInt(selectedMonth, 10);
+
+        const queryConstraints: any[] = [where('officerName', '==', 'drh. Muhammad Iqbal Djamil')];
+
+        if (year !== null && month !== null) {
+            const startDate = startOfMonth(new Date(year, month));
+            const endDate = endOfMonth(new Date(year, month));
+            queryConstraints.push(where('date', '>=', startDate));
+            queryConstraints.push(where('date', '<=', endDate));
+        } else if (year !== null) {
+            const startDate = new Date(year, 0, 1);
+            const endDate = new Date(year, 11, 31, 23, 59, 59);
+            queryConstraints.push(where('date', '>=', startDate));
+            queryConstraints.push(where('date', '<=', endDate));
+        }
+
+        const q = query(servicesCollection, ...queryConstraints);
         const querySnapshot = await getDocs(q);
 
         const services: HealthcareService[] = [];
@@ -60,7 +87,7 @@ export default function DocsPage() {
         });
 
         if (services.length === 0) {
-            toast({ title: 'Info', description: 'Tidak ada data pelayanan untuk drh. Muhammad Iqbal Djamil.' });
+            toast({ title: 'Info', description: 'Tidak ada data pelayanan untuk drh. Muhammad Iqbal Djamil pada periode yang dipilih.' });
             setIsGenerating(false);
             return;
         }
@@ -85,21 +112,31 @@ export default function DocsPage() {
         // Petugas
         doc.setFont(undefined, 'bold');
         doc.text('Petugas', labelX, currentY);
+        doc.setFont(undefined, 'normal');
         doc.text(':', colonX, currentY);
         doc.text('drh. Muhammad Iqbal Djamil', valueX, currentY);
         currentY += lineHeight;
         
         // Kecamatan
-        doc.setFont(undefined, 'normal');
         doc.text('Kecamatan', labelX, currentY);
         doc.text(':', colonX, currentY);
         doc.text('Topoyo', valueX, currentY);
         currentY += lineHeight;
 
         // Bulan
+        const monthLabelText = months.find(m => m.value === selectedMonth)?.label || 'Semua Bulan';
+        const yearLabelText = selectedYear === 'all-years' ? 'Semua Tahun' : selectedYear;
+        let periodLabel;
+        if (selectedYear === 'all-years') {
+            periodLabel = 'Semua Periode';
+        } else if (selectedMonth === 'all-months') {
+            periodLabel = yearLabelText;
+        } else {
+            periodLabel = `${monthLabelText} ${yearLabelText}`;
+        }
         doc.text('Bulan', labelX, currentY);
         doc.text(':', colonX, currentY);
-        doc.text('Januari 2026', valueX, currentY);
+        doc.text(periodLabel, valueX, currentY);
 
         if (services.length > 0) {
           const tableColumn = ["No.", "Tanggal", "Puskeswan", "Pemilik", "Alamat", "ID Kasus", "Ternak", "Gejala Klinis", "Diagnosa", "Penanganan", "Pengobatan", "Perkembangan Kasus"];
@@ -156,7 +193,7 @@ export default function DocsPage() {
           doc.text('Tidak ada data pelayanan tabel untuk periode ini.', 14, 50);
         }
 
-        doc.save('laporan-drh-muhammad-iqbal-djamil.pdf');
+        doc.save(`laporan-drh-muhammad-iqbal-djamil-${periodLabel.replace(/\s/g, '_')}.pdf`);
 
     } catch (error) {
         console.error("Gagal membuat PDF: ", error);
@@ -182,8 +219,43 @@ export default function DocsPage() {
 
         <Card>
             <CardHeader>
+                <CardTitle>Filter Laporan</CardTitle>
+                <CardDescription>Pilih bulan dan tahun untuk laporan yang akan diunduh.</CardDescription>
+            </CardHeader>
+            <CardContent className="flex flex-col sm:flex-row gap-4">
+                <Select value={selectedMonth} onValueChange={setSelectedMonth}>
+                    <SelectTrigger>
+                        <SelectValue placeholder="Pilih Bulan" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="all-months">Semua Bulan</SelectItem>
+                        {months.map((month) => (
+                            <SelectItem key={month.value} value={month.value}>
+                                {month.label}
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+                <Select value={selectedYear} onValueChange={setSelectedYear}>
+                    <SelectTrigger>
+                        <SelectValue placeholder="Pilih Tahun" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="all-years">Semua Tahun</SelectItem>
+                        {years.map((year) => (
+                            <SelectItem key={year} value={year}>
+                                {year}
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+            </CardContent>
+        </Card>
+
+        <Card>
+            <CardHeader>
                 <CardTitle>Unduh Laporan PDF</CardTitle>
-                <CardDescription>Hanya memuat data pelayanan khusus untuk drh. Muhammad Iqbal Djamil.</CardDescription>
+                <CardDescription>Hanya memuat data pelayanan khusus untuk drh. Muhammad Iqbal Djamil berdasarkan filter yang dipilih.</CardDescription>
             </CardHeader>
             <CardContent>
                 <Button onClick={handleGeneratePdf} disabled={isGenerating}>
