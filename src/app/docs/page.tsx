@@ -110,11 +110,12 @@ export default function DocsPage() {
         const lineHeight = 6;
         
         // Petugas
-        doc.setFont(undefined, 'bold');
-        doc.text('Petugas', labelX, currentY);
         doc.setFont(undefined, 'normal');
+        doc.text('Petugas', labelX, currentY);
         doc.text(':', colonX, currentY);
+        doc.setFont(undefined, 'bold');
         doc.text('drh. Muhammad Iqbal Djamil', valueX, currentY);
+        doc.setFont(undefined, 'normal');
         currentY += lineHeight;
         
         // Kecamatan
