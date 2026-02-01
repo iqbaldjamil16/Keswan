@@ -75,11 +75,31 @@ export default function DocsPage() {
         doc.text('Laporan Pelayanan Kesehatan Hewan', pageWidth / 2, 22, { align: 'center' });
         
         doc.setFontSize(11);
+        
+        const labelX = 14;
+        const colonX = 45;
+        const valueX = 47;
+        let currentY = 30;
+        const lineHeight = 6;
+        
+        // Petugas
         doc.setFont(undefined, 'bold');
-        doc.text('Petugas: drh. Iqbal Djamil', 14, 30);
+        doc.text('Petugas', labelX, currentY);
+        doc.text(':', colonX, currentY);
+        doc.text('drh. Iqbal Djamil', valueX, currentY);
+        currentY += lineHeight;
+        
+        // Kecamatan
         doc.setFont(undefined, 'normal');
-        doc.text('Kecamatan : Topoyo', 14, 36);
-        doc.text('Bulan : Januari 2026', 14, 42);
+        doc.text('Kecamatan', labelX, currentY);
+        doc.text(':', colonX, currentY);
+        doc.text('Topoyo', valueX, currentY);
+        currentY += lineHeight;
+
+        // Bulan
+        doc.text('Bulan', labelX, currentY);
+        doc.text(':', colonX, currentY);
+        doc.text('Januari 2026', valueX, currentY);
 
         if (services.length > 0) {
           const tableColumn = ["No.", "Tanggal", "Puskeswan", "Pemilik", "Alamat", "ID Kasus", "Ternak", "Gejala Klinis", "Diagnosa", "Penanganan", "Pengobatan", "Perkembangan Kasus"];
@@ -114,10 +134,11 @@ export default function DocsPage() {
           autoTable(doc, {
               head: [tableColumn],
               body: tableRows,
-              startY: 47,
+              startY: currentY + 5,
               styles: { fontSize: 8, cellPadding: 2, textColor: [0, 0, 0] },
               headStyles: { fillColor: [38, 89, 43], textColor: [255, 255, 255], fontSize: 9, halign: 'center', valign: 'middle' },
               columnStyles: {
+                0: { halign: 'center' },
                 5: { halign: 'left' },
                 11: { halign: 'left' },
               }
