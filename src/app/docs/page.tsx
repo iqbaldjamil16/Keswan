@@ -60,7 +60,7 @@ export default function DocsPage() {
         });
 
         if (services.length === 0) {
-            toast({ title: 'Info', description: 'Tidak ada data pelayanan untuk drh. Iqbal Djamil.' });
+            toast({ title: 'Info', description: 'Tidak ada data pelayanan untuk drh. Muhammad Iqbal Djamil.' });
             setIsGenerating(false);
             return;
         }
@@ -86,7 +86,7 @@ export default function DocsPage() {
         doc.setFont(undefined, 'bold');
         doc.text('Petugas', labelX, currentY);
         doc.text(':', colonX, currentY);
-        doc.text('drh. Iqbal Djamil', valueX, currentY);
+        doc.text('drh. Muhammad Iqbal Djamil', valueX, currentY);
         currentY += lineHeight;
         
         // Kecamatan
@@ -156,7 +156,7 @@ export default function DocsPage() {
           doc.text('Tidak ada data pelayanan tabel untuk periode ini.', 14, 50);
         }
 
-        doc.save('laporan-drh-iqbal-djamil.pdf');
+        doc.save('laporan-drh-muhammad-iqbal-djamil.pdf');
 
     } catch (error) {
         console.error("Gagal membuat PDF: ", error);
@@ -175,7 +175,7 @@ export default function DocsPage() {
               Unduh PDF Khusus
             </CardTitle>
             <CardDescription className="text-muted-foreground pt-2 text-sm md:text-base">
-              Halaman ini menyediakan fitur untuk mengunduh laporan PDF khusus untuk drh. Iqbal Djamil.
+              Halaman ini menyediakan fitur untuk mengunduh laporan PDF khusus untuk drh. Muhammad Iqbal Djamil.
             </CardDescription>
           </CardHeader>
         </Card>
@@ -183,7 +183,7 @@ export default function DocsPage() {
         <Card>
             <CardHeader>
                 <CardTitle>Unduh Laporan PDF</CardTitle>
-                <CardDescription>Hanya memuat data pelayanan khusus untuk drh. Iqbal Djamil.</CardDescription>
+                <CardDescription>Hanya memuat data pelayanan khusus untuk drh. Muhammad Iqbal Djamil.</CardDescription>
             </CardHeader>
             <CardContent>
                 <Button onClick={handleGeneratePdf} disabled={isGenerating}>
