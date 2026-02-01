@@ -9,7 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { useFirebase } from '@/firebase';
-import { collection, getDocs, query, where, Timestamp } from 'firebase/firestore';
+import { collection, getDocs, query, where, Timestamp, orderBy } from 'firebase/firestore';
 import { type HealthcareService, serviceSchema } from '@/lib/types';
 import { format, getMonth, getYear, subYears, startOfMonth, endOfMonth } from 'date-fns';
 import { id } from 'date-fns/locale';
@@ -43,7 +43,7 @@ export default function DocsPage() {
         const year = selectedYear === 'all-years' ? null : parseInt(selectedYear, 10);
         const month = selectedMonth === 'all-months' ? null : parseInt(selectedMonth, 10);
 
-        const queryConstraints: any[] = [where('officerName', '==', 'drh. Muhammad Iqbal Djamil')];
+        const queryConstraints: any[] = [orderBy('date', 'asc')];
 
         if (year !== null && month !== null) {
             const startDate = startOfMonth(new Date(year, month));
@@ -60,7 +60,7 @@ export default function DocsPage() {
         const q = query(servicesCollection, ...queryConstraints);
         const querySnapshot = await getDocs(q);
 
-        const services: HealthcareService[] = [];
+        let allServices: HealthcareService[] = [];
         querySnapshot.forEach((doc) => {
             const data = doc.data();
              try {
@@ -80,19 +80,19 @@ export default function DocsPage() {
                     id: doc.id,
                     date: (data.date as Timestamp).toDate(),
                 });
-                services.push(service);
+                allServices.push(service);
             } catch (e) {
                 console.error("Validation error parsing service data for PDF:", e, data);
             }
         });
+        
+        const services = allServices.filter(s => s.officerName === 'drh. Muhammad Iqbal Djamil');
 
         if (services.length === 0) {
             toast({ title: 'Info', description: 'Tidak ada data pelayanan untuk drh. Muhammad Iqbal Djamil pada periode yang dipilih.' });
             setIsGenerating(false);
             return;
         }
-
-        services.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
         const doc = new jsPDF({ orientation: 'landscape' });
         
