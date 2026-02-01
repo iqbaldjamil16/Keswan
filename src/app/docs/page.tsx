@@ -86,7 +86,7 @@ export default function DocsPage() {
             }
         });
         
-        const services = allServices.filter(s => s.officerName === 'drh. Muhammad Iqbal Djamil');
+        const services = allServices.filter(s => s.officerName === 'drh. Iqbal Djamil');
 
         if (services.length === 0) {
             toast({ title: 'Info', description: 'Tidak ada data pelayanan untuk drh. Muhammad Iqbal Djamil pada periode yang dipilih.' });
@@ -172,7 +172,7 @@ export default function DocsPage() {
               head: [tableColumn],
               body: tableRows,
               startY: currentY + 5,
-              styles: { fontSize: 8, cellPadding: 2, textColor: [0, 0, 0] },
+              styles: { fontSize: 8, cellPadding: 2, textColor: [0, 0, 0], valign: 'middle' },
               headStyles: { fillColor: [38, 89, 43], textColor: [255, 255, 255], fontSize: 9, halign: 'center', valign: 'middle' },
               columnStyles: {
                 0: { halign: 'center' },
