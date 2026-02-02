@@ -284,8 +284,7 @@ export default function RekapTopoyoPage() {
             ? 'Semua Bulan' 
             : months.find(m => m.value === selectedMonth)?.label || '';
         const yearLabel = selectedYear === 'all-years' ? 'Semua Tahun' : selectedYear;
-
-        // 1. Group services by officer
+    
         const servicesByOfficer: { [key: string]: HealthcareService[] } = {};
         services.forEach(service => {
             if (!servicesByOfficer[service.officerName]) {
@@ -293,51 +292,68 @@ export default function RekapTopoyoPage() {
             }
             servicesByOfficer[service.officerName].push(service);
         });
-
-        // 2. Create a sheet for each officer
+    
         const officerNames = Object.keys(servicesByOfficer).sort();
         officerNames.forEach(officerName => {
             const officerServices = servicesByOfficer[officerName].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
             
-            const headerRows = [
-                [null, null, 'PEMERINTAHAN KABUPATEN MAMUJU TENGAH'],
-                [null, null, 'DINAS KETAHANAN PANGAN DAN PERTANIAN'],
-                [null, null, 'LAPORAN PELAYANAN KESEHATAN HEWAN'],
+            const tableHeaders = ['Tanggal', 'Nama Pemilik', 'Alamat Pemilik', 'Jenis Ternak', 'Gejala Klinis', 'Diagnosa', 'Jenis Penanganan', 'Obat yang Digunakan', 'Dosis', 'Jumlah Ternak'];
+            
+            const sheetData: any[][] = [
+                ["PEMERINTAHAN KABUPATEN MAMUJU TENGAH"],
+                ["DINAS KETAHANAN PANGAN DAN PERTANIAN"],
+                ["LAPORAN PELAYANAN KESEHATAN HEWAN"],
                 [],
-                [],
+                ['Nama Petugas', `: ${officerName}`],
                 ['Kecamatan', `: Topoyo`],
                 ['Bulan', `: ${monthLabel}`],
                 ['Tahun', `: ${yearLabel}`],
                 [],
-                ['Nama Petugas', `: ${officerName}`],
-                []
+                tableHeaders
             ];
-
-            const ws = XLSX.utils.aoa_to_sheet(headerRows);
+    
+            officerServices.forEach(service => {
+                sheetData.push([
+                    format(new Date(service.date), 'dd-MM-yyyy'),
+                    service.ownerName,
+                    service.ownerAddress,
+                    service.livestockType,
+                    service.clinicalSymptoms,
+                    service.diagnosis,
+                    service.treatmentType,
+                    service.treatments.map((t) => t.medicineName).join(', '),
+                    service.treatments.map((t) => `${t.dosageValue} ${t.dosageUnit}`).join(', '),
+                    service.livestockCount,
+                ]);
+            });
+    
+            const ws = XLSX.utils.aoa_to_sheet(sheetData);
+    
+            const merges = [
+                { s: { r: 0, c: 0 }, e: { r: 0, c: 9 } },
+                { s: { r: 1, c: 0 }, e: { r: 1, c: 9 } },
+                { s: { r: 2, c: 0 }, e: { r: 2, c: 9 } },
+            ];
+            ws['!merges'] = merges;
             
-            const data = officerServices.map((service) => ({
-                'Tanggal': format(new Date(service.date), 'dd-MM-yyyy'),
-                'Nama Pemilik': service.ownerName,
-                'Alamat Pemilik': service.ownerAddress,
-                'Jenis Ternak': service.livestockType,
-                'Gejala Klinis': service.clinicalSymptoms,
-                'Diagnosa': service.diagnosis,
-                'Jenis Penanganan': service.treatmentType,
-                'Obat yang Digunakan': service.treatments.map((t) => t.medicineName).join(', '),
-                'Dosis': service.treatments.map((t) => `${t.dosageValue} ${t.dosageUnit}`).join(', '),
-                'Jumlah Ternak': service.livestockCount,
-                'ID Isikhnas': service.caseId,
-            }));
-
-            XLSX.utils.sheet_add_json(ws, data, { origin: -1 });
-
+            ws['!cols'] = [
+                { wch: 12 }, 
+                { wch: 20 }, 
+                { wch: 20 }, 
+                { wch: 15 }, 
+                { wch: 40 }, 
+                { wch: 20 }, 
+                { wch: 15 }, 
+                { wch: 30 }, 
+                { wch: 20 }, 
+                { wch: 12 }, 
+            ];
+    
             const sheetName = officerName.replace(/[/\\?*:[\]]/g, '').substring(0, 31);
             XLSX.utils.book_append_sheet(wb, ws, sheetName);
         });
 
         const data = recapData;
-
-        // 3. Create "Rekap Kasus Topoyo" sheet
         if (data && Object.keys(data.cases).length > 0) {
             const diagnosisDataForSheet = Object.entries(data.cases).flatMap(([desa, livestockData]) => {
                 return Object.entries(livestockData).flatMap(([livestockType, diagnoses]) => {
@@ -361,7 +377,6 @@ export default function RekapTopoyoPage() {
             XLSX.utils.book_append_sheet(wb, wsKasus, "Rekap Kasus Topoyo");
         }
 
-        // 4. Create "Rekap Obat Topoyo" sheet
         if (data && Object.keys(data.medicines).length > 0) {
             const medicineDataForSheet = Object.entries(data.medicines)
                 .sort(([a], [b]) => a.localeCompare(b))
@@ -374,7 +389,6 @@ export default function RekapTopoyoPage() {
             XLSX.utils.book_append_sheet(wb, wsObat, "Rekap Obat Topoyo");
         }
     
-        // 5. Write the file
         const filenameYearLabel = selectedYear === 'all-years' ? 'SemuaTahun' : selectedYear;
         const filenameMonthLabel = selectedMonth === 'all-months' ? 'SemuaBulan' : months.find(m => m.value === selectedMonth)?.label || 'Bulan';
         XLSX.writeFile(wb, `rekap_topoyo_${filenameMonthLabel}_${filenameYearLabel}.xlsx`);
