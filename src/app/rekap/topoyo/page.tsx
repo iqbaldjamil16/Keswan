@@ -279,6 +279,11 @@ export default function RekapTopoyoPage() {
 
     const handleDownload = () => {
         const wb = XLSX.utils.book_new();
+    
+        const monthLabel = selectedMonth === 'all-months' 
+            ? 'Semua Bulan' 
+            : months.find(m => m.value === selectedMonth)?.label || '';
+        const yearLabel = selectedYear === 'all-years' ? 'Semua Tahun' : selectedYear;
 
         // 1. Group services by officer
         const servicesByOfficer: { [key: string]: HealthcareService[] } = {};
@@ -294,28 +299,42 @@ export default function RekapTopoyoPage() {
         officerNames.forEach(officerName => {
             const officerServices = servicesByOfficer[officerName].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
             
+            const headerRows = [
+                [null, null, 'PEMERINTAHAN KABUPATEN MAMUJU TENGAH'],
+                [null, null, 'DINAS KETAHANAN PANGAN DAN PERTANIAN'],
+                [null, null, 'LAPORAN PELAYANAN KESEHATAN HEWAN'],
+                [],
+                [],
+                ['Kecamatan', `: Topoyo`],
+                ['Bulan', `: ${monthLabel}`],
+                ['Tahun', `: ${yearLabel}`],
+                [],
+                ['Nama Petugas', `: ${officerName}`],
+                []
+            ];
+
+            const ws = XLSX.utils.aoa_to_sheet(headerRows);
+            
             const data = officerServices.map((service) => ({
-              'Tanggal': format(new Date(service.date), 'dd-MM-yyyy'),
-              'Nama Pemilik': service.ownerName,
-              'Alamat Pemilik': service.ownerAddress,
-              'Jenis Ternak': service.livestockType,
-              'Sindrom': service.clinicalSymptoms,
-              'Diagnosa': service.diagnosis,
-              'Jenis Penanganan': service.treatmentType,
-              'Obat yang Digunakan': service.treatments.map((t) => t.medicineName).join(', '),
-              'Dosis': service.treatments.map((t) => `${t.dosageValue} ${t.dosageUnit}`).join(', '),
-              'Jumlah Ternak': service.livestockCount,
-              'ID Isikhnas': service.caseId,
+                'Tanggal': format(new Date(service.date), 'dd-MM-yyyy'),
+                'Nama Pemilik': service.ownerName,
+                'Alamat Pemilik': service.ownerAddress,
+                'Jenis Ternak': service.livestockType,
+                'Sindrom': service.clinicalSymptoms,
+                'Diagnosa': service.diagnosis,
+                'Jenis Penanganan': service.treatmentType,
+                'Obat yang Digunakan': service.treatments.map((t) => t.medicineName).join(', '),
+                'Dosis': service.treatments.map((t) => `${t.dosageValue} ${t.dosageUnit}`).join(', '),
+                'Jumlah Ternak': service.livestockCount,
+                'ID Isikhnas': service.caseId,
             }));
 
-            const ws = XLSX.utils.json_to_sheet(data);
+            XLSX.utils.sheet_add_json(ws, data, { origin: -1 });
+
             const sheetName = officerName.replace(/[/\\?*:[\]]/g, '').substring(0, 31);
             XLSX.utils.book_append_sheet(wb, ws, sheetName);
         });
 
-        const monthLabel = selectedMonth === 'all-months' 
-            ? 'Semua Bulan' 
-            : months.find(m => m.value === selectedMonth)?.label || '';
         const data = recapData;
 
         // 3. Create "Rekap Kasus Topoyo" sheet
@@ -356,9 +375,9 @@ export default function RekapTopoyoPage() {
         }
     
         // 5. Write the file
-        const yearLabel = selectedYear === 'all-years' ? 'SemuaTahun' : selectedYear;
+        const filenameYearLabel = selectedYear === 'all-years' ? 'SemuaTahun' : selectedYear;
         const filenameMonthLabel = selectedMonth === 'all-months' ? 'SemuaBulan' : months.find(m => m.value === selectedMonth)?.label || 'Bulan';
-        XLSX.writeFile(wb, `rekap_topoyo_${filenameMonthLabel}_${yearLabel}.xlsx`);
+        XLSX.writeFile(wb, `rekap_topoyo_${filenameMonthLabel}_${filenameYearLabel}.xlsx`);
     };
 
     const hasData = recapData && (Object.keys(recapData.medicines).length > 0 || Object.keys(recapData.cases).length > 0);
