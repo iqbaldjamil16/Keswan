@@ -320,7 +320,7 @@ export default function RekapTopoyoPage() {
                 'Nama Pemilik': service.ownerName,
                 'Alamat Pemilik': service.ownerAddress,
                 'Jenis Ternak': service.livestockType,
-                'Sindrom': service.clinicalSymptoms,
+                'Gejala Klinis': service.clinicalSymptoms,
                 'Diagnosa': service.diagnosis,
                 'Jenis Penanganan': service.treatmentType,
                 'Obat yang Digunakan': service.treatments.map((t) => t.medicineName).join(', '),
