@@ -59,17 +59,6 @@ export default function EditServicePage() {
             }];
           }
 
-          if (!data.caseDevelopments || data.caseDevelopments.length === 0) {
-            let status = 'Sembuh';
-            if (data.caseDevelopment && typeof data.caseDevelopment === 'string' && data.caseDevelopment.length > 0) {
-              status = data.caseDevelopment;
-            }
-            data.caseDevelopments = [{
-              status: status,
-              count: data.livestockCount || 1,
-            }];
-          }
-
           const serviceData = serviceSchema.parse({
             ...data,
             id: docSnap.id,

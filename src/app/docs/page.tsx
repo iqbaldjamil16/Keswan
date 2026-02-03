@@ -64,17 +64,6 @@ export default function DocsPage() {
         querySnapshot.forEach((doc) => {
             const data = doc.data();
              try {
-                if (!data.caseDevelopments || data.caseDevelopments.length === 0) {
-                  let status = 'Sembuh';
-                  if (data.caseDevelopment && typeof data.caseDevelopment === 'string' && data.caseDevelopment.length > 0) {
-                    status = data.caseDevelopment;
-                  }
-                  data.caseDevelopments = [{
-                    status: status,
-                    count: data.livestockCount || 1,
-                  }];
-                }
-
                 const service = serviceSchema.parse({
                     ...data,
                     id: doc.id,
@@ -140,15 +129,10 @@ export default function DocsPage() {
         doc.text(periodLabel, valueX, currentY);
 
         if (services.length > 0) {
-          const tableColumn = ["No.", "Tanggal", "Puskeswan", "Pemilik", "NIK", "No. HP", "Alamat", "Jenis Hewan & Jumlah", "Program Vaksinasi", "Perkembangan Kasus"];
+          const tableColumn = ["No.", "Tanggal", "Puskeswan", "Pemilik", "NIK", "No. HP", "Alamat", "Jenis Hewan & Jumlah", "Program Vaksinasi"];
           const tableRows: any[][] = [];
 
           services.forEach((service, index) => {
-              const caseDevelopmentText = (service.caseDevelopments || [])
-                .filter(dev => dev.status && dev.count > 0)
-                .map(dev => `${dev.status} (${dev.count})`)
-                .join(', ');
-              
               const jenisTernakText = (service.vaccinations || [])
                 .map(v => `${v.jenisTernak} (${v.jumlahTernak})`)
                 .join(', ');
@@ -163,7 +147,6 @@ export default function DocsPage() {
                   service.ownerAddress,
                   jenisTernakText,
                   service.programVaksinasi,
-                  caseDevelopmentText || (service.caseDevelopment || '-'),
               ];
               tableRows.push(serviceData);
           });

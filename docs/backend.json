@@ -1,16 +1,6 @@
 
 {
   "entities": {
-    "CaseDevelopmentEntry": {
-      "title": "CaseDevelopmentEntry",
-      "description": "Represents an entry for case development.",
-      "type": "object",
-      "properties": {
-        "status": { "type": "string" },
-        "count": { "type": "number" }
-      },
-      "required": ["status", "count"]
-    },
     "VaccinationEntry": {
       "title": "VaccinationEntry",
       "description": "Represents a single vaccination event.",
@@ -36,10 +26,6 @@
         "vaccinations": {
           "type": "array",
           "items": { "$ref": "#/entities/VaccinationEntry" }
-        },
-        "caseDevelopments": {
-          "type": "array",
-          "items": { "$ref": "#/entities/CaseDevelopmentEntry" }
         },
         "nik": {
           "type": "string"

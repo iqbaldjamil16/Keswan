@@ -57,9 +57,6 @@ export function ServiceForm({ initialData, formType = 'keswan' }: { initialData?
       vaccinations: (initialData.vaccinations && initialData.vaccinations.length > 0)
         ? initialData.vaccinations
         : [{ jenisVaksin: "", jenisTernak: "", jumlahTernak: 1 }],
-      caseDevelopments: (initialData.caseDevelopments && initialData.caseDevelopments.length > 0)
-        ? initialData.caseDevelopments
-        : [{ status: "", count: 1 }],
     } : {
       date: new Date(),
       puskeswan: "",
@@ -70,7 +67,6 @@ export function ServiceForm({ initialData, formType = 'keswan' }: { initialData?
       phoneNumber: "",
       programVaksinasi: "",
       vaccinations: [{ jenisVaksin: "", jenisTernak: "", jumlahTernak: 1 }],
-      caseDevelopments: [{ status: "", count: 1 }],
     },
   });
 
@@ -98,11 +94,6 @@ export function ServiceForm({ initialData, formType = 'keswan' }: { initialData?
             isInitialized.current = true;
         }
     }, [isEditMode, initialData, vaccinationFields]);
-
-  const { fields: caseDevelopmentFields, append: appendCaseDevelopment, remove: removeCaseDevelopment } = useFieldArray({
-    control: form.control,
-    name: "caseDevelopments",
-  });
 
   const watchedPuskeswan = form.watch("puskeswan");
   const watchedProgramVaksinasi = form.watch("programVaksinasi");
@@ -148,7 +139,7 @@ export function ServiceForm({ initialData, formType = 'keswan' }: { initialData?
 
     startTransition(async () => {
       try {
-        const { id, caseDevelopment, ...dataToSave } = values;
+        const { id, ...dataToSave } = values;
         
         const calculatedLivestockCount = values.vaccinations.reduce((sum, vax) => sum + (vax.jumlahTernak || 0), 0);
 
@@ -593,95 +584,6 @@ export function ServiceForm({ initialData, formType = 'keswan' }: { initialData?
                   </div>
               </CardContent>
           </Card>
-            <Card>
-                <CardContent className="p-4">
-                    <div className="space-y-4">
-                    <div>
-                        <Label>
-                          Perkembangan Kasus
-                          {formType === 'keswan' && (
-                            <span className="ml-2 text-xs italic font-normal text-muted-foreground">
-                              (Perkirakan Presentase Kondisi Hewan Sehingga Dapat Diisi Di Awal)
-                            </span>
-                          )}
-                        </Label>
-                    </div>
-
-                    {caseDevelopmentFields.map((item, index) => (
-                        <Card key={item.id} className="relative p-4 bg-card">
-                        {caseDevelopmentFields.length > 1 && (
-                            <Button
-                            type="button"
-                            variant="ghost"
-                            size="icon"
-                            className="absolute -top-1 -right-1 h-6 w-6"
-                            onClick={() => removeCaseDevelopment(index)}
-                            >
-                            <Trash2 className="h-4 w-4 text-destructive" />
-                            </Button>
-                        )}
-                        <div className="grid grid-cols-2 gap-2">
-                            <FormField
-                            control={form.control}
-                            name={`caseDevelopments.${index}.count`}
-                            render={({ field }) => (
-                                <FormItem>
-                                <FormLabel>Jumlah</FormLabel>
-                                <FormControl>
-                                    <Input
-                                    type="number"
-                                    placeholder="Jumlah"
-                                    {...field}
-                                    onChange={e => field.onChange(e.target.value === '' ? '' : Number(e.target.value))}
-                                    />
-                                </FormControl>
-                                <FormMessage />
-                                </FormItem>
-                            )}
-                            />
-                            <FormField
-                            control={form.control}
-                            name={`caseDevelopments.${index}.status`}
-                            render={({ field }) => (
-                                <FormItem>
-                                <FormLabel>Keterangan</FormLabel>
-                                <Select onValueChange={field.onChange} value={field.value}>
-                                    <FormControl>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Pilih Status" />
-                                    </SelectTrigger>
-                                    </FormControl>
-                                    <SelectContent>
-                                    {caseStatusOptions.map((option) => (
-                                        <SelectItem key={option} value={option}>
-                                        {option}
-                                        </SelectItem>
-                                    ))}
-                                    </SelectContent>
-                                </Select>
-                                <FormMessage />
-                                </FormItem>
-                            )}
-                            />
-                        </div>
-                        </Card>
-                    ))}
-                    <div className="flex justify-start">
-                        <Button
-                            type="button"
-                            variant="default"
-                            size="sm"
-                            className="bg-accent text-accent-foreground hover:bg-accent/90"
-                            onClick={() => appendCaseDevelopment({ status: "", count: 1 }, { shouldFocus: false })}
-                        >
-                            <PlusCircle className="mr-2 h-4 w-4" />
-                            Tambah
-                        </Button>
-                    </div>
-                    <FormMessage>{form.formState.errors.caseDevelopments?.message}</FormMessage>
-                    </div>
-                </CardContent>
-            </Card>
           </div>
         </div>
         <div className="flex justify-start md:justify-end">

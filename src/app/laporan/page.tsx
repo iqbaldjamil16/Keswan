@@ -130,17 +130,6 @@ export default function ReportPage() {
             data.officerName = 'Basuki Budianto';
           }
           
-          if (!data.caseDevelopments || data.caseDevelopments.length === 0) {
-            let status = 'Sembuh';
-            if (data.caseDevelopment && typeof data.caseDevelopment === 'string' && data.caseDevelopment.length > 0) {
-              status = data.caseDevelopment;
-            }
-            data.caseDevelopments = [{
-              status: status,
-              count: data.livestockCount || 1,
-            }];
-          }
-          
           const service = serviceSchema.parse({
             ...data,
             id: doc.id,
@@ -237,7 +226,7 @@ export default function ReportPage() {
         });
 
         const allDataForSheet: any[] = [];
-        const headers = ['Tanggal', 'Nama Pemilik', 'NIK', 'No. HP', 'Alamat Pemilik', 'Jenis Ternak & Jumlah', 'Program Vaksinasi', 'Perkembangan Kasus'];
+        const headers = ['Tanggal', 'Nama Pemilik', 'NIK', 'No. HP', 'Alamat Pemilik', 'Jenis Ternak & Jumlah', 'Program Vaksinasi'];
         const officerNames = Object.keys(servicesByOfficer).sort();
 
         officerNames.forEach(officerName => {
@@ -246,11 +235,6 @@ export default function ReportPage() {
             allDataForSheet.push(Object.fromEntries(headers.map(h => [h, h])));
 
             const data = servicesByOfficer[officerName].map((service) => {
-                const caseDevelopmentText = (service.caseDevelopments || [])
-                    .filter(dev => dev.status && dev.count > 0)
-                    .map(dev => `${dev.status} (${dev.count})`)
-                    .join(', ');
-
                 const jenisTernakText = (service.vaccinations || [])
                     .map(v => `${v.jenisTernak} (${v.jumlahTernak})`)
                     .join(', ');
@@ -263,7 +247,6 @@ export default function ReportPage() {
                     'Alamat Pemilik': service.ownerAddress,
                     'Jenis Ternak & Jumlah': jenisTernakText,
                     'Program Vaksinasi': service.programVaksinasi,
-                    'Perkembangan Kasus': caseDevelopmentText,
                 };
             });
             allDataForSheet.push(...data);

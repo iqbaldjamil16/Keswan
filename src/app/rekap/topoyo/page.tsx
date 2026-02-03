@@ -160,16 +160,6 @@ export default function RekapTopoyoPage() {
           querySnapshot.forEach((doc) => {
               const data = doc.data();
               try {
-                  if (!data.caseDevelopments || data.caseDevelopments.length === 0) {
-                    let status = 'Sembuh';
-                    if (data.caseDevelopment && typeof data.caseDevelopment === 'string' && data.caseDevelopment.length > 0) {
-                      status = data.caseDevelopment;
-                    }
-                    data.caseDevelopments = [{
-                      status: status,
-                      count: data.livestockCount || 1,
-                    }];
-                  }
                   const service = serviceSchema.parse({
                       ...data,
                       id: doc.id,

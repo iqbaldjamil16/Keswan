@@ -160,7 +160,6 @@ function ServiceCard({
     });
   };
 
-  const hasDevelopments = (service.caseDevelopments && service.caseDevelopments.length > 0 && service.caseDevelopments.some(d => d.status && d.count > 0)) || service.caseDevelopment;
   const hasVaccinations = service.vaccinations && service.vaccinations.length > 0;
 
   return (
@@ -234,43 +233,6 @@ function ServiceCard({
                     </div>
                     {renderVaccinations(service.vaccinations)}
                 </div>
-            )}
-            {hasDevelopments && (
-              <div>
-                <div className="text-xs font-semibold text-muted-foreground">
-                  Perkembangan Kasus
-                </div>
-                <div className="flex flex-wrap gap-1 mt-1">
-                  {service.caseDevelopments && service.caseDevelopments.length > 0 && service.caseDevelopments.some(d => d.status && d.count > 0) ? (
-                    service.caseDevelopments.filter(d => d.status && d.count > 0).map((dev, index) => (
-                      <Badge
-                        key={index}
-                        variant={
-                          dev.status === 'Sembuh'
-                            ? 'default'
-                            : dev.status === 'Mati'
-                            ? 'destructive'
-                            : 'secondary'
-                        }
-                      >
-                        {dev.status} ({dev.count})
-                      </Badge>
-                    ))
-                  ) : service.caseDevelopment ? (
-                    <Badge
-                      variant={
-                        service.caseDevelopment === 'Sembuh'
-                          ? 'default'
-                          : service.caseDevelopment === 'Mati'
-                          ? 'destructive'
-                          : 'secondary'
-                      }
-                    >
-                      {service.caseDevelopment}
-                    </Badge>
-                  ) : null}
-                </div>
-              </div>
             )}
           </CardContent>
           <CardFooter className="p-4 pt-0 justify-end gap-2">
@@ -472,36 +434,6 @@ export function ServiceTable({ services, loading, highlightedIds, searchTerm, on
                   <TableCell className="align-top">
                     <div className="flex flex-col gap-1">
                       <span>{service.programVaksinasi}</span>
-                      {((service.caseDevelopments && service.caseDevelopments.length > 0 && service.caseDevelopments.some(d => d.status && d.count > 0)) || service.caseDevelopment) && (
-                        <div className="flex flex-wrap gap-1">
-                            {service.caseDevelopments && service.caseDevelopments.length > 0 && service.caseDevelopments.some(d => d.status && d.count > 0) ? (
-                                service.caseDevelopments.filter(d => d.status && d.count > 0).map((dev, index) => (
-                                <Badge
-                                    key={index}
-                                    variant={
-                                    dev.status === 'Sembuh' ? 'default' :
-                                    dev.status === 'Mati' ? 'destructive' :
-                                    'secondary'
-                                    }
-                                    className="w-fit"
-                                >
-                                    {dev.status} ({dev.count})
-                                </Badge>
-                                ))
-                            ) : service.caseDevelopment ? (
-                                <Badge
-                                variant={
-                                    service.caseDevelopment === 'Sembuh' ? 'default' :
-                                    service.caseDevelopment === 'Mati' ? 'destructive' :
-                                    'secondary'
-                                }
-                                className="w-fit"
-                                >
-                                {service.caseDevelopment}
-                                </Badge>
-                            ) : null}
-                        </div>
-                      )}
                     </div>
                   </TableCell>
                   <TableCell className="align-top">
