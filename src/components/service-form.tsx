@@ -45,10 +45,10 @@ export function ServiceForm({ initialData, formType = 'keswan' }: { initialData?
   const router = useRouter();
   const isEditMode = !!initialData;
   const [showManualTreatmentType, setShowManualTreatmentType] = useState(
-    initialData ? !treatmentTypes.includes(initialData.treatmentType) : false
+    initialData ? !treatmentTypes.includes(initialData.treatmentType ?? '') : false
   );
   const [showManualLivestockType, setShowManualLivestockType] = useState(
-    initialData ? !livestockTypes.includes(initialData.livestockType) : false
+    initialData ? !livestockTypes.includes(initialData.livestockType ?? '') : false
   );
   const [showManualProgramVaksinasi, setShowManualProgramVaksinasi] = useState(
     initialData ? (initialData.programVaksinasi && !programVaksinasiOptions.includes(initialData.programVaksinasi)) : false
@@ -71,11 +71,6 @@ export function ServiceForm({ initialData, formType = 'keswan' }: { initialData?
       nik: "",
       phoneNumber: "",
       programVaksinasi: "",
-      livestockType: "",
-      livestockCount: 1,
-      clinicalSymptoms: "",
-      diagnosis: "",
-      treatmentType: "",
       treatments: [{ medicineType: "", medicineName: "", dosageValue: 0, dosageUnit: "ml" }],
       caseDevelopments: [{ status: "", count: 1 }],
     },
@@ -137,10 +132,14 @@ export function ServiceForm({ initialData, formType = 'keswan' }: { initialData?
       try {
         const { id, caseDevelopment, ...dataToSave } = values;
         
+        const calculatedLivestockCount = values.caseDevelopments?.reduce((sum, dev) => sum + (dev.count || 0), 0) || 0;
+
         const serviceData = {
           ...dataToSave,
           date: Timestamp.fromDate(values.date),
+          livestockCount: calculatedLivestockCount,
         };
+
 
         if (isEditMode && initialData?.id) {
             const serviceDocRef = doc(firestore, 'healthcareServices', initialData.id);
@@ -454,196 +453,9 @@ export function ServiceForm({ initialData, formType = 'keswan' }: { initialData?
                     />
                 </CardContent>
             </Card>
-            <Card>
-                <CardContent className="p-4">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <FormField
-                        control={form.control}
-                        name="livestockType"
-                        render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>
-                              Jenis Ternak
-                              <span className="ml-2 text-xs italic font-normal text-muted-foreground">
-                                (Pilih Lainnya Jika Jenis Ternak Tidak Tercantum)
-                              </span>
-                            </FormLabel>
-                            {showManualLivestockType ? (
-                              <FormControl>
-                                <Input 
-                                  placeholder="Masukkan jenis ternak"
-                                  {...field}
-                                />
-                              </FormControl>
-                            ) : (
-                              <Select 
-                                onValueChange={(value) => {
-                                  if (value === 'Lainnya') {
-                                    setShowManualLivestockType(true);
-                                    field.onChange('');
-                                  } else {
-                                    field.onChange(value);
-                                  }
-                                }} 
-                                value={field.value}
-                              >
-                                <FormControl>
-                                    <SelectTrigger>
-                                      <SelectValue placeholder="Pilih Jenis Ternak" />
-                                    </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                    {livestockTypes.map((type) => (
-                                    <SelectItem key={type} value={type}>{type}</SelectItem>
-                                    ))}
-                                </SelectContent>
-                              </Select>
-                            )}
-                            <FormMessage />
-                        </FormItem>
-                        )}
-                    />
-                    <FormField
-                        control={form.control}
-                        name="livestockCount"
-                        render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Jumlah</FormLabel>
-                            <FormControl>
-                            <Input type="number" {...field} onChange={e => field.onChange(e.target.value === '' ? '' : Number(e.target.value))} />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                        )}
-                    />
-                    </div>
-                </CardContent>
-            </Card>
           </div>
 
           <div className="space-y-4 md:space-y-6">
-            <Card>
-              <CardContent className="p-4">
-                <FormField
-                  control={form.control}
-                  name="clinicalSymptoms"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{formType === 'keswan' ? 'Gejala Klinis' : 'Sindrom'}</FormLabel>
-                      {formType === 'priority' ? (
-                        <Select
-                          onValueChange={field.onChange}
-                          value={field.value}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Pilih Sindrom Prioritas" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {prioritySyndromeOptions.map((option) => (
-                              <SelectItem key={option} value={option}>{option}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      ) : (
-                        <FormControl>
-                          <Textarea placeholder="Deskripsi gejala klinis" {...field} />
-                        </FormControl>
-                      )}
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-4">
-                 <FormField
-                  control={form.control}
-                  name="diagnosis"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Diagnosa</FormLabel>
-                      {formType === 'priority' ? (
-                        <Select
-                          onValueChange={field.onChange}
-                          value={field.value}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Pilih Diagnosa Prioritas" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {priorityDiagnosisOptions.map((option) => (
-                              <SelectItem key={option} value={option}>{option}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      ) : (
-                        <FormControl>
-                            <Textarea placeholder="Diagnosa penyakit" {...field} className="min-h-[60px]" />
-                        </FormControl>
-                      )}
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-4 space-y-2">
-                <FormField
-                  control={form.control}
-                  name="treatmentType"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>
-                        Jenis Penanganan
-                        <span className="ml-2 text-xs italic font-normal text-muted-foreground">
-                          (Pilih Lainnya Jika Lebih Dari 1 Penanganan)
-                        </span>
-                      </FormLabel>
-                      {showManualTreatmentType ? (
-                        <FormControl>
-                          <Input
-                            placeholder="Masukkan jenis penanganan"
-                            {...field}
-                          />
-                        </FormControl>
-                      ) : (
-                        <Select
-                          onValueChange={(value) => {
-                            if (value === 'Lainnya') {
-                              setShowManualTreatmentType(true);
-                              field.onChange('');
-                            } else {
-                              field.onChange(value);
-                            }
-                          }}
-                          value={field.value}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Pilih Jenis Penanganan" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {treatmentTypes.map((type) => (
-                              <SelectItem key={type} value={type}>
-                                {type}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      )}
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </CardContent>
-            </Card>
             <Card>
               <CardContent className="p-4">
                 <div className="space-y-4">
@@ -934,3 +746,5 @@ export function ServiceForm({ initialData, formType = 'keswan' }: { initialData?
     </Form>
   );
 }
+
+    

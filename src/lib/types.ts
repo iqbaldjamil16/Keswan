@@ -26,27 +26,18 @@ export const serviceSchema = z.object({
   nik: z.string().optional(),
   phoneNumber: z.string().optional(),
   programVaksinasi: z.string().min(1, "Wajib diisi."),
-  livestockType: z.string().min(1, "Wajib diisi."),
-  livestockCount: z.coerce.number().min(1, "Jumlah ternak harus minimal 1."),
-  clinicalSymptoms: z.string().min(1, "Wajib diisi."),
-  diagnosis: z.string().min(1, "Wajib diisi."),
-  treatmentType: z.string().min(1, "Wajib diisi."),
+  livestockType: z.string().optional(),
+  livestockCount: z.coerce.number().optional(),
+  clinicalSymptoms: z.string().optional(),
+  diagnosis: z.string().optional(),
+  treatmentType: z.string().optional(),
   treatments: z.array(treatmentSchema).min(1, "Minimal satu pengobatan harus ditambahkan."),
   caseDevelopment: z.string().optional(),
   caseDevelopments: z.array(caseDevelopmentEntrySchema).min(1, "Minimal satu perkembangan kasus wajib ditambahkan.").optional(),
-}).superRefine((data, ctx) => {
-  if (data.caseDevelopments && data.caseDevelopments.length > 0) {
-    const totalDevelopmentCount = data.caseDevelopments.reduce((sum, dev) => sum + dev.count, 0);
-    if (totalDevelopmentCount > data.livestockCount) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: `Total jumlah pada perkembangan kasus (${totalDevelopmentCount}) tidak boleh melebihi jumlah ternak (${data.livestockCount}).`,
-        path: ["caseDevelopments"],
-      });
-    }
-  }
 });
 
 export type HealthcareService = z.infer<typeof serviceSchema>;
 export type Treatment = z.infer<typeof treatmentSchema>;
 export type CaseDevelopmentEntry = z.infer<typeof caseDevelopmentEntrySchema>;
+
+    
