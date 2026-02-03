@@ -1,111 +1,74 @@
 {
   "entities": {
-    "HealthcareService": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "HealthcareService",
+    "Treatment": {
+      "title": "Treatment",
+      "description": "Represents a single treatment administered.",
       "type": "object",
-      "description": "Represents a healthcare service record for livestock.",
       "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the Healthcare Service record."
+        "medicineType": { "type": "string" },
+        "medicineName": { "type": "string" },
+        "dosageValue": { "type": "number" },
+        "dosageUnit": { "type": "string" }
+      },
+      "required": ["medicineType", "medicineName", "dosageValue", "dosageUnit"]
+    },
+    "CaseDevelopmentEntry": {
+      "title": "CaseDevelopmentEntry",
+      "description": "Represents an entry for case development.",
+      "type": "object",
+      "properties": {
+        "status": { "type": "string" },
+        "count": { "type": "number" }
+      },
+      "required": ["status", "count"]
+    },
+    "HealthcareService": {
+      "title": "HealthcareService",
+      "description": "Represents a healthcare service record for livestock.",
+      "type": "object",
+      "properties": {
+        "date": { "type": "string", "format": "date-time" },
+        "puskeswan": { "type": "string" },
+        "officerName": { "type": "string" },
+        "ownerName": { "type": "string" },
+        "ownerAddress": { "type": "string" },
+        "caseId": { "type": "string" },
+        "livestockType": { "type": "string" },
+        "livestockCount": { "type": "number" },
+        "clinicalSymptoms": { "type": "string" },
+        "diagnosis": { "type": "string" },
+        "treatmentType": { "type": "string" },
+        "treatments": {
+          "type": "array",
+          "items": { "$ref": "#/entities/Treatment" }
         },
-        "serviceDate": {
-          "type": "string",
-          "description": "Date when the service was provided.",
-          "format": "date-time"
-        },
-        "officerName": {
-          "type": "string",
-          "description": "Name of the officer providing the service."
-        },
-        "ownerName": {
-          "type": "string",
-          "description": "Name of the livestock owner."
-        },
-        "ownerAddress": {
-          "type": "string",
-          "description": "Address of the livestock owner."
-        },
-        "isikhnasCaseId": {
-          "type": "string",
-          "description": "iSIKHNAS Case ID associated with the service."
-        },
-        "livestockType": {
-          "type": "string",
-          "description": "Type of livestock (e.g., cow, goat, sheep)."
-        },
-        "livestockCount": {
-          "type": "number",
-          "description": "Number of livestock affected."
-        },
-        "clinicalSymptoms": {
-          "type": "string",
-          "description": "Observed clinical symptoms."
-        },
-        "diagnosis": {
-          "type": "string",
-          "description": "Diagnosis of the livestock's condition."
-        },
-        "handling": {
-          "type": "string",
-          "description": "Handling procedures performed."
-        },
-        "treatmentType": {
-          "type": "string",
-          "description": "Type of treatment provided."
-        },
-        "treatmentDetails": {
-          "type": "string",
-          "description": "Details of the treatment provided."
+        "caseDevelopments": {
+          "type": "array",
+          "items": { "$ref": "#/entities/CaseDevelopmentEntry" }
         }
       },
       "required": [
-        "id",
-        "serviceDate",
+        "date",
+        "puskeswan",
         "officerName",
         "ownerName",
         "ownerAddress",
-        "isikhnasCaseId",
         "livestockType",
         "livestockCount",
         "clinicalSymptoms",
         "diagnosis",
-        "handling",
         "treatmentType",
-        "treatmentDetails"
+        "treatments"
       ]
     }
   },
   "auth": {
-    "providers": [
-      "password",
-      "anonymous"
-    ]
+    "providers": ["anonymous"]
   },
   "firestore": {
-    "structure": [
-      {
-        "path": "/users/{userId}/healthcare_services/{healthcareServiceId}",
-        "definition": {
-          "entityName": "HealthcareService",
-          "schema": {
-            "$ref": "#/backend/entities/HealthcareService"
-          },
-          "description": "Stores healthcare service records specific to each user. The 'userId' parameter ensures that only the authenticated user can access their own data. Includes denormalized 'userId' for authorization independence.",
-          "params": [
-            {
-              "name": "userId",
-              "description": "The unique identifier for the user."
-            },
-            {
-              "name": "healthcareServiceId",
-              "description": "The unique identifier for the healthcare service record."
-            }
-          ]
-        }
-      }
-    ],
-    "reasoning": "The Firestore structure is designed to store healthcare service records for livestock ('HealthcareService' entities) in a user-specific collection to ensure data privacy and ownership. Each user will have their own collection of healthcare service records. This design promotes authorization independence as each healthcare service record is implicitly associated with the user's ID through the collection path. The structure also supports the core app features of service entry, data storage, reporting, and data search.\n\nAuthorization Independence: Ownership is established by storing each user's healthcare service records under the `/users/{userId}/healthcare_services/{healthcareServiceId}` path. Security rules can simply check if `request.auth.uid == userId` to authorize operations on documents in this path, without needing to `get()` parent documents or use custom claims. All authorization depends solely on the authenticated user's ID.\n\nQAPs Support: The path segregation ensures secure `list` operations. A user can only list healthcare service records under their own `userId`. The rule `request.auth.uid == userId` ensures that users can only access data that they own.\n"
+    "/healthcareServices/{serviceId}": {
+      "schema": { "$ref": "#/entities/HealthcareService" },
+      "description": "Stores all healthcare service records."
+    }
   }
 }
