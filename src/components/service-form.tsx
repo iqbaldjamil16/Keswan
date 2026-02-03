@@ -36,6 +36,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { Label } from "@/components/ui/label";
 import { useFirebase } from "@/firebase";
+import { FileImporter } from "./file-importer";
 
 
 export function ServiceForm({ initialData, formType = 'keswan' }: { initialData?: HealthcareService, formType?: 'keswan' | 'priority' }) {
@@ -583,7 +584,12 @@ export function ServiceForm({ initialData, formType = 'keswan' }: { initialData?
                       </div>
                   </div>
               </CardContent>
-          </Card>
+            </Card>
+            <Card>
+              <CardContent className="p-4">
+                <FileImporter />
+              </CardContent>
+            </Card>
           </div>
         </div>
         <div className="flex justify-start md:justify-end">
