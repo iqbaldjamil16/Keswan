@@ -51,6 +51,14 @@ export default function EditServicePage() {
         if (docSnap.exists()) {
           const data = docSnap.data();
 
+          if (!data.vaccinations || data.vaccinations.length === 0) {
+            data.vaccinations = [{ 
+                jenisVaksin: data.programVaksinasi || '', 
+                jenisTernak: data.livestockType || '', 
+                jumlahTernak: data.livestockCount || 1 
+            }];
+          }
+
           if (!data.caseDevelopments || data.caseDevelopments.length === 0) {
             let status = 'Sembuh';
             if (data.caseDevelopment && typeof data.caseDevelopment === 'string' && data.caseDevelopment.length > 0) {

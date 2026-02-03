@@ -23,6 +23,17 @@
       },
       "required": ["status", "count"]
     },
+    "VaccinationEntry": {
+      "title": "VaccinationEntry",
+      "description": "Represents a single vaccination event.",
+      "type": "object",
+      "properties": {
+        "jenisVaksin": { "type": "string" },
+        "jenisTernak": { "type": "string" },
+        "jumlahTernak": { "type": "number" }
+      },
+      "required": ["jenisVaksin", "jenisTernak", "jumlahTernak"]
+    },
     "HealthcareService": {
       "title": "HealthcareService",
       "description": "Represents a healthcare service record for livestock.",
@@ -33,14 +44,14 @@
         "officerName": { "type": "string" },
         "ownerName": { "type": "string" },
         "ownerAddress": { "type": "string" },
-        "livestockType": { "type": "string" },
         "livestockCount": { "type": "number" },
-        "clinicalSymptoms": { "type": "string" },
-        "diagnosis": { "type": "string" },
-        "treatmentType": { "type": "string" },
         "treatments": {
           "type": "array",
           "items": { "$ref": "#/entities/Treatment" }
+        },
+        "vaccinations": {
+          "type": "array",
+          "items": { "$ref": "#/entities/VaccinationEntry" }
         },
         "caseDevelopments": {
           "type": "array",
@@ -62,13 +73,9 @@
         "officerName",
         "ownerName",
         "ownerAddress",
-        "livestockType",
-        "livestockCount",
-        "clinicalSymptoms",
-        "diagnosis",
-        "treatmentType",
+        "programVaksinasi",
         "treatments",
-        "programVaksinasi"
+        "vaccinations"
       ]
     }
   },

@@ -13,6 +13,12 @@ export const caseDevelopmentEntrySchema = z.object({
   count: z.coerce.number().min(1, "Jumlah harus minimal 1."),
 });
 
+export const vaccinationEntrySchema = z.object({
+  jenisVaksin: z.string().min(1, "Jenis vaksin wajib diisi."),
+  jenisTernak: z.string().min(1, "Jenis ternak wajib diisi."),
+  jumlahTernak: z.coerce.number().min(1, "Jumlah ternak harus minimal 1."),
+});
+
 
 export const serviceSchema = z.object({
   id: z.string().optional(),
@@ -26,12 +32,9 @@ export const serviceSchema = z.object({
   nik: z.string().optional(),
   phoneNumber: z.string().optional(),
   programVaksinasi: z.string().min(1, "Wajib diisi."),
-  livestockType: z.string().optional(),
   livestockCount: z.coerce.number().optional(),
-  clinicalSymptoms: z.string().optional(),
-  diagnosis: z.string().optional(),
-  treatmentType: z.string().optional(),
   treatments: z.array(treatmentSchema).min(1, "Minimal satu pengobatan harus ditambahkan."),
+  vaccinations: z.array(vaccinationEntrySchema).min(1, "Minimal satu vaksinasi harus ditambahkan."),
   caseDevelopment: z.string().optional(),
   caseDevelopments: z.array(caseDevelopmentEntrySchema).min(1, "Minimal satu perkembangan kasus wajib ditambahkan.").optional(),
 });
@@ -39,5 +42,4 @@ export const serviceSchema = z.object({
 export type HealthcareService = z.infer<typeof serviceSchema>;
 export type Treatment = z.infer<typeof treatmentSchema>;
 export type CaseDevelopmentEntry = z.infer<typeof caseDevelopmentEntrySchema>;
-
-    
+export type VaccinationEntry = z.infer<typeof vaccinationEntrySchema>;

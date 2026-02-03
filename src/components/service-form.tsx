@@ -44,12 +44,7 @@ export function ServiceForm({ initialData, formType = 'keswan' }: { initialData?
   const { firestore } = useFirebase();
   const router = useRouter();
   const isEditMode = !!initialData;
-  const [showManualTreatmentType, setShowManualTreatmentType] = useState(
-    initialData ? !treatmentTypes.includes(initialData.treatmentType ?? '') : false
-  );
-  const [showManualLivestockType, setShowManualLivestockType] = useState(
-    initialData ? !livestockTypes.includes(initialData.livestockType ?? '') : false
-  );
+  
   const [showManualProgramVaksinasi, setShowManualProgramVaksinasi] = useState(
     initialData ? (initialData.programVaksinasi && !programVaksinasiOptions.includes(initialData.programVaksinasi)) : false
   );
@@ -59,9 +54,12 @@ export function ServiceForm({ initialData, formType = 'keswan' }: { initialData?
     defaultValues: initialData ? {
       ...initialData,
       date: initialData.date ? new Date(initialData.date) : new Date(),
+      vaccinations: (initialData.vaccinations && initialData.vaccinations.length > 0)
+        ? initialData.vaccinations
+        : [{ jenisVaksin: "", jenisTernak: "", jumlahTernak: 1 }],
       caseDevelopments: (initialData.caseDevelopments && initialData.caseDevelopments.length > 0)
         ? initialData.caseDevelopments
-        : [{ status: "", count: initialData.livestockCount || 1 }],
+        : [{ status: "", count: 1 }],
     } : {
       date: new Date(),
       puskeswan: "",
@@ -71,6 +69,7 @@ export function ServiceForm({ initialData, formType = 'keswan' }: { initialData?
       nik: "",
       phoneNumber: "",
       programVaksinasi: "",
+      vaccinations: [{ jenisVaksin: "", jenisTernak: "", jumlahTernak: 1 }],
       treatments: [{ medicineType: "", medicineName: "", dosageValue: 0, dosageUnit: "ml" }],
       caseDevelopments: [{ status: "", count: 1 }],
     },
@@ -79,6 +78,11 @@ export function ServiceForm({ initialData, formType = 'keswan' }: { initialData?
   const { fields: treatmentFields, append: appendTreatment, remove: removeTreatment } = useFieldArray({
     control: form.control,
     name: "treatments",
+  });
+
+  const { fields: vaccinationFields, append: appendVaccination, remove: removeVaccination } = useFieldArray({
+    control: form.control,
+    name: "vaccinations",
   });
 
   const { fields: caseDevelopmentFields, append: appendCaseDevelopment, remove: removeCaseDevelopment } = useFieldArray({
@@ -132,7 +136,7 @@ export function ServiceForm({ initialData, formType = 'keswan' }: { initialData?
       try {
         const { id, caseDevelopment, ...dataToSave } = values;
         
-        const calculatedLivestockCount = values.caseDevelopments?.reduce((sum, dev) => sum + (dev.count || 0), 0) || 0;
+        const calculatedLivestockCount = values.vaccinations.reduce((sum, vax) => sum + (vax.jumlahTernak || 0), 0);
 
         const serviceData = {
           ...dataToSave,
@@ -453,6 +457,92 @@ export function ServiceForm({ initialData, formType = 'keswan' }: { initialData?
                     />
                 </CardContent>
             </Card>
+            <Card>
+              <CardContent className="p-4">
+                  <div className="space-y-4">
+                      <div>
+                          <Label>Vaksinasi</Label>
+                      </div>
+                      {vaccinationFields.map((item, index) => (
+                          <Card key={item.id} className="relative p-4 bg-card">
+                              {vaccinationFields.length > 1 && (
+                                  <Button
+                                      type="button"
+                                      variant="ghost"
+                                      size="icon"
+                                      className="absolute -top-1 -right-1 h-6 w-6"
+                                      onClick={() => removeVaccination(index)}
+                                  >
+                                      <Trash2 className="h-4 w-4 text-destructive" />
+                                  </Button>
+                              )}
+                              <div className="space-y-4">
+                                  <FormField
+                                      control={form.control}
+                                      name={`vaccinations.${index}.jenisVaksin`}
+                                      render={({ field }) => (
+                                          <FormItem>
+                                              <FormLabel>Jenis Vaksin</FormLabel>
+                                              <FormControl>
+                                                  <Input placeholder="Contoh: PMK" {...field} />
+                                              </FormControl>
+                                              <FormMessage />
+                                          </FormItem>
+                                      )}
+                                  />
+                                  <FormField
+                                      control={form.control}
+                                      name={`vaccinations.${index}.jenisTernak`}
+                                      render={({ field }) => (
+                                          <FormItem>
+                                              <FormLabel>Jenis Ternak</FormLabel>
+                                              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                                  <FormControl>
+                                                      <SelectTrigger>
+                                                          <SelectValue placeholder="Pilih Jenis Ternak" />
+                                                      </SelectTrigger>
+                                                  </FormControl>
+                                                  <SelectContent>
+                                                      {livestockTypes.map((type) => (
+                                                          <SelectItem key={type} value={type}>{type}</SelectItem>
+                                                      ))}
+                                                  </SelectContent>
+                                              </Select>
+                                              <FormMessage />
+                                          </FormItem>
+                                      )}
+                                  />
+                                  <FormField
+                                      control={form.control}
+                                      name={`vaccinations.${index}.jumlahTernak`}
+                                      render={({ field }) => (
+                                          <FormItem>
+                                              <FormLabel>Jumlah Ternak</FormLabel>
+                                              <FormControl>
+                                                  <Input type="number" placeholder="Jumlah" {...field} onChange={e => field.onChange(e.target.value === '' ? '' : Number(e.target.value))} />
+                                              </FormControl>
+                                              <FormMessage />
+                                          </FormItem>
+                                      )}
+                                  />
+                              </div>
+                          </Card>
+                      ))}
+                      <div className="flex justify-start">
+                          <Button
+                              type="button"
+                              variant="default"
+                              size="sm"
+                              className="bg-accent text-accent-foreground hover:bg-accent/90"
+                              onClick={() => appendVaccination({ jenisVaksin: "", jenisTernak: "", jumlahTernak: 1 }, { shouldFocus: false })}
+                          >
+                              <PlusCircle className="mr-2 h-4 w-4" />
+                              Tambah
+                          </Button>
+                      </div>
+                  </div>
+              </CardContent>
+          </Card>
           </div>
 
           <div className="space-y-4 md:space-y-6">
@@ -746,5 +836,3 @@ export function ServiceForm({ initialData, formType = 'keswan' }: { initialData?
     </Form>
   );
 }
-
-    
