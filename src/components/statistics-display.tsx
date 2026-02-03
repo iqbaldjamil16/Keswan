@@ -16,7 +16,7 @@ interface StatItem {
   count: number;
 }
 
-function calculateStats(services: HealthcareService[], groupBy: 'month' | 'officerName' | 'puskeswan' | 'diagnosis'): StatItem[] {
+function calculateStats(services: HealthcareService[], groupBy: 'month' | 'officerName' | 'puskeswan'): StatItem[] {
   if (services.length === 0) return [];
 
   const counts: { [key: string]: number } = {};
@@ -141,6 +141,8 @@ const StatChart = ({
                         }
                       } else if (title === 'Statistik per Puskeswan') {
                         color = puskeswanColors?.[entry.name] || color;
+                      } else if (title.startsWith('Statistik Vaksinasi')) {
+                        color = '#006400';
                       }
                       return <Cell key={`cell-${index}`} fill={color} />;
                     })}
@@ -286,34 +288,40 @@ export default function StatisticsDisplay({ services }: { services: HealthcareSe
       </Card>
     );
   }
-  // @ts-ignore
-  const priorityServices = services.filter((service) =>
-    priorityDiagnosisOptions.includes(service.diagnosis)
-  );
-    // @ts-ignore
-  const keswanServices = services.filter(
-    (service) => !priorityDiagnosisOptions.includes(service.diagnosis)
-  );
-
+  
   const statsByMonth = calculateStats(services, 'month');
   const statsByOfficer = calculateStats(services, 'officerName');
   const statsByPuskeswan = calculateStats(services, 'puskeswan');
 
-  const statsByDiagnosisAndAnimal: {
+  const priorityCounts: { [key: string]: number } = {};
+  const statsByVaksinasiAndTernak: {
     [animalType: string]: { [diagnosis: string]: number };
   } = {};
-  keswanServices.forEach((service) => {
-    // @ts-ignore
-    const genericType = getGenericLivestockType(service.livestockType.trim());
-    if (!statsByDiagnosisAndAnimal[genericType]) {
-      statsByDiagnosisAndAnimal[genericType] = {};
-    }
-        // @ts-ignore
-    const diagnosis = service.diagnosis.trim();
-    statsByDiagnosisAndAnimal[genericType][diagnosis] = (statsByDiagnosisAndAnimal[genericType][diagnosis] || 0) + (service.livestockCount ?? 0);
+
+  services.forEach((service) => {
+    service.vaccinations.forEach(vax => {
+        // Aggregate for priority stats
+        if (priorityDiagnosisOptions.includes(vax.jenisVaksin)) {
+            priorityCounts[vax.jenisVaksin] = (priorityCounts[vax.jenisVaksin] || 0) + vax.jumlahTernak;
+        }
+
+        // Aggregate for per-animal stats
+        const genericType = getGenericLivestockType(vax.jenisTernak.trim());
+        if (!statsByVaksinasiAndTernak[genericType]) {
+            statsByVaksinasiAndTernak[genericType] = {};
+        }
+        const vaksin = vax.jenisVaksin.trim();
+        if (vaksin) {
+            statsByVaksinasiAndTernak[genericType][vaksin] = (statsByVaksinasiAndTernak[genericType][vaksin] || 0) + vax.jumlahTernak;
+        }
+    });
   });
 
-  const diagnosisCharts = Object.entries(statsByDiagnosisAndAnimal)
+  const priorityDiagnosisStats: StatItem[] = Object.entries(priorityCounts)
+    .map(([name, count]) => ({ name, count }))
+    .sort((a, b) => b.count - a.count);
+    
+  const diagnosisCharts = Object.entries(statsByVaksinasiAndTernak)
     .sort(([animalA], [animalB]) => animalA.localeCompare(animalB))
     .map(([animalType, diagnoses]) => {
       const chartData: StatItem[] = Object.entries(diagnoses)
@@ -321,13 +329,15 @@ export default function StatisticsDisplay({ services }: { services: HealthcareSe
         .filter(item => item.count > 0)
         .sort((a, b) => b.count - a.count);
 
-      if (chartData.length === 0) return null;
+      const nonPriorityChartData = chartData.filter(d => !priorityDiagnosisOptions.includes(d.name));
+      
+      if (nonPriorityChartData.length === 0) return null;
 
       return (
         <StatChart
           key={animalType}
-          title={`Statistik Kasus/Penyakit - ${animalType}`}
-          data={chartData}
+          title={`Statistik Vaksinasi - ${animalType}`}
+          data={nonPriorityChartData}
           showAll={true}
         />
       );
@@ -344,9 +354,7 @@ export default function StatisticsDisplay({ services }: { services: HealthcareSe
       officerToPuskeswanMap[service.officerName] = service.puskeswan;
     }
   });
-    // @ts-ignore
-  const priorityDiagnosisStats = calculateStats(priorityServices, 'diagnosis');
-
+  
   const puskeswanColors: { [key: string]: string } = {
     'Puskeswan Topoyo': '#00008B',
     'Puskeswan Tobadak': '#006400',
