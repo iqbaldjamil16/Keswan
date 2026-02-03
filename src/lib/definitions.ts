@@ -337,3 +337,19 @@ export const programVaksinasiOptions = [
   'ND (Newcastle Disease)',
   'Lainnya',
 ];
+
+export const rabiesVaccineList = ['Neo Rabivet', 'Rabisin', 'Lainnya'];
+export const pmkVaccineList = ['Aphthovet Pusvetma', 'Lainnya'];
+export const jembranaVaccineList = ['JD-Vet', 'Lainnya'];
+export const aiVaccineList = ['Medivac AI', 'Lainnya'];
+export const ndVaccineList = ['Medivac ND', 'Lainnya'];
+export const asfVaccineList = ['Serum ASF', 'Lainnya'];
+
+export const vaccineListMap: Record<string, string[]> = {
+  'Rabies': rabiesVaccineList,
+  'PMK (Penyakit Mulut dan Kuku)': pmkVaccineList,
+  'Jembrana': jembranaVaccineList,
+  'AI (Avian Influenza)': aiVaccineList,
+  'ND (Newcastle Disease)': ndVaccineList,
+  'ASF (African Swine Fever)': asfVaccineList,
+};

@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useTransition, useState } from "react";
+import { useTransition, useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -12,7 +12,7 @@ import { doc, updateDoc, addDoc, collection, Timestamp, Firestore } from 'fireba
 
 import { cn } from "@/lib/utils";
 import { serviceSchema, type HealthcareService } from "@/lib/types";
-import { medicineData, medicineTypes, type MedicineType, livestockTypes, puskeswanList, treatmentTypes, dosageUnits, karossaDesaList, budongBudongDesaList, pangaleDesaList, tobadakDesaList, topoyoDesaList, budongBudongOfficerList, karossaOfficerList, pangaleOfficerList, tobadakOfficerList, topoyoOfficerList, caseStatusOptions, priorityOfficerList, prioritySyndromeOptions, priorityDiagnosisOptions, programVaksinasiOptions } from "@/lib/definitions";
+import { medicineData, medicineTypes, type MedicineType, livestockTypes, puskeswanList, treatmentTypes, dosageUnits, karossaDesaList, budongBudongDesaList, pangaleDesaList, tobadakDesaList, topoyoDesaList, budongBudongOfficerList, karossaOfficerList, pangaleOfficerList, tobadakOfficerList, topoyoOfficerList, caseStatusOptions, priorityOfficerList, prioritySyndromeOptions, priorityDiagnosisOptions, programVaksinasiOptions, vaccineListMap } from "@/lib/definitions";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -74,6 +74,8 @@ export function ServiceForm({ initialData, formType = 'keswan' }: { initialData?
       caseDevelopments: [{ status: "", count: 1 }],
     },
   });
+
+  const [manualJenisVaksin, setManualJenisVaksin] = useState<Record<string, boolean>>({});
   
   const { fields: treatmentFields, append: appendTreatment, remove: removeTreatment } = useFieldArray({
     control: form.control,
@@ -85,6 +87,24 @@ export function ServiceForm({ initialData, formType = 'keswan' }: { initialData?
     name: "vaccinations",
   });
 
+    const isInitialized = useRef(false);
+    useEffect(() => {
+        if (isEditMode && initialData?.vaccinations && !isInitialized.current) {
+            const program = initialData.programVaksinasi;
+            const vaccineList = vaccineListMap[program] || [];
+            const initialManualState: Record<string, boolean> = {};
+
+            vaccinationFields.forEach((field, index) => {
+                const value = initialData.vaccinations![index].jenisVaksin;
+                if (!vaccineList.length || (value && !vaccineList.includes(value))) {
+                    initialManualState[field.id] = true;
+                }
+            });
+            setManualJenisVaksin(initialManualState);
+            isInitialized.current = true;
+        }
+    }, [isEditMode, initialData, vaccinationFields]);
+
   const { fields: caseDevelopmentFields, append: appendCaseDevelopment, remove: removeCaseDevelopment } = useFieldArray({
     control: form.control,
     name: "caseDevelopments",
@@ -92,6 +112,7 @@ export function ServiceForm({ initialData, formType = 'keswan' }: { initialData?
 
   const watchedPuskeswan = form.watch("puskeswan");
   const watchedTreatments = form.watch("treatments");
+  const watchedProgramVaksinasi = form.watch("programVaksinasi");
 
   const officerListMap: Record<string, string[]> = {
     'Puskeswan Budong-Budong': budongBudongOfficerList,
@@ -436,6 +457,10 @@ export function ServiceForm({ initialData, formType = 'keswan' }: { initialData?
                                         } else {
                                             field.onChange(value);
                                         }
+                                        vaccinationFields.forEach((item, index) => {
+                                            form.setValue(`vaccinations.${index}.jenisVaksin`, '');
+                                        });
+                                        setManualJenisVaksin({});
                                     }} 
                                     value={field.value}
                                 >
@@ -463,7 +488,12 @@ export function ServiceForm({ initialData, formType = 'keswan' }: { initialData?
                       <div>
                           <Label>Vaksinasi</Label>
                       </div>
-                      {vaccinationFields.map((item, index) => (
+                      {vaccinationFields.map((item, index) => {
+                        const vaccineList = vaccineListMap[watchedProgramVaksinasi] || [];
+                        const programHasList = vaccineList.length > 0;
+                        const isManual = manualJenisVaksin[item.id] ?? !programHasList;
+
+                        return (
                           <Card key={item.id} className="relative p-4 bg-card">
                               {vaccinationFields.length > 1 && (
                                   <Button
@@ -481,13 +511,36 @@ export function ServiceForm({ initialData, formType = 'keswan' }: { initialData?
                                       control={form.control}
                                       name={`vaccinations.${index}.jenisVaksin`}
                                       render={({ field }) => (
-                                          <FormItem>
-                                              <FormLabel>Jenis Vaksin</FormLabel>
-                                              <FormControl>
-                                                  <Input placeholder="Contoh: PMK" {...field} />
-                                              </FormControl>
-                                              <FormMessage />
-                                          </FormItem>
+                                        <FormItem>
+                                            <FormLabel>Jenis Vaksin</FormLabel>
+                                            {programHasList && !isManual ? (
+                                                <Select
+                                                    onValueChange={(value) => {
+                                                        if (value === 'Lainnya') {
+                                                            setManualJenisVaksin(s => ({ ...s, [item.id]: true }));
+                                                            field.onChange('');
+                                                        } else {
+                                                            field.onChange(value);
+                                                        }
+                                                    }}
+                                                    value={field.value}
+                                                >
+                                                    <FormControl>
+                                                        <SelectTrigger>
+                                                            <SelectValue placeholder="Pilih Jenis Vaksin" />
+                                                        </SelectTrigger>
+                                                    </FormControl>
+                                                    <SelectContent>
+                                                        {vaccineList.map(v => <SelectItem key={v} value={v}>{v}</SelectItem>)}
+                                                    </SelectContent>
+                                                </Select>
+                                            ) : (
+                                                <FormControl>
+                                                    <Input placeholder="Contoh: PMK" {...field} />
+                                                </FormControl>
+                                            )}
+                                            <FormMessage />
+                                        </FormItem>
                                       )}
                                   />
                                   <FormField
@@ -527,7 +580,8 @@ export function ServiceForm({ initialData, formType = 'keswan' }: { initialData?
                                   />
                               </div>
                           </Card>
-                      ))}
+                        )
+                      })}
                       <div className="flex justify-start">
                           <Button
                               type="button"
