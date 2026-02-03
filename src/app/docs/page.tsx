@@ -140,7 +140,7 @@ export default function DocsPage() {
         doc.text(periodLabel, valueX, currentY);
 
         if (services.length > 0) {
-          const tableColumn = ["No.", "Tanggal", "Puskeswan", "Pemilik", "Alamat", "ID Kasus", "Jenis Hewan", "Gejala Klinis", "Diagnosa", "Penanganan", "Pengobatan", "Perkembangan Kasus"];
+          const tableColumn = ["No.", "Tanggal", "Puskeswan", "Pemilik", "Alamat", "Jenis Hewan", "Gejala Klinis", "Diagnosa", "Penanganan", "Pengobatan", "Perkembangan Kasus"];
           const tableRows: any[][] = [];
 
           services.forEach((service, index) => {
@@ -156,7 +156,6 @@ export default function DocsPage() {
                   service.puskeswan,
                   service.ownerName,
                   service.ownerAddress,
-                  service.caseId || '-',
                   `${service.livestockType} (${service.livestockCount})`,
                   service.clinicalSymptoms,
                   service.diagnosis,
@@ -177,8 +176,7 @@ export default function DocsPage() {
               headStyles: { fillColor: [38, 89, 43], textColor: [255, 255, 255], fontSize: 9, halign: 'center', valign: 'middle' },
               columnStyles: {
                 0: { halign: 'center' },
-                5: { halign: 'left' },
-                11: { halign: 'left' },
+                10: { halign: 'left' },
               }
           });
           
@@ -276,3 +274,5 @@ export default function DocsPage() {
     </div>
   );
 }
+
+    

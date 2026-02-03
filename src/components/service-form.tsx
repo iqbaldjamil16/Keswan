@@ -65,7 +65,6 @@ export function ServiceForm({ initialData, formType = 'keswan' }: { initialData?
       officerName: "",
       ownerName: "",
       ownerAddress: "",
-      caseId: "",
       livestockType: "",
       livestockCount: 1,
       clinicalSymptoms: "",
@@ -364,28 +363,6 @@ export function ServiceForm({ initialData, formType = 'keswan' }: { initialData?
                              />
                         </FormControl>
                       )}
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-4">
-                <FormField
-                  control={form.control}
-                  name="caseId"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>
-                        ID Kasus iSIKHNAS
-                        <span className="ml-2 text-xs italic font-normal text-muted-foreground">
-                          (Opsional, Dapat Diisi &amp; Tidak, Dapatkan Kode Dari Isikhnas)
-                        </span>
-                      </FormLabel>
-                      <FormControl>
-                        <Input placeholder="contoh : 53144622" {...field} />
-                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -872,4 +849,6 @@ export function ServiceForm({ initialData, formType = 'keswan' }: { initialData?
     </Form>
   );
 }
+    
+
     

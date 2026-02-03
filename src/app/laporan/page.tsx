@@ -240,7 +240,7 @@ export default function ReportPage() {
       });
 
       const allDataForSheet: any[] = [];
-      const headers = ['Tanggal', 'Nama Pemilik', 'Alamat Pemilik', 'Jenis Ternak', 'Sindrom', 'Diagnosa', 'Jenis Penanganan', 'Obat yang Digunakan', 'Dosis', 'Jumlah Ternak', 'ID Isikhnas', 'Perkembangan Kasus'];
+      const headers = ['Tanggal', 'Nama Pemilik', 'Alamat Pemilik', 'Jenis Ternak', 'Sindrom', 'Diagnosa', 'Jenis Penanganan', 'Obat yang Digunakan', 'Dosis', 'Jumlah Ternak', 'Perkembangan Kasus'];
       const officerNames = Object.keys(servicesByOfficer).sort();
 
       officerNames.forEach(officerName => {
@@ -265,7 +265,6 @@ export default function ReportPage() {
             'Obat yang Digunakan': service.treatments.map((t) => t.medicineName).join(', '),
             'Dosis': service.treatments.map((t) => `${t.dosageValue} ${t.dosageUnit}`).join(', '),
             'Jumlah Ternak': service.livestockCount,
-            'ID Isikhnas': service.caseId,
             'Perkembangan Kasus': caseDevelopmentText,
           };
         });
@@ -304,7 +303,7 @@ export default function ReportPage() {
       });
 
       const allDataForSheet: any[] = [];
-      const headers = ['Tanggal', 'Nama Pemilik', 'Alamat Pemilik', 'Jenis Ternak', 'Sindrom', 'Diagnosa', 'Jenis Penanganan', 'Obat yang Digunakan', 'Dosis', 'Jumlah Ternak', 'ID Isikhnas', 'Perkembangan Kasus'];
+      const headers = ['Tanggal', 'Nama Pemilik', 'Alamat Pemilik', 'Jenis Ternak', 'Sindrom', 'Diagnosa', 'Jenis Penanganan', 'Obat yang Digunakan', 'Dosis', 'Jumlah Ternak', 'Perkembangan Kasus'];
       const officerNames = Object.keys(servicesByOfficer).sort();
 
       officerNames.forEach(officerName => {
@@ -329,7 +328,6 @@ export default function ReportPage() {
             'Obat yang Digunakan': service.treatments.map((t) => t.medicineName).join(', '),
             'Dosis': service.treatments.map((t) => `${t.dosageValue} ${t.dosageUnit}`).join(', '),
             'Jumlah Ternak': service.livestockCount,
-            'ID Isikhnas': service.caseId,
             'Perkembangan Kasus': caseDevelopmentText,
           };
         });
@@ -510,5 +508,8 @@ export default function ReportPage() {
 
 
     
+
+    
+
 
     

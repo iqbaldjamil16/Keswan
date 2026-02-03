@@ -1,3 +1,4 @@
+
 {
   "entities": {
     "Treatment": {
@@ -32,7 +33,6 @@
         "officerName": { "type": "string" },
         "ownerName": { "type": "string" },
         "ownerAddress": { "type": "string" },
-        "caseId": { "type": "string" },
         "livestockType": { "type": "string" },
         "livestockCount": { "type": "number" },
         "clinicalSymptoms": { "type": "string" },
@@ -72,3 +72,5 @@
     }
   }
 }
+
+    
