@@ -140,7 +140,7 @@ export default function DocsPage() {
         doc.text(periodLabel, valueX, currentY);
 
         if (services.length > 0) {
-          const tableColumn = ["No.", "Tanggal", "Puskeswan", "Pemilik", "Alamat", "Jenis Hewan", "Gejala Klinis", "Diagnosa", "Penanganan", "Pengobatan", "Perkembangan Kasus"];
+          const tableColumn = ["No.", "Tanggal", "Puskeswan", "Pemilik", "NIK", "No. HP", "Alamat", "Jenis Hewan", "Gejala Klinis", "Diagnosa", "Penanganan", "Pengobatan", "Perkembangan Kasus"];
           const tableRows: any[][] = [];
 
           services.forEach((service, index) => {
@@ -155,6 +155,8 @@ export default function DocsPage() {
                   format(new Date(service.date), 'dd-MM-yyyy', { locale: id }),
                   service.puskeswan,
                   service.ownerName,
+                  service.nik || '-',
+                  service.phoneNumber || '-',
                   service.ownerAddress,
                   `${service.livestockType} (${service.livestockCount})`,
                   service.clinicalSymptoms,
@@ -176,7 +178,8 @@ export default function DocsPage() {
               headStyles: { fillColor: [38, 89, 43], textColor: [255, 255, 255], fontSize: 9, halign: 'center', valign: 'middle' },
               columnStyles: {
                 0: { halign: 'center' },
-                10: { halign: 'left' },
+                6: { halign: 'left' },
+                12: { halign: 'left' },
               }
           });
           

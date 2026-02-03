@@ -65,6 +65,8 @@ export function ServiceForm({ initialData, formType = 'keswan' }: { initialData?
       officerName: "",
       ownerName: "",
       ownerAddress: "",
+      nik: "",
+      phoneNumber: "",
       livestockType: "",
       livestockCount: 1,
       clinicalSymptoms: "",
@@ -363,6 +365,40 @@ export function ServiceForm({ initialData, formType = 'keswan' }: { initialData?
                              />
                         </FormControl>
                       )}
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-4">
+                <FormField
+                  control={form.control}
+                  name="nik"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>NIK KTP</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Masukkan NIK" {...field} value={field.value ?? ''} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-4">
+                <FormField
+                  control={form.control}
+                  name="phoneNumber"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>No. Hp</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Masukkan No. Hp" {...field} value={field.value ?? ''} />
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -849,6 +885,4 @@ export function ServiceForm({ initialData, formType = 'keswan' }: { initialData?
     </Form>
   );
 }
-    
-
     

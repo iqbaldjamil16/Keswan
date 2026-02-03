@@ -297,7 +297,7 @@ export default function RekapTopoyoPage() {
         officerNames.forEach(officerName => {
             const officerServices = servicesByOfficer[officerName].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
             
-            const tableHeaders = ['Tanggal', 'Nama Pemilik', 'Alamat Pemilik', 'Jenis Ternak', 'Gejala Klinis', 'Diagnosa', 'Jenis Penanganan', 'Obat yang Digunakan', 'Dosis', 'Jumlah Ternak'];
+            const tableHeaders = ['Tanggal', 'Nama Pemilik', 'NIK', 'No. HP', 'Alamat Pemilik', 'Jenis Ternak', 'Gejala Klinis', 'Diagnosa', 'Jenis Penanganan', 'Obat yang Digunakan', 'Dosis', 'Jumlah Ternak'];
             
             const sheetData: any[][] = [
                 ["PEMERINTAHAN KABUPATEN MAMUJU TENGAH"],
@@ -316,6 +316,8 @@ export default function RekapTopoyoPage() {
                 sheetData.push([
                     format(new Date(service.date), 'dd-MM-yyyy'),
                     service.ownerName,
+                    service.nik || '-',
+                    service.phoneNumber || '-',
                     service.ownerAddress,
                     service.livestockType,
                     service.clinicalSymptoms,
@@ -330,15 +332,17 @@ export default function RekapTopoyoPage() {
             const ws = XLSX.utils.aoa_to_sheet(sheetData);
     
             const merges = [
-                { s: { r: 0, c: 0 }, e: { r: 0, c: 9 } },
-                { s: { r: 1, c: 0 }, e: { r: 1, c: 9 } },
-                { s: { r: 2, c: 0 }, e: { r: 2, c: 9 } },
+                { s: { r: 0, c: 0 }, e: { r: 0, c: 11 } },
+                { s: { r: 1, c: 0 }, e: { r: 1, c: 11 } },
+                { s: { r: 2, c: 0 }, e: { r: 2, c: 11 } },
             ];
             ws['!merges'] = merges;
             
             ws['!cols'] = [
                 { wch: 12 }, 
                 { wch: 20 }, 
+                { wch: 20 }, 
+                { wch: 15 },
                 { wch: 20 }, 
                 { wch: 15 }, 
                 { wch: 40 }, 

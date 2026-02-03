@@ -128,7 +128,7 @@ function ServiceCard({
     if (!firestore || !service.id) return;
     startDeleteTransition(async () => {
       try {
-        const serviceDoc = doc(firestore, 'healthcareServices', service.id);
+        const serviceDoc = doc(firestore, 'healthcareServices', service.id!);
         await deleteDoc(serviceDoc);
         toast({
           title: 'Sukses',
@@ -189,6 +189,12 @@ function ServiceCard({
               <p className="text-xs text-muted-foreground">
                 {service.ownerAddress}
               </p>
+               {service.nik && (
+                <p className="text-xs text-muted-foreground">NIK: {service.nik}</p>
+              )}
+              {service.phoneNumber && (
+                <p className="text-xs text-muted-foreground">No. HP: {service.phoneNumber}</p>
+              )}
             </div>
             <div>
               <div className="text-xs font-semibold text-muted-foreground">
@@ -312,7 +318,7 @@ function ActionsCell({
     if (!firestore || !service.id) return;
     startDeleteTransition(async () => {
       try {
-        const serviceDoc = doc(firestore, 'healthcareServices', service.id);
+        const serviceDoc = doc(firestore, 'healthcareServices', service.id!);
         await deleteDoc(serviceDoc);
         toast({
           title: 'Sukses',
@@ -437,6 +443,16 @@ export function ServiceTable({ services, loading, highlightedIds, searchTerm, on
                     <div className="text-xs text-muted-foreground">
                       {service.ownerAddress}
                     </div>
+                    {service.nik && (
+                        <div className="text-xs text-muted-foreground">
+                            NIK: {service.nik}
+                        </div>
+                    )}
+                    {service.phoneNumber && (
+                        <div className="text-xs text-muted-foreground">
+                            No. HP: {service.phoneNumber}
+                        </div>
+                    )}
                   </TableCell>
                   <TableCell className="align-top">
                     <Badge variant="secondary">

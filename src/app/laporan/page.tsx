@@ -240,7 +240,7 @@ export default function ReportPage() {
       });
 
       const allDataForSheet: any[] = [];
-      const headers = ['Tanggal', 'Nama Pemilik', 'Alamat Pemilik', 'Jenis Ternak', 'Sindrom', 'Diagnosa', 'Jenis Penanganan', 'Obat yang Digunakan', 'Dosis', 'Jumlah Ternak', 'Perkembangan Kasus'];
+      const headers = ['Tanggal', 'Nama Pemilik', 'NIK', 'No. HP', 'Alamat Pemilik', 'Jenis Ternak', 'Sindrom', 'Diagnosa', 'Jenis Penanganan', 'Obat yang Digunakan', 'Dosis', 'Jumlah Ternak', 'Perkembangan Kasus'];
       const officerNames = Object.keys(servicesByOfficer).sort();
 
       officerNames.forEach(officerName => {
@@ -257,6 +257,8 @@ export default function ReportPage() {
           return {
             'Tanggal': format(new Date(service.date), 'dd-MM-yyyy'),
             'Nama Pemilik': service.ownerName,
+            'NIK': service.nik || '-',
+            'No. HP': service.phoneNumber || '-',
             'Alamat Pemilik': service.ownerAddress,
             'Jenis Ternak': service.livestockType,
             'Sindrom': service.clinicalSymptoms,
@@ -303,7 +305,7 @@ export default function ReportPage() {
       });
 
       const allDataForSheet: any[] = [];
-      const headers = ['Tanggal', 'Nama Pemilik', 'Alamat Pemilik', 'Jenis Ternak', 'Sindrom', 'Diagnosa', 'Jenis Penanganan', 'Obat yang Digunakan', 'Dosis', 'Jumlah Ternak', 'Perkembangan Kasus'];
+      const headers = ['Tanggal', 'Nama Pemilik', 'NIK', 'No. HP', 'Alamat Pemilik', 'Jenis Ternak', 'Sindrom', 'Diagnosa', 'Jenis Penanganan', 'Obat yang Digunakan', 'Dosis', 'Jumlah Ternak', 'Perkembangan Kasus'];
       const officerNames = Object.keys(servicesByOfficer).sort();
 
       officerNames.forEach(officerName => {
@@ -320,6 +322,8 @@ export default function ReportPage() {
           return {
             'Tanggal': format(new Date(service.date), 'dd-MM-yyyy'),
             'Nama Pemilik': service.ownerName,
+            'NIK': service.nik || '-',
+            'No. HP': service.phoneNumber || '-',
             'Alamat Pemilik': service.ownerAddress,
             'Jenis Ternak': service.livestockType,
             'Sindrom': service.clinicalSymptoms,
