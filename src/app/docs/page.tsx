@@ -140,14 +140,17 @@ export default function DocsPage() {
         doc.text(periodLabel, valueX, currentY);
 
         if (services.length > 0) {
-          const tableColumn = ["No.", "Tanggal", "Puskeswan", "Pemilik", "NIK", "No. HP", "Alamat", "Jenis Hewan", "Program Vaksinasi", "Gejala Klinis", "Diagnosa", "Penanganan", "Pengobatan", "Perkembangan Kasus"];
+          const tableColumn = ["No.", "Tanggal", "Puskeswan", "Pemilik", "NIK", "No. HP", "Alamat", "Jenis Hewan & Jumlah", "Program Vaksinasi", "Perkembangan Kasus"];
           const tableRows: any[][] = [];
 
           services.forEach((service, index) => {
-              const treatments = service.treatments.map(t => `${t.medicineName} (${t.dosageValue} ${t.dosageUnit})`).join('\n');
               const caseDevelopmentText = (service.caseDevelopments || [])
                 .filter(dev => dev.status && dev.count > 0)
                 .map(dev => `${dev.status} (${dev.count})`)
+                .join(', ');
+              
+              const jenisTernakText = (service.vaccinations || [])
+                .map(v => `${v.jenisTernak} (${v.jumlahTernak})`)
                 .join(', ');
 
               const serviceData = [
@@ -158,18 +161,14 @@ export default function DocsPage() {
                   service.nik || '-',
                   service.phoneNumber || '-',
                   service.ownerAddress,
-                  `${service.livestockType} (${service.livestockCount})`,
+                  jenisTernakText,
                   service.programVaksinasi,
-                  service.clinicalSymptoms,
-                  service.diagnosis,
-                  service.treatmentType,
-                  treatments,
                   caseDevelopmentText || (service.caseDevelopment || '-'),
               ];
               tableRows.push(serviceData);
           });
           
-          const totalLivestock = services.reduce((sum, service) => sum + service.livestockCount, 0);
+          const totalLivestock = services.reduce((sum, service) => sum + (service.livestockCount || 0), 0);
 
           autoTable(doc, {
               head: [tableColumn],
@@ -179,8 +178,6 @@ export default function DocsPage() {
               headStyles: { fillColor: [38, 89, 43], textColor: [255, 255, 255], fontSize: 9, halign: 'center', valign: 'middle' },
               columnStyles: {
                 0: { halign: 'center' },
-                6: { halign: 'left' },
-                13: { halign: 'left' },
               }
           });
           

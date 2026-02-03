@@ -1,18 +1,6 @@
 
 {
   "entities": {
-    "Treatment": {
-      "title": "Treatment",
-      "description": "Represents a single treatment administered.",
-      "type": "object",
-      "properties": {
-        "medicineType": { "type": "string" },
-        "medicineName": { "type": "string" },
-        "dosageValue": { "type": "number" },
-        "dosageUnit": { "type": "string" }
-      },
-      "required": ["medicineType", "medicineName", "dosageValue", "dosageUnit"]
-    },
     "CaseDevelopmentEntry": {
       "title": "CaseDevelopmentEntry",
       "description": "Represents an entry for case development.",
@@ -45,10 +33,6 @@
         "ownerName": { "type": "string" },
         "ownerAddress": { "type": "string" },
         "livestockCount": { "type": "number" },
-        "treatments": {
-          "type": "array",
-          "items": { "$ref": "#/entities/Treatment" }
-        },
         "vaccinations": {
           "type": "array",
           "items": { "$ref": "#/entities/VaccinationEntry" }
@@ -74,7 +58,6 @@
         "ownerName",
         "ownerAddress",
         "programVaksinasi",
-        "treatments",
         "vaccinations"
       ]
     }

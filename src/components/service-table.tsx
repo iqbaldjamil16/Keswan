@@ -7,7 +7,7 @@ import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
 import { doc, deleteDoc } from 'firebase/firestore';
 
-import { HealthcareService } from '@/lib/types';
+import { HealthcareService, VaccinationEntry } from '@/lib/types';
 import {
   Table,
   TableBody,
@@ -81,9 +81,6 @@ function ReportSkeleton() {
               <TableHead>
                 <Skeleton className="h-5 w-full" />
               </TableHead>
-              <TableHead>
-                <Skeleton className="h-5 w-full" />
-              </TableHead>
               <TableHead className="w-[100px]">
                 <Skeleton className="h-5 w-full" />
               </TableHead>
@@ -91,17 +88,17 @@ function ReportSkeleton() {
           </TableHeader>
           <TableBody>
             <TableRow>
-              <TableCell colSpan={8}>
+              <TableCell colSpan={7}>
                 <Skeleton className="h-10 w-full" />
               </TableCell>
             </TableRow>
             <TableRow>
-              <TableCell colSpan={8}>
+              <TableCell colSpan={7}>
                 <Skeleton className="h-10 w-full" />
               </TableCell>
             </TableRow>
             <TableRow>
-              <TableCell colSpan={8}>
+              <TableCell colSpan={7}>
                 <Skeleton className="h-10 w-full" />
               </TableCell>
             </TableRow>
@@ -111,6 +108,20 @@ function ReportSkeleton() {
     </>
   );
 }
+
+const renderVaccinations = (vaccinations: VaccinationEntry[]) => (
+    <ul className="list-disc pl-5 mt-1 space-y-1 text-sm">
+        {vaccinations.map((v, index) => (
+            <li key={index}>
+                <span className="font-semibold">{v.jenisVaksin}</span>
+                <br />
+                <span className="text-muted-foreground text-xs">
+                    {v.jenisTernak} ({v.jumlahTernak})
+                </span>
+            </li>
+        ))}
+    </ul>
+);
 
 function ServiceCard({
   service,
@@ -150,6 +161,7 @@ function ServiceCard({
   };
 
   const hasDevelopments = (service.caseDevelopments && service.caseDevelopments.length > 0 && service.caseDevelopments.some(d => d.status && d.count > 0)) || service.caseDevelopment;
+  const hasVaccinations = service.vaccinations && service.vaccinations.length > 0;
 
   return (
     <Collapsible
@@ -200,12 +212,14 @@ function ServiceCard({
               )}
             </div>
             <div>
-              <div className="text-xs font-semibold text-muted-foreground">
-                Ternak
-              </div>
-              <Badge variant="secondary">
-                {service.livestockType} ({service.livestockCount})
-              </Badge>
+                <div className="text-xs font-semibold text-muted-foreground">
+                    Jenis Ternak & Jumlah
+                </div>
+                { (service.vaccinations || []).map(v => (
+                    <Badge key={v.jenisVaksin} variant="secondary" className="mr-1 mt-1">
+                        {v.jenisTernak} ({v.jumlahTernak})
+                    </Badge>
+                ))}
             </div>
             <div>
               <div className="text-xs font-semibold text-muted-foreground">
@@ -213,29 +227,14 @@ function ServiceCard({
               </div>
               <p className="text-sm">{service.programVaksinasi}</p>
             </div>
-            <div>
-              <div className="text-xs font-semibold text-muted-foreground">
-                Diagnosa
-              </div>
-              <p className="text-sm">{service.diagnosis}</p>
-            </div>
-            <div>
-              <div className="text-xs font-semibold text-muted-foreground">
-                Pengobatan
-              </div>
-              <ul className="list-disc pl-5 mt-1 space-y-1 text-sm">
-                {service.treatments.map((treatment, index) => (
-                  <li key={index}>
-                    <span className="font-semibold">{treatment.medicineName}</span>{' '}
-                    ({treatment.dosageValue} {treatment.dosageUnit})
-                    <br />
-                    <span className="text-muted-foreground text-xs">
-                      {treatment.medicineType}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </div>
+            {hasVaccinations && (
+                 <div>
+                    <div className="text-xs font-semibold text-muted-foreground">
+                        Vaksinasi
+                    </div>
+                    {renderVaccinations(service.vaccinations)}
+                </div>
+            )}
             {hasDevelopments && (
               <div>
                 <div className="text-xs font-semibold text-muted-foreground">
@@ -433,8 +432,7 @@ export function ServiceTable({ services, loading, highlightedIds, searchTerm, on
               <TableHead>Pemilik</TableHead>
               <TableHead>Jenis Ternak</TableHead>
               <TableHead>Program Vaksinasi</TableHead>
-              <TableHead>Diagnosa</TableHead>
-              <TableHead>Pengobatan</TableHead>
+              <TableHead>Vaksinasi</TableHead>
               <TableHead>Petugas</TableHead>
               <TableHead className="w-[100px] text-center">Aksi</TableHead>
             </TableRow>
@@ -465,14 +463,15 @@ export function ServiceTable({ services, loading, highlightedIds, searchTerm, on
                     )}
                   </TableCell>
                   <TableCell className="align-top">
-                    <Badge variant="secondary">
-                      {service.livestockType} ({service.livestockCount})
-                    </Badge>
+                    { (service.vaccinations || []).map(v => (
+                        <Badge key={v.jenisVaksin} variant="secondary" className="mr-1 mb-1 block w-fit">
+                            {v.jenisTernak} ({v.jumlahTernak})
+                        </Badge>
+                    ))}
                   </TableCell>
-                  <TableCell className="align-top">{service.programVaksinasi}</TableCell>
                   <TableCell className="align-top">
                     <div className="flex flex-col gap-1">
-                      <span>{service.diagnosis}</span>
+                      <span>{service.programVaksinasi}</span>
                       {((service.caseDevelopments && service.caseDevelopments.length > 0 && service.caseDevelopments.some(d => d.status && d.count > 0)) || service.caseDevelopment) && (
                         <div className="flex flex-wrap gap-1">
                             {service.caseDevelopments && service.caseDevelopments.length > 0 && service.caseDevelopments.some(d => d.status && d.count > 0) ? (
@@ -514,24 +513,10 @@ export function ServiceTable({ services, loading, highlightedIds, searchTerm, on
                       <AccordionItem value="item-1">
                         <AccordionTrigger className="py-1 text-primary hover:no-underline">
                           <PlusCircle className="mr-2 h-4 w-4" /> Lihat{' '}
-                          {service.treatments.length} pengobatan
+                          {service.vaccinations.length} vaksinasi
                         </AccordionTrigger>
                         <AccordionContent>
-                          <ul className="list-disc pl-5 space-y-1 text-xs">
-                            {service.treatments.map((treatment, index) => (
-                              <li key={index}>
-                                <span className="font-semibold">
-                                  {treatment.medicineName}
-                                </span>{' '}
-                                ({treatment.dosageValue}{' '}
-                                {treatment.dosageUnit})
-                                <br />
-                                <span className="text-muted-foreground">
-                                  {treatment.medicineType}
-                                </span>
-                              </li>
-                            ))}
-                          </ul>
+                          {renderVaccinations(service.vaccinations)}
                         </AccordionContent>
                       </AccordionItem>
                     </Accordion>
@@ -552,7 +537,7 @@ export function ServiceTable({ services, loading, highlightedIds, searchTerm, on
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={8} className="h-24 text-center">
+                <TableCell colSpan={7} className="h-24 text-center">
                   <div className="flex flex-col items-center justify-center gap-2">
                     <PawPrint className="h-8 w-8 text-muted-foreground" />
                     <p className="text-muted-foreground">

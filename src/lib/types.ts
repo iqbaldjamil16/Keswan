@@ -1,13 +1,6 @@
 
 import { z } from 'zod';
 
-export const treatmentSchema = z.object({
-  medicineType: z.string().min(1, "Wajib diisi."),
-  medicineName: z.string().min(1, "Wajib diisi."),
-  dosageValue: z.coerce.number().gt(0, "Dosis harus lebih dari 0."),
-  dosageUnit: z.string().min(1, "Wajib diisi."),
-});
-
 export const caseDevelopmentEntrySchema = z.object({
   status: z.string().min(1, "Wajib diisi."),
   count: z.coerce.number().min(1, "Jumlah harus minimal 1."),
@@ -33,13 +26,11 @@ export const serviceSchema = z.object({
   phoneNumber: z.string().optional(),
   programVaksinasi: z.string().min(1, "Wajib diisi."),
   livestockCount: z.coerce.number().optional(),
-  treatments: z.array(treatmentSchema).min(1, "Minimal satu pengobatan harus ditambahkan."),
   vaccinations: z.array(vaccinationEntrySchema).min(1, "Minimal satu vaksinasi harus ditambahkan."),
   caseDevelopment: z.string().optional(),
   caseDevelopments: z.array(caseDevelopmentEntrySchema).min(1, "Minimal satu perkembangan kasus wajib ditambahkan.").optional(),
 });
 
 export type HealthcareService = z.infer<typeof serviceSchema>;
-export type Treatment = z.infer<typeof treatmentSchema>;
 export type CaseDevelopmentEntry = z.infer<typeof caseDevelopmentEntrySchema>;
 export type VaccinationEntry = z.infer<typeof vaccinationEntrySchema>;
