@@ -53,7 +53,7 @@ export default function Home() {
             <TabsContent value="keswan" className="mt-6 md:mt-8">
                 <Card>
                 <CardHeader>
-                    <CardTitle className="text-2xl md:text-3xl font-bold tracking-tight font-headline">Pelayanan Kesehatan Hewan</CardTitle>
+                    <CardTitle className="text-2xl md:text-3xl font-bold tracking-tight font-headline">Pelayanan Vaksinasi</CardTitle>
                     <CardDescription className="text-muted-foreground pt-2 text-sm md:text-base">
                     Input detail pelayanan yang telah dilakukan
                     </CardDescription>
