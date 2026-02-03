@@ -81,6 +81,9 @@ function ReportSkeleton() {
               <TableHead>
                 <Skeleton className="h-5 w-full" />
               </TableHead>
+              <TableHead>
+                <Skeleton className="h-5 w-full" />
+              </TableHead>
               <TableHead className="w-[100px]">
                 <Skeleton className="h-5 w-full" />
               </TableHead>
@@ -88,17 +91,17 @@ function ReportSkeleton() {
           </TableHeader>
           <TableBody>
             <TableRow>
-              <TableCell colSpan={7}>
+              <TableCell colSpan={8}>
                 <Skeleton className="h-10 w-full" />
               </TableCell>
             </TableRow>
             <TableRow>
-              <TableCell colSpan={7}>
+              <TableCell colSpan={8}>
                 <Skeleton className="h-10 w-full" />
               </TableCell>
             </TableRow>
             <TableRow>
-              <TableCell colSpan={7}>
+              <TableCell colSpan={8}>
                 <Skeleton className="h-10 w-full" />
               </TableCell>
             </TableRow>
@@ -203,6 +206,12 @@ function ServiceCard({
               <Badge variant="secondary">
                 {service.livestockType} ({service.livestockCount})
               </Badge>
+            </div>
+            <div>
+              <div className="text-xs font-semibold text-muted-foreground">
+                Program Vaksinasi
+              </div>
+              <p className="text-sm">{service.programVaksinasi}</p>
             </div>
             <div>
               <div className="text-xs font-semibold text-muted-foreground">
@@ -423,6 +432,7 @@ export function ServiceTable({ services, loading, highlightedIds, searchTerm, on
               <TableHead className="w-[120px]">Tanggal</TableHead>
               <TableHead>Pemilik</TableHead>
               <TableHead>Jenis Ternak</TableHead>
+              <TableHead>Program Vaksinasi</TableHead>
               <TableHead>Diagnosa</TableHead>
               <TableHead>Pengobatan</TableHead>
               <TableHead>Petugas</TableHead>
@@ -459,6 +469,7 @@ export function ServiceTable({ services, loading, highlightedIds, searchTerm, on
                       {service.livestockType} ({service.livestockCount})
                     </Badge>
                   </TableCell>
+                  <TableCell className="align-top">{service.programVaksinasi}</TableCell>
                   <TableCell className="align-top">
                     <div className="flex flex-col gap-1">
                       <span>{service.diagnosis}</span>
@@ -541,7 +552,7 @@ export function ServiceTable({ services, loading, highlightedIds, searchTerm, on
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={7} className="h-24 text-center">
+                <TableCell colSpan={8} className="h-24 text-center">
                   <div className="flex flex-col items-center justify-center gap-2">
                     <PawPrint className="h-8 w-8 text-muted-foreground" />
                     <p className="text-muted-foreground">
@@ -559,11 +570,3 @@ export function ServiceTable({ services, loading, highlightedIds, searchTerm, on
     </div>
   );
 }
-
-
-
-    
-
-    
-
-    

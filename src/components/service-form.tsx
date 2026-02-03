@@ -12,7 +12,7 @@ import { doc, updateDoc, addDoc, collection, Timestamp, Firestore } from 'fireba
 
 import { cn } from "@/lib/utils";
 import { serviceSchema, type HealthcareService } from "@/lib/types";
-import { medicineData, medicineTypes, type MedicineType, livestockTypes, puskeswanList, treatmentTypes, dosageUnits, karossaDesaList, budongBudongDesaList, pangaleDesaList, tobadakDesaList, topoyoDesaList, budongBudongOfficerList, karossaOfficerList, pangaleOfficerList, tobadakOfficerList, topoyoOfficerList, caseStatusOptions, priorityOfficerList, prioritySyndromeOptions, priorityDiagnosisOptions } from "@/lib/definitions";
+import { medicineData, medicineTypes, type MedicineType, livestockTypes, puskeswanList, treatmentTypes, dosageUnits, karossaDesaList, budongBudongDesaList, pangaleDesaList, tobadakDesaList, topoyoDesaList, budongBudongOfficerList, karossaOfficerList, pangaleOfficerList, tobadakOfficerList, topoyoOfficerList, caseStatusOptions, priorityOfficerList, prioritySyndromeOptions, priorityDiagnosisOptions, programVaksinasiOptions } from "@/lib/definitions";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -50,6 +50,9 @@ export function ServiceForm({ initialData, formType = 'keswan' }: { initialData?
   const [showManualLivestockType, setShowManualLivestockType] = useState(
     initialData ? !livestockTypes.includes(initialData.livestockType) : false
   );
+  const [showManualProgramVaksinasi, setShowManualProgramVaksinasi] = useState(
+    initialData ? (initialData.programVaksinasi && !programVaksinasiOptions.includes(initialData.programVaksinasi)) : false
+  );
 
   const form = useForm<HealthcareService>({
     resolver: zodResolver(serviceSchema),
@@ -67,6 +70,7 @@ export function ServiceForm({ initialData, formType = 'keswan' }: { initialData?
       ownerAddress: "",
       nik: "",
       phoneNumber: "",
+      programVaksinasi: "",
       livestockType: "",
       livestockCount: 1,
       clinicalSymptoms: "",
@@ -404,6 +408,51 @@ export function ServiceForm({ initialData, formType = 'keswan' }: { initialData?
                   )}
                 />
               </CardContent>
+            </Card>
+            <Card>
+                <CardContent className="p-4">
+                    <FormField
+                        control={form.control}
+                        name="programVaksinasi"
+                        render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Program Vaksinasi</FormLabel>
+                            {showManualProgramVaksinasi ? (
+                                <FormControl>
+                                    <Input 
+                                        placeholder="Masukkan Program Vaksinasi"
+                                        {...field}
+                                    />
+                                </FormControl>
+                            ) : (
+                                <Select 
+                                    onValueChange={(value) => {
+                                        if (value === 'Lainnya') {
+                                            setShowManualProgramVaksinasi(true);
+                                            field.onChange('');
+                                        } else {
+                                            field.onChange(value);
+                                        }
+                                    }} 
+                                    value={field.value}
+                                >
+                                    <FormControl>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Pilih Program Vaksinasi" />
+                                        </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                        {programVaksinasiOptions.map((program) => (
+                                            <SelectItem key={program} value={program}>{program}</SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            )}
+                            <FormMessage />
+                        </FormItem>
+                        )}
+                    />
+                </CardContent>
             </Card>
             <Card>
                 <CardContent className="p-4">
@@ -885,4 +934,3 @@ export function ServiceForm({ initialData, formType = 'keswan' }: { initialData?
     </Form>
   );
 }
-    

@@ -45,6 +45,15 @@
         "caseDevelopments": {
           "type": "array",
           "items": { "$ref": "#/entities/CaseDevelopmentEntry" }
+        },
+        "nik": {
+          "type": "string"
+        },
+        "phoneNumber": {
+          "type": "string"
+        },
+        "programVaksinasi": {
+          "type": "string"
         }
       },
       "required": [
@@ -58,7 +67,8 @@
         "clinicalSymptoms",
         "diagnosis",
         "treatmentType",
-        "treatments"
+        "treatments",
+        "programVaksinasi"
       ]
     }
   },
@@ -72,5 +82,3 @@
     }
   }
 }
-
-    

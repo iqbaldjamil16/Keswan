@@ -140,7 +140,7 @@ export default function DocsPage() {
         doc.text(periodLabel, valueX, currentY);
 
         if (services.length > 0) {
-          const tableColumn = ["No.", "Tanggal", "Puskeswan", "Pemilik", "NIK", "No. HP", "Alamat", "Jenis Hewan", "Gejala Klinis", "Diagnosa", "Penanganan", "Pengobatan", "Perkembangan Kasus"];
+          const tableColumn = ["No.", "Tanggal", "Puskeswan", "Pemilik", "NIK", "No. HP", "Alamat", "Jenis Hewan", "Program Vaksinasi", "Gejala Klinis", "Diagnosa", "Penanganan", "Pengobatan", "Perkembangan Kasus"];
           const tableRows: any[][] = [];
 
           services.forEach((service, index) => {
@@ -159,6 +159,7 @@ export default function DocsPage() {
                   service.phoneNumber || '-',
                   service.ownerAddress,
                   `${service.livestockType} (${service.livestockCount})`,
+                  service.programVaksinasi,
                   service.clinicalSymptoms,
                   service.diagnosis,
                   service.treatmentType,
@@ -179,7 +180,7 @@ export default function DocsPage() {
               columnStyles: {
                 0: { halign: 'center' },
                 6: { halign: 'left' },
-                12: { halign: 'left' },
+                13: { halign: 'left' },
               }
           });
           
@@ -277,5 +278,3 @@ export default function DocsPage() {
     </div>
   );
 }
-
-    

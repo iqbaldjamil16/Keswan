@@ -327,3 +327,13 @@ export const priorityDiagnosisOptions = [
   'African Swine Fever (ASF)',
   'Anthrax',
 ].sort();
+
+export const programVaksinasiOptions = [
+  'Rabies',
+  'PMK (Penyakit Mulut dan Kuku)',
+  'ASF (African Swine Fever)',
+  'Jembrana',
+  'AI (Avian Influenza)',
+  'ND (Newcastle Disease)',
+  'Lainnya',
+];

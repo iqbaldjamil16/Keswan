@@ -297,7 +297,7 @@ export default function RekapTopoyoPage() {
         officerNames.forEach(officerName => {
             const officerServices = servicesByOfficer[officerName].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
             
-            const tableHeaders = ['Tanggal', 'Nama Pemilik', 'NIK', 'No. HP', 'Alamat Pemilik', 'Jenis Ternak', 'Gejala Klinis', 'Diagnosa', 'Jenis Penanganan', 'Obat yang Digunakan', 'Dosis', 'Jumlah Ternak'];
+            const tableHeaders = ['Tanggal', 'Nama Pemilik', 'NIK', 'No. HP', 'Alamat Pemilik', 'Jenis Ternak', 'Program Vaksinasi', 'Gejala Klinis', 'Diagnosa', 'Jenis Penanganan', 'Obat yang Digunakan', 'Dosis', 'Jumlah Ternak'];
             
             const sheetData: any[][] = [
                 ["PEMERINTAHAN KABUPATEN MAMUJU TENGAH"],
@@ -320,6 +320,7 @@ export default function RekapTopoyoPage() {
                     service.phoneNumber || '-',
                     service.ownerAddress,
                     service.livestockType,
+                    service.programVaksinasi,
                     service.clinicalSymptoms,
                     service.diagnosis,
                     service.treatmentType,
@@ -332,9 +333,9 @@ export default function RekapTopoyoPage() {
             const ws = XLSX.utils.aoa_to_sheet(sheetData);
     
             const merges = [
-                { s: { r: 0, c: 0 }, e: { r: 0, c: 11 } },
-                { s: { r: 1, c: 0 }, e: { r: 1, c: 11 } },
-                { s: { r: 2, c: 0 }, e: { r: 2, c: 11 } },
+                { s: { r: 0, c: 0 }, e: { r: 0, c: 12 } },
+                { s: { r: 1, c: 0 }, e: { r: 1, c: 12 } },
+                { s: { r: 2, c: 0 }, e: { r: 2, c: 12 } },
             ];
             ws['!merges'] = merges;
             
@@ -344,7 +345,8 @@ export default function RekapTopoyoPage() {
                 { wch: 20 }, 
                 { wch: 15 },
                 { wch: 20 }, 
-                { wch: 15 }, 
+                { wch: 15 },
+                { wch: 20 }, 
                 { wch: 40 }, 
                 { wch: 20 }, 
                 { wch: 15 }, 

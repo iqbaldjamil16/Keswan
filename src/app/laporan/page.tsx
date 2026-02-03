@@ -240,7 +240,7 @@ export default function ReportPage() {
       });
 
       const allDataForSheet: any[] = [];
-      const headers = ['Tanggal', 'Nama Pemilik', 'NIK', 'No. HP', 'Alamat Pemilik', 'Jenis Ternak', 'Sindrom', 'Diagnosa', 'Jenis Penanganan', 'Obat yang Digunakan', 'Dosis', 'Jumlah Ternak', 'Perkembangan Kasus'];
+      const headers = ['Tanggal', 'Nama Pemilik', 'NIK', 'No. HP', 'Alamat Pemilik', 'Jenis Ternak', 'Program Vaksinasi', 'Sindrom', 'Diagnosa', 'Jenis Penanganan', 'Obat yang Digunakan', 'Dosis', 'Jumlah Ternak', 'Perkembangan Kasus'];
       const officerNames = Object.keys(servicesByOfficer).sort();
 
       officerNames.forEach(officerName => {
@@ -261,6 +261,7 @@ export default function ReportPage() {
             'No. HP': service.phoneNumber || '-',
             'Alamat Pemilik': service.ownerAddress,
             'Jenis Ternak': service.livestockType,
+            'Program Vaksinasi': service.programVaksinasi,
             'Sindrom': service.clinicalSymptoms,
             'Diagnosa': service.diagnosis,
             'Jenis Penanganan': service.treatmentType,
@@ -305,7 +306,7 @@ export default function ReportPage() {
       });
 
       const allDataForSheet: any[] = [];
-      const headers = ['Tanggal', 'Nama Pemilik', 'NIK', 'No. HP', 'Alamat Pemilik', 'Jenis Ternak', 'Sindrom', 'Diagnosa', 'Jenis Penanganan', 'Obat yang Digunakan', 'Dosis', 'Jumlah Ternak', 'Perkembangan Kasus'];
+      const headers = ['Tanggal', 'Nama Pemilik', 'NIK', 'No. HP', 'Alamat Pemilik', 'Jenis Ternak', 'Program Vaksinasi', 'Sindrom', 'Diagnosa', 'Jenis Penanganan', 'Obat yang Digunakan', 'Dosis', 'Jumlah Ternak', 'Perkembangan Kasus'];
       const officerNames = Object.keys(servicesByOfficer).sort();
 
       officerNames.forEach(officerName => {
@@ -326,6 +327,7 @@ export default function ReportPage() {
             'No. HP': service.phoneNumber || '-',
             'Alamat Pemilik': service.ownerAddress,
             'Jenis Ternak': service.livestockType,
+            'Program Vaksinasi': service.programVaksinasi,
             'Sindrom': service.clinicalSymptoms,
             'Diagnosa': service.diagnosis,
             'Jenis Penanganan': service.treatmentType,
@@ -476,44 +478,3 @@ export default function ReportPage() {
     </div>
   );
 }
-    
-
-    
-
-
-
-    
-
-    
-
-
-
-
-    
-
-    
-
-    
-
-    
-
-
-
-
-    
-
-    
-
-
-
-
-
-
-
-
-    
-
-    
-
-
-    
