@@ -148,6 +148,7 @@ export const tobadakOfficerList = [
     "Endang",
     "Jupry",
     "drh. M Ishak",
+    "Aser M",
     "Lainnya",
 ].sort((a, b) => {
     if (a === "Lainnya") return 1;
