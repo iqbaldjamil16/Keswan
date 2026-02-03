@@ -1,4 +1,3 @@
-
 {
   "entities": {
     "HealthcareService": {
@@ -11,18 +10,14 @@
           "type": "string",
           "description": "Unique identifier for the Healthcare Service record."
         },
-        "date": {
+        "serviceDate": {
           "type": "string",
           "description": "Date when the service was provided.",
           "format": "date-time"
         },
-        "puskeswan": {
-          "type": "string",
-          "description": "The name of the Puskeswan."
-        },
         "officerName": {
           "type": "string",
-          "description": "Name of the officer who provided the service."
+          "description": "Name of the officer providing the service."
         },
         "ownerName": {
           "type": "string",
@@ -32,13 +27,13 @@
           "type": "string",
           "description": "Address of the livestock owner."
         },
-        "caseId": {
+        "isikhnasCaseId": {
           "type": "string",
-          "description": "ID Kasus iSIKHNAS (Indonesian Animal Health Information System)."
+          "description": "iSIKHNAS Case ID associated with the service."
         },
         "livestockType": {
           "type": "string",
-          "description": "Type of livestock."
+          "description": "Type of livestock (e.g., cow, goat, sheep)."
         },
         "livestockCount": {
           "type": "number",
@@ -50,69 +45,67 @@
         },
         "diagnosis": {
           "type": "string",
-          "description": "Diagnosis of the livestock condition."
+          "description": "Diagnosis of the livestock's condition."
+        },
+        "handling": {
+          "type": "string",
+          "description": "Handling procedures performed."
         },
         "treatmentType": {
           "type": "string",
           "description": "Type of treatment provided."
         },
-        "treatments": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "medicineType": {
-                "type": "string"
-              },
-              "medicineName": {
-                "type": "string"
-              },
-              "dosageValue": {
-                "type": "number"
-              },
-              "dosageUnit": {
-                "type": "string"
-              }
-            },
-            "required": [
-              "medicineType",
-              "medicineName",
-              "dosageValue",
-              "dosageUnit"
-            ]
-          }
+        "treatmentDetails": {
+          "type": "string",
+          "description": "Details of the treatment provided."
         }
       },
       "required": [
-        "date",
-        "puskeswan",
+        "id",
+        "serviceDate",
         "officerName",
         "ownerName",
         "ownerAddress",
+        "isikhnasCaseId",
         "livestockType",
         "livestockCount",
         "clinicalSymptoms",
         "diagnosis",
+        "handling",
         "treatmentType",
-        "treatments"
+        "treatmentDetails"
       ]
     }
   },
   "auth": {
     "providers": [
+      "password",
       "anonymous"
     ]
   },
   "firestore": {
-    "collections": {
-      "/healthcareServices/{serviceId}": {
-        "schema": {
-          "$ref": "#/backend/entities/HealthcareService"
-        },
-        "description": "Stores all healthcare service records. Publicly readable and writable for this simple application."
+    "structure": [
+      {
+        "path": "/users/{userId}/healthcare_services/{healthcareServiceId}",
+        "definition": {
+          "entityName": "HealthcareService",
+          "schema": {
+            "$ref": "#/backend/entities/HealthcareService"
+          },
+          "description": "Stores healthcare service records specific to each user. The 'userId' parameter ensures that only the authenticated user can access their own data. Includes denormalized 'userId' for authorization independence.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user."
+            },
+            {
+              "name": "healthcareServiceId",
+              "description": "The unique identifier for the healthcare service record."
+            }
+          ]
+        }
       }
-    }
+    ],
+    "reasoning": "The Firestore structure is designed to store healthcare service records for livestock ('HealthcareService' entities) in a user-specific collection to ensure data privacy and ownership. Each user will have their own collection of healthcare service records. This design promotes authorization independence as each healthcare service record is implicitly associated with the user's ID through the collection path. The structure also supports the core app features of service entry, data storage, reporting, and data search.\n\nAuthorization Independence: Ownership is established by storing each user's healthcare service records under the `/users/{userId}/healthcare_services/{healthcareServiceId}` path. Security rules can simply check if `request.auth.uid == userId` to authorize operations on documents in this path, without needing to `get()` parent documents or use custom claims. All authorization depends solely on the authenticated user's ID.\n\nQAPs Support: The path segregation ensures secure `list` operations. A user can only list healthcare service records under their own `userId`. The rule `request.auth.uid == userId` ensures that users can only access data that they own.\n"
   }
 }
-
-    

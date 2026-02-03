@@ -1,12 +1,113 @@
-
+/**
+ * @file firestore.rules
+ * @description Security rules for the Firestore database.
+ *
+ * @version 1.0.0
+ *
+ * Core Philosophy:
+ * This ruleset enforces a strict user-ownership model. All user-generated data,
+ * specifically healthcare service records, is stored in a private subcollection
+ * under that user's unique ID. Access is granted only to the authenticated user
+ * who owns the data, ensuring strong data privacy and isolation between users.
+ * The default security posture is to deny all access unless explicitly granted.
+ *
+ * Data Structure:
+ * All user-specific data is organized hierarchically under the `/users/{userId}` path.
+ * This structure is key to the security model, as ownership is determined by the
+ * path itself, leading to simple, performant, and secure rules.
+ * - /users/{userId} - A document representing a user.
+ * - /users/{userId}/healthcare_services/{healthcareServiceId} - A user's private healthcare records.
+ *
+ * Key Security Decisions:
+ * - User Isolation: Users can only read and write data within their own
+ *   `/users/{userId}` data tree. They cannot access, or even know about, the
+ *   data of other users.
+ * - No Global Access: There are no admin roles or public collections. All data is private.
+ * - No User Listing: Listing the top-level `/users` collection is explicitly disallowed
+ *   to protect user privacy.
+ * - Denormalization for Authorization: The security model relies on the path
+ *   (`/users/{userId}`) to determine ownership, which is the most performant
+ *   and secure method. To further enhance data integrity, it is expected that
+ *   documents within this path will contain a denormalized `userId` field to
+ *   link the data back to its owner path.
+ */
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // For this simple application, allow anyone to read and write to the
-    // healthcareServices collection. In a real-world application, you would
-    // want to lock this down with more specific rules.
-    match /healthcareServices/{serviceId} {
-      allow read, write: if true;
+
+    // -------------------------------------------------------------------------
+    // Helper Functions
+    // -------------------------------------------------------------------------
+
+    /**
+     * Checks if the user is authenticated.
+     */
+    function isSignedIn() {
+      return request.auth != null;
     }
+
+    /**
+     * Checks if the currently authenticated user's UID matches the provided userId.
+     * This is the primary function for establishing document ownership.
+     */
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    /**
+     * Checks for ownership on an existing document. Used for safe updates and deletes.
+     * It ensures a user can only modify or delete documents they own AND that actually exist.
+     */
+    function isExistingOwner(userId) {
+      return isOwner(userId) && resource != null;
+    }
+
+
+    // -------------------------------------------------------------------------
+    // User Profile Rules
+    // -------------------------------------------------------------------------
+
+    /**
+     * @description Controls access to a user's root document.
+     * @path /users/{userId}
+     * @allow (create) - An authenticated user creating their own user document.
+     * @deny (get) - User 'abc' trying to read the user document for user 'xyz'.
+     * @principle Restricts access to a user's own data tree.
+     */
+    match /users/{userId} {
+      allow get: if isOwner(userId);
+      allow list: if false;
+      allow create: if isOwner(userId);
+      allow update: if isExistingOwner(userId);
+      allow delete: if isExistingOwner(userId);
+    }
+
+
+    // -------------------------------------------------------------------------
+    // Healthcare Services Rules
+    // -------------------------------------------------------------------------
+
+    /**
+     * @description Secures healthcare service records, ensuring they are private to the user who created them.
+     * @path /users/{userId}/healthcare_services/{healthcareServiceId}
+     * @allow (create) - Authenticated user 'abc' creating a record at `/users/abc/healthcare_services/new_record`.
+     * @deny (list) - User 'xyz' trying to list records at `/users/abc/healthcare_services`.
+     * @principle Enforces document ownership and user data isolation.
+     */
+    match /users/{userId}/healthcare_services/{healthcareServiceId} {
+      allow get: if isOwner(userId);
+      allow list: if isOwner(userId);
+      // CRITICAL: Cannot implement full relational integrity validation. The 'HealthcareService' entity is missing a 'userId' field.
+      // TODO: Add a `userId` field to your 'HealthcareService' data model.
+      // Then, uncomment and enable the validation rule below to ensure the document data always matches its path.
+      // allow create: if isOwner(userId) && request.resource.data.userId == userId;
+      allow create: if isOwner(userId);
+      // CRITICAL: Cannot enforce immutability of the ownership link. The 'HealthcareService' entity is missing a 'userId' field.
+      // TODO: After adding a `userId` field, enable this rule to prevent the ownership from ever being changed on update.
+      // allow update: if isExistingOwner(userId) && request.resource.data.userId == resource.data.userId;
+      allow update: if isExistingOwner(userId);
+      allow delete: if isExistingOwner(userId);
+    }
+
   }
 }
