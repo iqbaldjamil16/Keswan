@@ -13,7 +13,7 @@ import { ActivationDialog } from './activation-dialog';
 
 const navItems = [
   { href: '/', label: 'Input Data' },
-  { href: '/rekap', label: 'Rekap Obat & Kasus' },
+  { href: '/rekap', label: 'Rekap Vaksinasi' },
   { href: '/rekap/topoyo', label: 'Rekap Puskeswan Topoyo' },
   { href: '/docs', label: 'Dokumentasi' },
 ];
